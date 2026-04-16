@@ -1,116 +1,132 @@
-"use client";
-
+import Link from "next/link";
+import type { ComponentType, ReactNode } from "react";
+import type { RegistryItem } from "../lib/registry";
+import { INSTALL_COMMAND_LABEL, installCommand, slugify, usageCode } from "../lib/registry";
+import { CodeBlock } from "./code-block";
 import { ComponentPreview } from "./component-preview";
 import { OnThisPage } from "./on-this-page";
+import { PropsTable } from "./props-table";
 
-interface PropDef {
-	name: string;
-	type: string;
-	default?: string;
-	description: string;
-}
-
+/**
+ * Render a full component documentation page from a registry item.
+ * Consumes the .schema.ts / registry JSON as the single source of truth —
+ * no hand-written prop tables, install commands, or usage examples here.
+ * @param item - The full registry item for the component
+ * @param Demo - The demo component to render in the live preview
+ */
 export function ComponentPage({
-	name,
-	description,
-	preview,
-	previewCode,
-	installCommand,
-	usageCode,
-	props,
-	examples,
+	item,
+	Demo,
 }: {
-	name: string;
-	description: string;
-	preview: React.ReactNode;
-	previewCode: string;
-	installCommand: string;
-	usageCode: string;
-	props: PropDef[];
-	examples?: { title: string; preview: React.ReactNode; code: string }[];
+	item: RegistryItem;
+	Demo: ComponentType | undefined;
 }) {
 	const sections = [
 		{ id: "installation", title: "Installation" },
 		{ id: "usage", title: "Usage" },
-		...(examples?.map((e) => ({ id: e.title.toLowerCase().replace(/\s+/g, "-"), title: e.title })) ?? []),
+		...item.examples.map((e) => ({ id: slugify(e.title), title: e.title })),
 		{ id: "api-reference", title: "API Reference" },
+		{ id: "ai-guidance", title: "AI Guidance" },
 	];
 
 	return (
 		<div className="flex">
 			<article className="flex-1 px-8 py-6">
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold tracking-tight">{name}</h1>
-					<p className="mt-2 text-lg text-muted-foreground">{description}</p>
+					<h1 className="text-3xl font-bold tracking-tight">{item.displayName}</h1>
+					<p className="mt-2 text-lg text-muted-foreground">{item.description}</p>
 				</div>
 
-				<ComponentPreview code={previewCode}>{preview}</ComponentPreview>
+				{Demo ? (
+					<ComponentPreview code={item.examples[0]?.code ?? ""}>
+						<Demo />
+					</ComponentPreview>
+				) : null}
 
-				<section id="installation" className="mt-10 scroll-mt-20">
-					<h2 className="text-xl font-semibold mb-4">Installation</h2>
-					<div className="rounded-lg border">
-						<div className="flex items-center border-b bg-muted/50 px-4 py-2">
-							<span className="text-xs font-medium text-muted-foreground">pnpm</span>
-						</div>
-						<pre className="overflow-x-auto p-4 text-sm">
-							<code>{installCommand}</code>
-						</pre>
-					</div>
-				</section>
+				<Section id="installation" title="Installation">
+					<CodeBlock label={INSTALL_COMMAND_LABEL} code={installCommand(item.name)} />
+				</Section>
 
-				<section id="usage" className="mt-10 scroll-mt-20">
-					<h2 className="text-xl font-semibold mb-4">Usage</h2>
-					<pre className="overflow-x-auto rounded-lg border p-4 text-sm">
-						<code>{usageCode}</code>
-					</pre>
-				</section>
+				<Section id="usage" title="Usage">
+					<CodeBlock code={usageCode(item)} />
+				</Section>
 
-				{examples?.map((example) => (
-					<section
-						key={example.title}
-						id={example.title.toLowerCase().replace(/\s+/g, "-")}
-						className="mt-10 scroll-mt-20"
-					>
-						<h2 className="text-xl font-semibold mb-4">{example.title}</h2>
-						<ComponentPreview code={example.code}>{example.preview}</ComponentPreview>
-					</section>
+				{item.examples.slice(1).map((example) => (
+					<Section key={example.title} id={slugify(example.title)} title={example.title}>
+						<p className="mb-4 text-sm text-muted-foreground">{example.description}</p>
+						<CodeBlock code={example.code} />
+					</Section>
 				))}
 
-				<section id="api-reference" className="mt-10 scroll-mt-20">
-					<h2 className="text-xl font-semibold mb-4">API Reference</h2>
-					<div className="overflow-x-auto rounded-lg border">
-						<table className="w-full text-sm">
-							<thead>
-								<tr className="border-b bg-muted/50">
-									<th className="px-4 py-3 text-left font-medium">Prop</th>
-									<th className="px-4 py-3 text-left font-medium">Type</th>
-									<th className="px-4 py-3 text-left font-medium">Default</th>
-									<th className="px-4 py-3 text-left font-medium">Description</th>
-								</tr>
-							</thead>
-							<tbody>
-								{props.map((prop) => (
-									<tr key={prop.name} className="border-b last:border-0">
-										<td className="px-4 py-3">
-											<code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-												{prop.name}
-											</code>
-										</td>
-										<td className="px-4 py-3">
-											<code className="text-xs text-muted-foreground">{prop.type}</code>
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{prop.default ?? "—"}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">{prop.description}</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				</section>
+				<Section id="api-reference" title="API Reference">
+					<PropsTable props={item.props} />
+				</Section>
+
+				<Section id="ai-guidance" title="AI Guidance">
+					<AIGuidance ai={item.ai} />
+				</Section>
 			</article>
 			<OnThisPage sections={sections} />
+		</div>
+	);
+}
+
+/** A scroll-targeted section heading + content wrapper. */
+function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+	return (
+		<section id={id} className="mt-10 scroll-mt-20">
+			<h2 className="mb-4 text-xl font-semibold">{title}</h2>
+			{children}
+		</section>
+	);
+}
+
+/** Renders the `ai` hint block from a registry item. */
+function AIGuidance({ ai }: { ai: RegistryItem["ai"] }) {
+	return (
+		<div className="space-y-4 text-sm">
+			<div>
+				<h3 className="mb-1 font-semibold">When to use</h3>
+				<p className="text-muted-foreground">{ai.whenToUse}</p>
+			</div>
+			<div>
+				<h3 className="mb-1 font-semibold">When not to use</h3>
+				<p className="text-muted-foreground">{ai.whenNotToUse}</p>
+			</div>
+			{ai.commonMistakes.length > 0 && (
+				<div>
+					<h3 className="mb-1 font-semibold">Common mistakes</h3>
+					<ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+						{ai.commonMistakes.map((m) => (
+							<li key={m}>{m}</li>
+						))}
+					</ul>
+				</div>
+			)}
+			<div>
+				<h3 className="mb-1 font-semibold">Accessibility</h3>
+				<p className="text-muted-foreground">{ai.accessibilityNotes}</p>
+			</div>
+			{ai.relatedComponents.length > 0 && (
+				<div>
+					<h3 className="mb-1 font-semibold">Related components</h3>
+					<ul className="flex flex-wrap gap-2">
+						{ai.relatedComponents.map((name) => (
+							<li key={name}>
+								<Link
+									href={`/docs/components/${name}`}
+									className="rounded-md border px-2 py-1 text-xs text-foreground transition-colors hover:bg-accent"
+								>
+									{name}
+								</Link>
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+			<p className="text-xs text-muted-foreground">
+				Token budget: <code className="rounded bg-muted px-1 py-0.5">{ai.tokenBudget}</code>
+			</p>
 		</div>
 	);
 }

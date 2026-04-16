@@ -1,5 +1,3 @@
-"use client";
-
 import { Separator } from "../../components/ui";
 
 export function SeparatorDemo() {

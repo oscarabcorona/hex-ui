@@ -59,6 +59,32 @@ Review every changed file against these criteria:
 - [ ] Dependencies correctly listed in schema
 - [ ] Tags are meaningful for search/discovery
 
+### DRY (Architectural)
+- [ ] No N identical page/component files that should be `[slug]/page.tsx` + `generateStaticParams()`
+- [ ] No hardcoded prop tables, install commands, or usage examples that could be read from `.schema.ts` or `registry/items/*.json`
+- [ ] No duplicated component source code across packages/apps (the docs app must import, not copy)
+- [ ] Repeated inline JSX structures (3+ times) extracted into a shared component
+
+### SOLID
+- [ ] **SRP**: each component handles one visual concern (no god components >30 props)
+- [ ] **OCP**: composition via slots/children preferred over prop branching
+- [ ] **LSP**: components with the same interface are swappable (TypeScript enforces)
+- [ ] **ISP**: minimal prop surface — no kitchen-sink union types
+- [ ] **DIP**: behavior injected via props/context — no hardcoded external API calls
+
+### React 19
+- [ ] No `forwardRef` in new components — `ref` is a regular prop
+- [ ] `"use client"` pushed as deep as possible — pages stay server unless they need hooks/events
+- [ ] Forms use `useActionState` + `useFormStatus`, not manual loading state
+- [ ] Async Server Components wrapped in `<Suspense>` where streaming helps
+
+### Next.js 16
+- [ ] `params` and `searchParams` awaited (they're async now)
+- [ ] No custom webpack config (Turbopack is default)
+- [ ] `generateStaticParams` + `generateMetadata` for dynamic docs routes
+- [ ] `"use cache"` directive used when static behavior is desired (default is dynamic)
+- [ ] `middleware.ts` replaced with `proxy.ts` if applicable
+
 ### Security
 - [ ] No secrets or credentials
 - [ ] No `eval()` or `innerHTML` in components

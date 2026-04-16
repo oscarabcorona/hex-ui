@@ -1,0 +1,55 @@
+import type { PropDef } from "../lib/registry";
+
+/**
+ * Renders a component's prop interface as an API reference table.
+ * @param props - Array of prop definitions from the registry
+ */
+export function PropsTable({ props }: { props: PropDef[] }) {
+	if (props.length === 0) {
+		return <p className="text-sm text-muted-foreground">No props.</p>;
+	}
+
+	return (
+		<div className="overflow-x-auto rounded-lg border">
+			<table className="w-full text-sm">
+				<thead>
+					<tr className="border-b bg-muted/50">
+						<th className="px-4 py-3 text-left font-medium">Prop</th>
+						<th className="px-4 py-3 text-left font-medium">Type</th>
+						<th className="px-4 py-3 text-left font-medium">Default</th>
+						<th className="px-4 py-3 text-left font-medium">Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					{props.map((prop) => (
+						<tr key={prop.name} className="border-b last:border-0">
+							<td className="px-4 py-3">
+								<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+									{prop.name}
+									{prop.required ? " *" : ""}
+								</code>
+							</td>
+							<td className="px-4 py-3">
+								<code className="text-xs text-muted-foreground">{formatType(prop)}</code>
+							</td>
+							<td className="px-4 py-3 text-muted-foreground">
+								{prop.default !== undefined && prop.default !== null
+									? String(prop.default)
+									: "—"}
+							</td>
+							<td className="px-4 py-3 text-muted-foreground">{prop.description}</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
+}
+
+/** Format a PropDef's type (incl. enum values) for display. */
+function formatType(prop: PropDef): string {
+	if (prop.type === "enum" && prop.enumValues) {
+		return prop.enumValues.map((v) => `"${v}"`).join(" | ");
+	}
+	return prop.type;
+}

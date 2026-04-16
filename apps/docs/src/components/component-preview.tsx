@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { cn } from "../lib/utils";
 
+/**
+ * Two-tab preview pane with accessible tablist semantics.
+ * Toggles between the rendered component and its source code.
+ * @param children - The rendered component preview
+ * @param code - The source code snippet shown in the Code tab
+ */
 export function ComponentPreview({
 	children,
 	code,
@@ -14,8 +20,12 @@ export function ComponentPreview({
 
 	return (
 		<div className="rounded-lg border">
-			<div className="flex items-center border-b px-4">
+			<div className="flex items-center border-b px-4" role="tablist" aria-label="Preview or code">
 				<button
+					type="button"
+					role="tab"
+					aria-selected={view === "preview"}
+					aria-controls="preview-panel"
 					onClick={() => setView("preview")}
 					className={cn(
 						"border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
@@ -27,6 +37,10 @@ export function ComponentPreview({
 					Preview
 				</button>
 				<button
+					type="button"
+					role="tab"
+					aria-selected={view === "code"}
+					aria-controls="code-panel"
 					onClick={() => setView("code")}
 					className={cn(
 						"border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
@@ -39,9 +53,15 @@ export function ComponentPreview({
 				</button>
 			</div>
 			{view === "preview" ? (
-				<div className="flex min-h-[200px] items-center justify-center p-8">{children}</div>
+				<div
+					id="preview-panel"
+					role="tabpanel"
+					className="flex min-h-[200px] items-center justify-center p-8"
+				>
+					{children}
+				</div>
 			) : (
-				<pre className="overflow-x-auto p-6 text-sm">
+				<pre id="code-panel" role="tabpanel" className="overflow-x-auto p-6 text-sm">
 					<code>{code}</code>
 				</pre>
 			)}
