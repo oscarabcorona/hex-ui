@@ -27,6 +27,12 @@
 						"if": "Edit(*.{ts,tsx})|Write(*.{ts,tsx})",
 						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-edit-docs.sh",
 						"timeout": 15
+					},
+					{
+						"type": "command",
+						"if": "Edit(*.{ts,tsx})|Write(*.{ts,tsx})",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-edit-architecture.sh",
+						"timeout": 15
 					}
 				]
 			}

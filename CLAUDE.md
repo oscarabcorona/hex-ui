@@ -65,6 +65,44 @@ Schema files export a `ComponentSchemaDefinition` object. The `ai` field is mand
 - Registry items at `registry/items/{name}.json`
 - Registry index at `registry/registry.json`
 
+## Architecture Rules
+
+### DRY — Don't Repeat Yourself
+- **One template, many pages**: dynamic routes like `app/docs/[slug]/page.tsx` + `generateStaticParams()` instead of N identical page files
+- **Data drives UI**: read metadata from `registry/items/*.json` or `.schema.ts` — never hardcode prop tables, examples, or install commands in JSX
+- **Single source of truth**: component metadata lives in `.schema.ts`. Docs, MCP, CLI all consume it. If you write the same list twice, extract it
+- **No copy-paste of component code**: the docs app imports from `@hex-ui/components` via a barrel. Never duplicate the Button source in `apps/docs/`
+
+### SOLID
+- **SRP** — one component = one concern. No god components with 30+ props
+- **OCP** — compose with slots/children, not prop branching. `<Card><CardHeader /></Card>` beats `<Card headerText="..." />`
+- **LSP** — same interface = swappable. TS contracts enforce this
+- **ISP** — minimal prop surface. Use `Partial<T>`, never a kitchen-sink props type
+- **DIP** — inject behavior via props/context, don't hardcode API calls in components
+
+### React 19 Patterns
+- **`ref` is a normal prop** — no `forwardRef` for new components (legacy OK during migration)
+- **Server Components by default** — only add `"use client"` for hooks, event handlers, or browser APIs
+- **Push `"use client"` as deep as possible** — a client `<Demo />` can be imported by a server page. The page should NOT be client just because it renders a client child
+- **`useActionState` + `useFormStatus`** for forms instead of manual `useState` + loading flags
+- **`use()` hook** for reading promises/context in client components
+- **Suspense boundaries** around async Server Components
+
+### Next.js 16 Patterns
+- **Turbopack is default** — no webpack config
+- **`params` and `searchParams` are async** — `const { slug } = await params`
+- **`"use cache"` directive** for explicit caching; default is dynamic
+- **`generateStaticParams` + `generateMetadata`** for dynamic routes that ship as static HTML
+- **Node 20.9+ required**
+- **Follow `apps/docs/AGENTS.md`** — Next.js 16 has breaking changes from training data
+
+### Anti-patterns (blockers on review)
+- Multiple page files that follow an identical template — use `[slug]/page.tsx` + data
+- Hardcoded prop tables duplicating `.schema.ts` — read the schema instead
+- `"use client"` at the page level when only a child needs it
+- `forwardRef` in new React 19 code
+- God components, prop drilling when context fits, tight coupling to external APIs
+
 ## Git Workflow
 
 - Branch naming: `feat/<scope>`, `fix/<scope>`, `refactor/<scope>`, `chore/<scope>`
