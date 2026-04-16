@@ -1,0 +1,116 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "checkbox",
+  "displayName": "Checkbox",
+  "description": "An accessible checkbox with checked, unchecked, and indeterminate states. Built on Radix UI.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled checked state"
+    },
+    {
+      "name": "defaultChecked",
+      "type": "boolean",
+      "required": false,
+      "description": "Default checked for uncontrolled"
+    },
+    {
+      "name": "onCheckedChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback: (checked: boolean | 'indeterminate') => void"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the checkbox"
+    },
+    {
+      "name": "required",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Mark as required for form validation"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/checkbox.tsx",
+      "content": "import * as React from \"react\";\nimport * as CheckboxPrimitive from \"@radix-ui/react-checkbox\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * An accessible checkbox component built on Radix UI.\n * Supports checked, unchecked, and indeterminate states with smooth animations.\n */\nexport type CheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>;\n\nconst Checkbox = React.forwardRef<\n\tReact.ComponentRef<typeof CheckboxPrimitive.Root>,\n\tCheckboxProps\n>(({ className, ...props }, ref) => (\n\t<CheckboxPrimitive.Root\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"peer h-4 w-4 shrink-0 rounded-sm border border-input\",\n\t\t\t\"transition-all duration-200 ease-out\",\n\t\t\t\"shadow-sm\",\n\t\t\t\"hover:border-ring/50 hover:shadow-md\",\n\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\"disabled:cursor-not-allowed disabled:opacity-50\",\n\t\t\t\"data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t<CheckboxPrimitive.Indicator className={cn(\"flex items-center justify-center text-current\")}>\n\t\t\t<svg\n\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\tfill=\"none\"\n\t\t\t\tstroke=\"currentColor\"\n\t\t\t\tstrokeWidth=\"3\"\n\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\tclassName=\"h-3.5 w-3.5\"\n\t\t\t\taria-hidden=\"true\"\n\t\t\t>\n\t\t\t\t<polyline points=\"20 6 9 17 4 12\" />\n\t\t\t</svg>\n\t\t</CheckboxPrimitive.Indicator>\n\t</CheckboxPrimitive.Root>\n));\nCheckbox.displayName = \"Checkbox\";\n\nexport { Checkbox };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-checkbox",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "input",
+    "primary",
+    "primary-foreground",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic",
+      "description": "Checkbox with label",
+      "code": "<div className=\"flex items-center gap-2\">\n  <Checkbox id=\"terms\" />\n  <Label htmlFor=\"terms\">Accept terms</Label>\n</div>"
+    },
+    {
+      "title": "Controlled",
+      "description": "Controlled checkbox",
+      "code": "const [checked, setChecked] = useState(false);\n<Checkbox checked={checked} onCheckedChange={setChecked} />"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for boolean toggles in forms: agree to terms, enable options, select items in a list.",
+    "whenNotToUse": "Don't use for mutually exclusive options (use RadioGroup). Don't use for instant toggles (use Switch).",
+    "commonMistakes": [
+      "Missing Label pairing",
+      "Using onChange instead of onCheckedChange"
+    ],
+    "relatedComponents": [
+      "label",
+      "switch",
+      "form"
+    ],
+    "accessibilityNotes": "Always pair with Label via htmlFor/id. Radix handles aria-checked automatically.",
+    "tokenBudget": 300
+  },
+  "tags": [
+    "checkbox",
+    "form",
+    "toggle",
+    "boolean",
+    "check"
+  ]
+}

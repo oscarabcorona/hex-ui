@@ -6,6 +6,22 @@
   "homepage": "https://hex-ui.dev",
   "items": [
     {
+      "name": "badge",
+      "displayName": "Badge",
+      "description": "A small status indicator with multiple style variants. Used for tags, statuses, and categorization.",
+      "category": "primitive",
+      "subcategory": "display",
+      "tags": [
+        "badge",
+        "tag",
+        "status",
+        "label",
+        "indicator"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 200
+    },
+    {
       "name": "button",
       "displayName": "Button",
       "description": "A versatile button component with multiple variants, sizes, and states. Supports icons, loading state, and composition via asChild.",
@@ -21,6 +37,22 @@
       ],
       "internalDeps": [],
       "tokenBudget": 500
+    },
+    {
+      "name": "checkbox",
+      "displayName": "Checkbox",
+      "description": "An accessible checkbox with checked, unchecked, and indeterminate states. Built on Radix UI.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "checkbox",
+        "form",
+        "toggle",
+        "boolean",
+        "check"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 300
     },
     {
       "name": "input",
@@ -52,6 +84,101 @@
       ],
       "internalDeps": [],
       "tokenBudget": 200
+    },
+    {
+      "name": "separator",
+      "displayName": "Separator",
+      "description": "A visual divider between content sections with horizontal or vertical orientation.",
+      "category": "primitive",
+      "subcategory": "layout",
+      "tags": [
+        "separator",
+        "divider",
+        "hr",
+        "layout"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 150
+    },
+    {
+      "name": "switch",
+      "displayName": "Switch",
+      "description": "An accessible toggle switch for instant on/off settings. Built on Radix UI.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "switch",
+        "toggle",
+        "form",
+        "boolean",
+        "setting"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 250
+    },
+    {
+      "name": "textarea",
+      "displayName": "Textarea",
+      "description": "A styled multi-line text input with smooth focus transitions and shadow effects.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "textarea",
+        "text",
+        "form",
+        "multiline",
+        "input"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 250
+    },
+    {
+      "name": "accordion",
+      "displayName": "Accordion",
+      "description": "A vertically stacked set of collapsible content sections. Built on Radix UI Accordion.",
+      "category": "component",
+      "subcategory": "disclosure",
+      "tags": [
+        "accordion",
+        "collapsible",
+        "faq",
+        "disclosure",
+        "expandable"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 400
+    },
+    {
+      "name": "card",
+      "displayName": "Card",
+      "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
+      "category": "component",
+      "subcategory": "layout",
+      "tags": [
+        "card",
+        "container",
+        "panel",
+        "layout",
+        "surface"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 400
+    },
+    {
+      "name": "tabs",
+      "displayName": "Tabs",
+      "description": "A tabbed interface with accessible keyboard navigation. Built on Radix UI Tabs.",
+      "category": "component",
+      "subcategory": "navigation",
+      "tags": [
+        "tabs",
+        "navigation",
+        "panel",
+        "tabbed",
+        "sections"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 350
     }
   ]
 }

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "textarea",
+  "displayName": "Textarea",
+  "description": "A styled multi-line text input with smooth focus transitions and shadow effects.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "description": "Placeholder text"
+    },
+    {
+      "name": "rows",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Number of visible text rows"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the textarea"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled textarea value"
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Default value for uncontrolled usage"
+    },
+    {
+      "name": "onChange",
+      "type": "function",
+      "required": false,
+      "description": "Change handler: (e: ChangeEvent<HTMLTextAreaElement>) => void"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/textarea.tsx",
+      "content": "import * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * A styled multi-line text input with smooth focus transitions and shadow effects.\n * Extends the native HTML textarea element with Hex UI styling.\n */\nexport type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;\n\nconst Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(\n\t({ className, ...props }, ref) => {\n\t\treturn (\n\t\t\t<textarea\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm\",\n\t\t\t\t\t\"transition-all duration-200 ease-out\",\n\t\t\t\t\t\"shadow-sm\",\n\t\t\t\t\t\"placeholder:text-muted-foreground\",\n\t\t\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1\",\n\t\t\t\t\t\"focus-visible:shadow-md focus-visible:border-ring/50\",\n\t\t\t\t\t\"hover:border-ring/30 hover:shadow-md\",\n\t\t\t\t\t\"disabled:cursor-not-allowed disabled:opacity-50\",\n\t\t\t\t\tclassName,\n\t\t\t\t)}\n\t\t\t\tref={ref}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t);\n\t},\n);\nTextarea.displayName = \"Textarea\";\n\nexport { Textarea };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "input",
+    "background",
+    "ring",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Basic",
+      "description": "Simple textarea",
+      "code": "<Textarea placeholder=\"Type your message...\" />"
+    },
+    {
+      "title": "With label",
+      "description": "Textarea paired with a label",
+      "code": "<div className=\"grid gap-1.5\">\n  <Label htmlFor=\"message\">Message</Label>\n  <Textarea id=\"message\" placeholder=\"Type your message...\" />\n</div>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for multi-line text input: comments, descriptions, messages, notes. Always pair with a Label.",
+    "whenNotToUse": "Don't use for single-line input (use Input). Don't use for rich text editing.",
+    "commonMistakes": [
+      "Missing associated Label",
+      "Not setting a reasonable min-height or rows"
+    ],
+    "relatedComponents": [
+      "input",
+      "label",
+      "form"
+    ],
+    "accessibilityNotes": "Always pair with a Label using htmlFor/id. Consider aria-describedby for character limits.",
+    "tokenBudget": 250
+  },
+  "tags": [
+    "textarea",
+    "text",
+    "form",
+    "multiline",
+    "input"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "card",
+  "displayName": "Card",
+  "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
+  "category": "component",
+  "subcategory": "layout",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes on the root card"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Card content — use CardHeader, CardContent, CardFooter subcomponents",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/card.tsx",
+      "content": "import * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** A container card with subtle shadow and border. */\nconst Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n\t({ className, ...props }, ref) => (\n\t\t<div\n\t\t\tref={ref}\n\t\t\tclassName={cn(\n\t\t\t\t\"rounded-lg border bg-card text-card-foreground\",\n\t\t\t\t\"shadow-sm transition-all duration-200 ease-out\",\n\t\t\t\t\"hover:shadow-md\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t),\n);\nCard.displayName = \"Card\";\n\n/** The header section of a Card. */\nconst CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n\t({ className, ...props }, ref) => (\n\t\t<div ref={ref} className={cn(\"flex flex-col space-y-1.5 p-6\", className)} {...props} />\n\t),\n);\nCardHeader.displayName = \"CardHeader\";\n\n/** The title element inside a CardHeader. */\nconst CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(\n\t({ className, ...props }, ref) => (\n\t\t<h3\n\t\t\tref={ref}\n\t\t\tclassName={cn(\"text-2xl font-semibold leading-none tracking-tight\", className)}\n\t\t\t{...props}\n\t\t/>\n\t),\n);\nCardTitle.displayName = \"CardTitle\";\n\n/** A description element inside a CardHeader. */\nconst CardDescription = React.forwardRef<\n\tHTMLParagraphElement,\n\tReact.HTMLAttributes<HTMLParagraphElement>\n>(({ className, ...props }, ref) => (\n\t<p ref={ref} className={cn(\"text-sm text-muted-foreground\", className)} {...props} />\n));\nCardDescription.displayName = \"CardDescription\";\n\n/** The main content area of a Card. */\nconst CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n\t({ className, ...props }, ref) => (\n\t\t<div ref={ref} className={cn(\"p-6 pt-0\", className)} {...props} />\n\t),\n);\nCardContent.displayName = \"CardContent\";\n\n/** The footer section of a Card. */\nconst CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n\t({ className, ...props }, ref) => (\n\t\t<div ref={ref} className={cn(\"flex items-center p-6 pt-0\", className)} {...props} />\n\t),\n);\nCardFooter.displayName = \"CardFooter\";\n\nexport { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "card",
+    "card-foreground",
+    "border",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Complete card",
+      "description": "Card with all sections",
+      "code": "<Card>\n  <CardHeader>\n    <CardTitle>Create project</CardTitle>\n    <CardDescription>Deploy your new project in one-click.</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <p>Card content here</p>\n  </CardContent>\n  <CardFooter>\n    <Button>Deploy</Button>\n  </CardFooter>\n</Card>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use to group related content with a visual boundary: settings panels, product listings, dashboard widgets, form sections.",
+    "whenNotToUse": "Don't use for full-page layouts (use plain divs). Don't nest cards inside cards.",
+    "commonMistakes": [
+      "Nesting cards",
+      "Using Card when a simple div with border would suffice",
+      "Forgetting CardContent padding when placing forms inside"
+    ],
+    "relatedComponents": [
+      "button",
+      "separator"
+    ],
+    "accessibilityNotes": "Card is a div by default. Add role='region' and aria-label for landmark cards. CardTitle renders h3 — ensure heading hierarchy.",
+    "tokenBudget": 400
+  },
+  "tags": [
+    "card",
+    "container",
+    "panel",
+    "layout",
+    "surface"
+  ]
+}

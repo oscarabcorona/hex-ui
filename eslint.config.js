@@ -48,4 +48,11 @@ export default tseslint.config(
 			"jsdoc/require-jsdoc": "off",
 		},
 	},
+	{
+		files: ["packages/components/**/*.tsx"],
+		rules: {
+			"jsdoc/check-param-names": "off",
+			"jsdoc/require-param": "off",
+		},
+	},
 );
