@@ -1,0 +1,107 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "tabs",
+  "displayName": "Tabs",
+  "description": "A tabbed interface with accessible keyboard navigation. Built on Radix UI Tabs.",
+  "category": "component",
+  "subcategory": "navigation",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Default active tab value (uncontrolled)"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled active tab value"
+    },
+    {
+      "name": "onValueChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback: (value: string) => void"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "TabsList + TabsContent elements",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/tabs.tsx",
+      "content": "import * as React from \"react\";\nimport * as TabsPrimitive from \"@radix-ui/react-tabs\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container for a tabbed interface. */\nconst Tabs = TabsPrimitive.Root;\n\n/** A horizontal list of tab triggers. */\nconst TabsList = React.forwardRef<\n\tReact.ComponentRef<typeof TabsPrimitive.List>,\n\tReact.ComponentPropsWithoutRef<typeof TabsPrimitive.List>\n>(({ className, ...props }, ref) => (\n\t<TabsPrimitive.List\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t/>\n));\nTabsList.displayName = \"TabsList\";\n\n/** A clickable tab trigger that activates its associated content panel. */\nconst TabsTrigger = React.forwardRef<\n\tReact.ComponentRef<typeof TabsPrimitive.Trigger>,\n\tReact.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>\n>(({ className, ...props }, ref) => (\n\t<TabsPrimitive.Trigger\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium\",\n\t\t\t\"transition-all duration-200 ease-out\",\n\t\t\t\"ring-offset-background\",\n\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\"disabled:pointer-events-none disabled:opacity-50\",\n\t\t\t\"data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t/>\n));\nTabsTrigger.displayName = \"TabsTrigger\";\n\n/** The content panel associated with a tab trigger. */\nconst TabsContent = React.forwardRef<\n\tReact.ComponentRef<typeof TabsPrimitive.Content>,\n\tReact.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>\n>(({ className, ...props }, ref) => (\n\t<TabsPrimitive.Content\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"mt-2 ring-offset-background\",\n\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t/>\n));\nTabsContent.displayName = \"TabsContent\";\n\nexport { Tabs, TabsList, TabsTrigger, TabsContent };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-tabs",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "muted",
+    "muted-foreground",
+    "background",
+    "foreground",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic tabs",
+      "description": "Two-tab interface",
+      "code": "<Tabs defaultValue=\"account\">\n  <TabsList>\n    <TabsTrigger value=\"account\">Account</TabsTrigger>\n    <TabsTrigger value=\"password\">Password</TabsTrigger>\n  </TabsList>\n  <TabsContent value=\"account\">Account settings here.</TabsContent>\n  <TabsContent value=\"password\">Password settings here.</TabsContent>\n</Tabs>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use to organize content into switchable panels: settings pages, dashboards, product details with multiple sections.",
+    "whenNotToUse": "Don't use for navigation between pages (use router/links). Don't use for steppers/wizards (use a stepper component).",
+    "commonMistakes": [
+      "Missing defaultValue causing no tab selected initially",
+      "TabsTrigger value not matching TabsContent value",
+      "Using for page navigation instead of in-page content switching"
+    ],
+    "relatedComponents": [
+      "card",
+      "separator"
+    ],
+    "accessibilityNotes": "Full keyboard navigation built-in (arrow keys, Home, End). Radix handles aria-selected, role='tabpanel', etc.",
+    "tokenBudget": 350
+  },
+  "tags": [
+    "tabs",
+    "navigation",
+    "panel",
+    "tabbed",
+    "sections"
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "separator",
+  "displayName": "Separator",
+  "description": "A visual divider between content sections with horizontal or vertical orientation.",
+  "category": "primitive",
+  "subcategory": "layout",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "orientation",
+      "type": "enum",
+      "required": false,
+      "default": "horizontal",
+      "description": "Direction of the separator",
+      "enumValues": [
+        "horizontal",
+        "vertical"
+      ]
+    },
+    {
+      "name": "decorative",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "If true, separator is purely visual and hidden from screen readers"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/separator.tsx",
+      "content": "import * as React from \"react\";\nimport * as SeparatorPrimitive from \"@radix-ui/react-separator\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * A visual divider between content sections.\n * Built on Radix UI Separator for proper accessibility semantics.\n */\nexport type SeparatorProps = React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>;\n\nconst Separator = React.forwardRef<\n\tReact.ComponentRef<typeof SeparatorPrimitive.Root>,\n\tSeparatorProps\n>(({ className, orientation = \"horizontal\", decorative = true, ...props }, ref) => (\n\t<SeparatorPrimitive.Root\n\t\tref={ref}\n\t\tdecorative={decorative}\n\t\torientation={orientation}\n\t\tclassName={cn(\n\t\t\t\"shrink-0 bg-border\",\n\t\t\torientation === \"horizontal\" ? \"h-[1px] w-full\" : \"h-full w-[1px]\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t/>\n));\nSeparator.displayName = \"Separator\";\n\nexport { Separator };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-separator",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "Horizontal",
+      "description": "Default horizontal divider",
+      "code": "<Separator />"
+    },
+    {
+      "title": "Vertical",
+      "description": "Vertical divider in a flex row",
+      "code": "<div className=\"flex h-5 items-center gap-4\">\n  <span>Left</span>\n  <Separator orientation=\"vertical\" />\n  <span>Right</span>\n</div>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use to visually separate content sections, menu items, or sidebar groups.",
+    "whenNotToUse": "Don't use for spacing (use margin/padding). Don't use between every list item.",
+    "commonMistakes": [
+      "Using as spacing instead of semantic separation",
+      "Forgetting orientation='vertical' needs parent height"
+    ],
+    "relatedComponents": [],
+    "accessibilityNotes": "Set decorative=false if the separator conveys semantic meaning. Radix handles role='separator'.",
+    "tokenBudget": 150
+  },
+  "tags": [
+    "separator",
+    "divider",
+    "hr",
+    "layout"
+  ]
+}

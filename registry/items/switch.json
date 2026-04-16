@@ -1,0 +1,104 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "switch",
+  "displayName": "Switch",
+  "description": "An accessible toggle switch for instant on/off settings. Built on Radix UI.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled checked state"
+    },
+    {
+      "name": "defaultChecked",
+      "type": "boolean",
+      "required": false,
+      "description": "Default for uncontrolled"
+    },
+    {
+      "name": "onCheckedChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback: (checked: boolean) => void"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the switch"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/switch.tsx",
+      "content": "import * as React from \"react\";\nimport * as SwitchPrimitive from \"@radix-ui/react-switch\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * An accessible toggle switch built on Radix UI.\n * Use for instant on/off settings that take effect immediately.\n */\nexport type SwitchProps = React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>;\n\nconst Switch = React.forwardRef<React.ComponentRef<typeof SwitchPrimitive.Root>, SwitchProps>(\n\t({ className, ...props }, ref) => (\n\t\t<SwitchPrimitive.Root\n\t\t\tclassName={cn(\n\t\t\t\t\"peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent\",\n\t\t\t\t\"transition-all duration-200 ease-out\",\n\t\t\t\t\"shadow-sm\",\n\t\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background\",\n\t\t\t\t\"disabled:cursor-not-allowed disabled:opacity-50\",\n\t\t\t\t\"data-[state=checked]:bg-primary data-[state=unchecked]:bg-input\",\n\t\t\t\t\"hover:shadow-md\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t\tref={ref}\n\t\t>\n\t\t\t<SwitchPrimitive.Thumb\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0\",\n\t\t\t\t\t\"transition-transform duration-200 ease-out\",\n\t\t\t\t\t\"data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0\",\n\t\t\t\t)}\n\t\t\t/>\n\t\t</SwitchPrimitive.Root>\n\t),\n);\nSwitch.displayName = \"Switch\";\n\nexport { Switch };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-switch",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "primary",
+    "input",
+    "background",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic",
+      "description": "Switch with label",
+      "code": "<div className=\"flex items-center gap-2\">\n  <Switch id=\"airplane\" />\n  <Label htmlFor=\"airplane\">Airplane Mode</Label>\n</div>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for settings that take effect immediately: dark mode, notifications, feature toggles.",
+    "whenNotToUse": "Don't use for form submissions (use Checkbox). Don't use for mutually exclusive options (use RadioGroup).",
+    "commonMistakes": [
+      "Using for form fields that need explicit submit",
+      "Missing Label"
+    ],
+    "relatedComponents": [
+      "checkbox",
+      "label",
+      "form"
+    ],
+    "accessibilityNotes": "Always pair with Label. Radix handles role='switch' and aria-checked.",
+    "tokenBudget": 250
+  },
+  "tags": [
+    "switch",
+    "toggle",
+    "form",
+    "boolean",
+    "setting"
+  ]
+}

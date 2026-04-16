@@ -1,0 +1,120 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "accordion",
+  "displayName": "Accordion",
+  "description": "A vertically stacked set of collapsible content sections. Built on Radix UI Accordion.",
+  "category": "component",
+  "subcategory": "disclosure",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "type",
+      "type": "enum",
+      "required": true,
+      "description": "Single allows one item open at a time, multiple allows many",
+      "enumValues": [
+        "single",
+        "multiple"
+      ]
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Default open item(s): string for type='single', string[] for type='multiple'"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled open item(s): string for type='single', string[] for type='multiple'"
+    },
+    {
+      "name": "onValueChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback when open items change: (value: string) => void for single, (value: string[]) => void for multiple"
+    },
+    {
+      "name": "collapsible",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Allow all items to be closed (type='single' only)"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "AccordionItem elements",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/accordion.tsx",
+      "content": "import * as React from \"react\";\nimport * as AccordionPrimitive from \"@radix-ui/react-accordion\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container for accordion items. Supports single or multiple open items. */\nconst Accordion = AccordionPrimitive.Root;\n\n/** A single collapsible item within an Accordion. */\nconst AccordionItem = React.forwardRef<\n\tReact.ComponentRef<typeof AccordionPrimitive.Item>,\n\tReact.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>\n>(({ className, ...props }, ref) => (\n\t<AccordionPrimitive.Item ref={ref} className={cn(\"border-b\", className)} {...props} />\n));\nAccordionItem.displayName = \"AccordionItem\";\n\n/** The clickable header that toggles an AccordionItem open/closed. */\nconst AccordionTrigger = React.forwardRef<\n\tReact.ComponentRef<typeof AccordionPrimitive.Trigger>,\n\tReact.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>\n>(({ className, children, ...props }, ref) => (\n\t<AccordionPrimitive.Header className=\"flex\">\n\t\t<AccordionPrimitive.Trigger\n\t\t\tref={ref}\n\t\t\tclassName={cn(\n\t\t\t\t\"flex flex-1 items-center justify-between py-4 font-medium\",\n\t\t\t\t\"transition-all duration-200 ease-out\",\n\t\t\t\t\"hover:underline\",\n\t\t\t\t\"[&[data-state=open]>svg]:rotate-180\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t{children}\n\t\t\t<svg\n\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\twidth=\"24\"\n\t\t\t\theight=\"24\"\n\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\tfill=\"none\"\n\t\t\t\tstroke=\"currentColor\"\n\t\t\t\tstrokeWidth=\"2\"\n\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\tclassName=\"h-4 w-4 shrink-0 transition-transform duration-200\"\n\t\t\t\taria-hidden=\"true\"\n\t\t\t>\n\t\t\t\t<polyline points=\"6 9 12 15 18 9\" />\n\t\t\t</svg>\n\t\t</AccordionPrimitive.Trigger>\n\t</AccordionPrimitive.Header>\n));\nAccordionTrigger.displayName = \"AccordionTrigger\";\n\n/** The collapsible content panel of an AccordionItem. */\nconst AccordionContent = React.forwardRef<\n\tReact.ComponentRef<typeof AccordionPrimitive.Content>,\n\tReact.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>\n>(({ className, children, ...props }, ref) => (\n\t<AccordionPrimitive.Content\n\t\tref={ref}\n\t\tclassName=\"overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down\"\n\t\t{...props}\n\t>\n\t\t<div className={cn(\"pb-4 pt-0\", className)}>{children}</div>\n\t</AccordionPrimitive.Content>\n));\nAccordionContent.displayName = \"AccordionContent\";\n\nexport { Accordion, AccordionItem, AccordionTrigger, AccordionContent };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-accordion",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "FAQ accordion",
+      "description": "Single-open accordion for FAQ sections",
+      "code": "<Accordion type=\"single\" collapsible>\n  <AccordionItem value=\"item-1\">\n    <AccordionTrigger>Is it accessible?</AccordionTrigger>\n    <AccordionContent>Yes, it adheres to the WAI-ARIA design pattern.</AccordionContent>\n  </AccordionItem>\n  <AccordionItem value=\"item-2\">\n    <AccordionTrigger>Is it styled?</AccordionTrigger>\n    <AccordionContent>Yes, with Tailwind CSS and smooth animations.</AccordionContent>\n  </AccordionItem>\n</Accordion>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for FAQ sections, settings groups, or any content that benefits from progressive disclosure. Use type='single' for FAQs, type='multiple' for settings.",
+    "whenNotToUse": "Don't use for navigation (use tabs). Don't use for a single collapsible (use Collapsible).",
+    "commonMistakes": [
+      "Forgetting type prop (it's required)",
+      "Not setting collapsible=true for single type when all items should be closeable",
+      "Missing value on AccordionItem"
+    ],
+    "relatedComponents": [
+      "tabs",
+      "card"
+    ],
+    "accessibilityNotes": "Full keyboard navigation (arrow keys, Home, End, Enter/Space). Radix handles aria-expanded, aria-controls, role='region'.",
+    "tokenBudget": 400
+  },
+  "tags": [
+    "accordion",
+    "collapsible",
+    "faq",
+    "disclosure",
+    "expandable"
+  ]
+}
