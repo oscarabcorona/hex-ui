@@ -1,0 +1,29 @@
+{
+	"name": "@hex-ui/registry",
+	"version": "0.1.0",
+	"description": "Zod schemas and types for the Hex UI component registry",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./schema": {
+			"import": "./dist/schema.js",
+			"types": "./dist/schema.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsup",
+		"clean": "rm -rf dist"
+	},
+	"dependencies": {
+		"zod": "^3.23.0"
+	},
+	"devDependencies": {
+		"tsup": "^8.3.0",
+		"typescript": "^5.7.0"
+	}
+}

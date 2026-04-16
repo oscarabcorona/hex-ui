@@ -1,0 +1,16 @@
+export type {
+	AIHint,
+	Category,
+	ComponentSchemaDefinition,
+	Dependencies,
+	Prop,
+	RegistryFile,
+	RegistryIndex,
+	RegistryIndexItem,
+	RegistryItem,
+	Slot,
+	Theme,
+	TokenValue,
+	UsageExample,
+	Variant,
+} from "./schema.js";

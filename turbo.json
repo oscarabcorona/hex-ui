@@ -1,0 +1,23 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**"]
+		},
+		"build:registry": {
+			"dependsOn": ["@hex-ui/components#build", "@hex-ui/tokens#build", "@hex-ui/registry#build"],
+			"outputs": ["registry/**"]
+		},
+		"validate": {
+			"dependsOn": ["build:registry"]
+		},
+		"test": {
+			"dependsOn": ["build"]
+		},
+		"clean": {
+			"cache": false
+		},
+		"lint": {}
+	}
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "label",
+  "displayName": "Label",
+  "description": "An accessible label component built on Radix UI Label primitive. Associates with form controls via htmlFor.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "htmlFor",
+      "type": "string",
+      "required": false,
+      "description": "The id of the form control this label is associated with"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Label text content",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/label.tsx",
+      "content": "import * as LabelPrimitive from \"@radix-ui/react-label\";\nimport { type VariantProps, cva } from \"class-variance-authority\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\nconst labelVariants = cva(\n\t\"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 transition-colors duration-150\",\n);\n\nexport interface LabelProps\n\textends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,\n\t\tVariantProps<typeof labelVariants> {}\n\nconst Label = React.forwardRef<React.ComponentRef<typeof LabelPrimitive.Root>, LabelProps>(\n\t({ className, ...props }, ref) => (\n\t\t<LabelPrimitive.Root ref={ref} className={cn(labelVariants(), className)} {...props} />\n\t),\n);\nLabel.displayName = \"Label\";\n\nexport { Label };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-label",
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [],
+  "examples": [
+    {
+      "title": "Basic usage",
+      "description": "A label paired with an input",
+      "code": "<div className=\"grid gap-1.5\">\n  <Label htmlFor=\"name\">Name</Label>\n  <Input id=\"name\" placeholder=\"Enter your name\" />\n</div>"
+    },
+    {
+      "title": "Required field",
+      "description": "Label with required indicator",
+      "code": "<Label htmlFor=\"email\">\n  Email <span className=\"text-destructive\">*</span>\n</Label>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use as a label for every form input, select, textarea, checkbox, or radio group. Always use htmlFor to associate with the control's id.",
+    "whenNotToUse": "Don't use as a standalone text element — use a paragraph or heading instead. Don't use for non-form contexts.",
+    "commonMistakes": [
+      "Forgetting to set htmlFor matching the input's id",
+      "Using Label for non-form text content",
+      "Nesting interactive elements inside Label"
+    ],
+    "relatedComponents": [
+      "input",
+      "textarea",
+      "checkbox",
+      "select",
+      "form"
+    ],
+    "accessibilityNotes": "Clicking the label focuses the associated control. Automatically communicates the label to screen readers. Use htmlFor/id pairing, not nesting.",
+    "tokenBudget": 200
+  },
+  "tags": [
+    "label",
+    "form",
+    "accessibility",
+    "text"
+  ]
+}

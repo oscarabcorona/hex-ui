@@ -1,0 +1,31 @@
+{
+	"name": "hex-ui",
+	"private": true,
+	"type": "module",
+	"description": "AI-native component library for LLMs and humans",
+	"scripts": {
+		"build": "turbo build",
+		"build:registry": "tsx scripts/build-registry.ts",
+		"validate": "turbo validate",
+		"test": "turbo test",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"clean": "turbo clean"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.2.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-jsdoc": "^62.9.0",
+		"prettier": "^3.8.3",
+		"tsx": "^4.19.0",
+		"turbo": "^2.3.0",
+		"typescript": "^5.7.0",
+		"typescript-eslint": "^8.58.2"
+	},
+	"packageManager": "pnpm@9.15.0",
+	"engines": {
+		"node": ">=20"
+	}
+}

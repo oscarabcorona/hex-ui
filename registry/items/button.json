@@ -1,0 +1,223 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "button",
+  "displayName": "Button",
+  "description": "A versatile button component with multiple variants, sizes, and states. Supports icons, loading state, and composition via asChild.",
+  "category": "primitive",
+  "subcategory": "actions",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "The visual style of the button",
+      "enumValues": [
+        "default",
+        "destructive",
+        "outline",
+        "secondary",
+        "ghost",
+        "link"
+      ]
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "The size of the button",
+      "enumValues": [
+        "default",
+        "sm",
+        "lg",
+        "icon"
+      ]
+    },
+    {
+      "name": "asChild",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Render as a Slot component, merging props with the child element. Use to render as a link or other element."
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Show loading spinner and disable interaction"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the button"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes to merge with the component styles"
+    }
+  ],
+  "variants": [
+    {
+      "name": "variant",
+      "description": "Visual style variants",
+      "values": [
+        {
+          "value": "default",
+          "description": "Primary filled button with subtle shadow for main actions"
+        },
+        {
+          "value": "destructive",
+          "description": "Red button with shadow for dangerous/irreversible actions"
+        },
+        {
+          "value": "outline",
+          "description": "Bordered button with hover fill for secondary actions"
+        },
+        {
+          "value": "secondary",
+          "description": "Muted filled button for less prominent actions"
+        },
+        {
+          "value": "ghost",
+          "description": "Transparent button, background appears on hover"
+        },
+        {
+          "value": "link",
+          "description": "Styled as a hyperlink with underline on hover, no padding"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "name": "size",
+      "description": "Size variants",
+      "values": [
+        {
+          "value": "default",
+          "description": "Standard size (h-10, px-4)"
+        },
+        {
+          "value": "sm",
+          "description": "Compact size (h-9, px-3)"
+        },
+        {
+          "value": "lg",
+          "description": "Large size (h-11, px-8, text-base)"
+        },
+        {
+          "value": "icon",
+          "description": "Square icon-only size (h-10, w-10)"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Button label content",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/button.tsx",
+      "content": "import { Slot } from \"@radix-ui/react-slot\";\nimport { type VariantProps, cva } from \"class-variance-authority\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\nconst buttonVariants = cva(\n\t[\n\t\t\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium\",\n\t\t\"transition-all duration-200 ease-out\",\n\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\"disabled:pointer-events-none disabled:opacity-50\",\n\t\t\"active:scale-[0.98]\",\n\t\t\"[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0\",\n\t].join(\" \"),\n\t{\n\t\tvariants: {\n\t\t\tvariant: {\n\t\t\t\tdefault: [\n\t\t\t\t\t\"bg-primary text-primary-foreground\",\n\t\t\t\t\t\"shadow-sm shadow-primary/20\",\n\t\t\t\t\t\"hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25\",\n\t\t\t\t].join(\" \"),\n\t\t\t\tdestructive: [\n\t\t\t\t\t\"bg-destructive text-destructive-foreground\",\n\t\t\t\t\t\"shadow-sm shadow-destructive/20\",\n\t\t\t\t\t\"hover:bg-destructive/90 hover:shadow-md hover:shadow-destructive/25\",\n\t\t\t\t].join(\" \"),\n\t\t\t\toutline: [\n\t\t\t\t\t\"border border-input bg-background\",\n\t\t\t\t\t\"shadow-sm\",\n\t\t\t\t\t\"hover:bg-accent hover:text-accent-foreground hover:shadow-md\",\n\t\t\t\t].join(\" \"),\n\t\t\t\tsecondary: [\n\t\t\t\t\t\"bg-secondary text-secondary-foreground\",\n\t\t\t\t\t\"shadow-sm\",\n\t\t\t\t\t\"hover:bg-secondary/80 hover:shadow-md\",\n\t\t\t\t].join(\" \"),\n\t\t\t\tghost: \"hover:bg-accent hover:text-accent-foreground\",\n\t\t\t\tlink: \"text-primary underline-offset-4 hover:underline\",\n\t\t\t},\n\t\t\tsize: {\n\t\t\t\tdefault: \"h-10 px-4 py-2\",\n\t\t\t\tsm: \"h-9 rounded-md px-3\",\n\t\t\t\tlg: \"h-11 rounded-md px-8 text-base\",\n\t\t\t\ticon: \"h-10 w-10\",\n\t\t\t},\n\t\t},\n\t\tdefaultVariants: {\n\t\t\tvariant: \"default\",\n\t\t\tsize: \"default\",\n\t\t},\n\t},\n);\n\nexport interface ButtonProps\n\textends React.ButtonHTMLAttributes<HTMLButtonElement>,\n\t\tVariantProps<typeof buttonVariants> {\n\tasChild?: boolean;\n\tloading?: boolean;\n}\n\nconst Button = React.forwardRef<HTMLButtonElement, ButtonProps>(\n\t(\n\t\t{ className, variant, size, asChild = false, loading = false, children, disabled, ...props },\n\t\tref,\n\t) => {\n\t\tconst Comp = asChild ? Slot : \"button\";\n\t\treturn (\n\t\t\t<Comp\n\t\t\t\tclassName={cn(buttonVariants({ variant, size, className }))}\n\t\t\t\tref={ref}\n\t\t\t\tdisabled={disabled || loading}\n\t\t\t\taria-busy={loading || undefined}\n\t\t\t\t{...props}\n\t\t\t>\n\t\t\t\t{loading ? (\n\t\t\t\t\t<>\n\t\t\t\t\t\t<svg\n\t\t\t\t\t\t\tclassName=\"animate-spin h-4 w-4\"\n\t\t\t\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\t\t\t\tfill=\"none\"\n\t\t\t\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\t\t\t\taria-hidden=\"true\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<circle\n\t\t\t\t\t\t\t\tclassName=\"opacity-25\"\n\t\t\t\t\t\t\t\tcx=\"12\"\n\t\t\t\t\t\t\t\tcy=\"12\"\n\t\t\t\t\t\t\t\tr=\"10\"\n\t\t\t\t\t\t\t\tstroke=\"currentColor\"\n\t\t\t\t\t\t\t\tstrokeWidth=\"4\"\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t<path\n\t\t\t\t\t\t\t\tclassName=\"opacity-75\"\n\t\t\t\t\t\t\t\tfill=\"currentColor\"\n\t\t\t\t\t\t\t\td=\"M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z\"\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t{children}\n\t\t\t\t\t</>\n\t\t\t\t) : (\n\t\t\t\t\tchildren\n\t\t\t\t)}\n\t\t\t</Comp>\n\t\t);\n\t},\n);\nButton.displayName = \"Button\";\n\nexport { Button, buttonVariants };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "class-variance-authority",
+      "@radix-ui/react-slot",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "primary",
+    "primary-foreground",
+    "destructive",
+    "destructive-foreground",
+    "secondary",
+    "secondary-foreground",
+    "accent",
+    "accent-foreground",
+    "background",
+    "input",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic usage",
+      "description": "A simple primary button",
+      "code": "<Button>Click me</Button>"
+    },
+    {
+      "title": "Variants",
+      "description": "Different visual styles",
+      "code": "<>\n  <Button variant=\"default\">Primary</Button>\n  <Button variant=\"outline\">Outline</Button>\n  <Button variant=\"secondary\">Secondary</Button>\n  <Button variant=\"ghost\">Ghost</Button>\n  <Button variant=\"destructive\">Delete</Button>\n  <Button variant=\"link\">Link</Button>\n</>"
+    },
+    {
+      "title": "With loading state",
+      "description": "Button showing a spinner while loading",
+      "code": "<Button loading>Submitting...</Button>"
+    },
+    {
+      "title": "As link",
+      "description": "Button rendered as an anchor tag",
+      "code": "<Button asChild>\n  <a href=\"/login\">Login</a>\n</Button>"
+    },
+    {
+      "title": "Icon button",
+      "description": "Square button with just an icon",
+      "code": "<Button variant=\"outline\" size=\"icon\" aria-label=\"Settings\">\n  <SettingsIcon />\n</Button>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for clickable actions: form submissions, confirmations, triggering operations. Use 'default' variant for primary CTAs, 'outline' or 'secondary' for less important actions, 'ghost' for toolbar-style actions.",
+    "whenNotToUse": "Don't use for navigation between pages (use Link or anchor with asChild). Don't use 'destructive' for non-dangerous actions. Don't use for toggling state (use Toggle or Switch).",
+    "commonMistakes": [
+      "Using 'destructive' variant for non-destructive actions",
+      "Nesting interactive elements inside asChild button",
+      "Missing aria-label when using icon-only size='icon' variant",
+      "Using onClick for navigation instead of asChild with a link"
+    ],
+    "relatedComponents": [
+      "toggle",
+      "toggle-group",
+      "dropdown-menu"
+    ],
+    "accessibilityNotes": "Automatically handles focus ring, disabled state, and aria attributes. Icon-only buttons MUST have aria-label. Loading state automatically sets disabled.",
+    "tokenBudget": 500
+  },
+  "tags": [
+    "button",
+    "action",
+    "cta",
+    "form",
+    "interactive",
+    "click"
+  ]
+}

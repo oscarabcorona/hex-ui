@@ -1,0 +1,26 @@
+{
+	"name": "@hex-ui/tokens",
+	"version": "0.1.0",
+	"description": "Design token engine for Hex UI",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsup",
+		"clean": "rm -rf dist"
+	},
+	"dependencies": {
+		"@hex-ui/registry": "workspace:*",
+		"zod": "^3.23.0"
+	},
+	"devDependencies": {
+		"tsup": "^8.3.0",
+		"typescript": "^5.7.0"
+	}
+}

@@ -16,7 +16,7 @@ if echo "$COMMAND" | grep -qE 'push.*--force|push.*-f'; then
 fi
 
 # 2. Verify lint passes
-LINT_OUTPUT=$(cd "$CLAUDE_PROJECT_DIR" && npx @biomejs/biome check . 2>&1)
+LINT_OUTPUT=$(cd "$CLAUDE_PROJECT_DIR" && npx eslint . 2>&1)
 if [ $? -ne 0 ]; then
   ISSUES="${ISSUES}Lint check failed. Fix before pushing:\n$(echo "$LINT_OUTPUT" | head -10)\n"
 fi

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry.json",
+  "name": "hex-ui",
+  "version": "0.1.0",
+  "description": "Hex UI — AI-native component library for LLMs and humans",
+  "homepage": "https://hex-ui.dev",
+  "items": [
+    {
+      "name": "button",
+      "displayName": "Button",
+      "description": "A versatile button component with multiple variants, sizes, and states. Supports icons, loading state, and composition via asChild.",
+      "category": "primitive",
+      "subcategory": "actions",
+      "tags": [
+        "button",
+        "action",
+        "cta",
+        "form",
+        "interactive",
+        "click"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 500
+    },
+    {
+      "name": "input",
+      "displayName": "Input",
+      "description": "A styled text input with smooth focus transitions, shadow effects, and full HTML input compatibility.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "input",
+        "text",
+        "form",
+        "field",
+        "text-field"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 300
+    },
+    {
+      "name": "label",
+      "displayName": "Label",
+      "description": "An accessible label component built on Radix UI Label primitive. Associates with form controls via htmlFor.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "label",
+        "form",
+        "accessibility",
+        "text"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 200
+    }
+  ]
+}
