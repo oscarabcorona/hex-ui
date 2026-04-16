@@ -12,7 +12,7 @@ Hex UI is an AI-native component library competing with shadcn/ui. MCP-first dis
 - **Styling**: Tailwind CSS + CVA (class-variance-authority)
 - **Primitives**: Radix UI
 - **Build**: tsup
-- **Lint/Format**: Biome
+- **Lint/Format**: ESLint + Prettier
 - **MCP SDK**: @modelcontextprotocol/sdk
 
 ## Commands
@@ -20,9 +20,9 @@ Hex UI is an AI-native component library competing with shadcn/ui. MCP-first dis
 ```bash
 pnpm build                    # Build all packages (Turborepo)
 pnpm run build:registry       # Compile components → registry JSON
-pnpm run lint                 # Biome check
-pnpm run lint:fix             # Biome auto-fix
-pnpm run format               # Biome format
+pnpm run lint                 # ESLint check
+pnpm run lint:fix             # ESLint auto-fix
+pnpm run format               # Prettier format
 ```
 
 ## Code Conventions
@@ -34,6 +34,15 @@ Every component lives in `packages/components/src/{category}/{name}/` with two f
 - `{name}.schema.ts` — Machine-readable spec (props, variants, slots, AI hints)
 
 Schema files export a `ComponentSchemaDefinition` object. The `ai` field is mandatory — every component MUST have `whenToUse`, `whenNotToUse`, `commonMistakes`, `relatedComponents`, `accessibilityNotes`, and `tokenBudget`.
+
+### Documentation & Typing Rules
+
+- Every exported function, component, type, and interface MUST have a JSDoc comment
+- Use `@param` and `@returns` tags for function documentation
+- Use `@example` for non-obvious usage patterns
+- No `any` types — use specific types, generics, or `unknown` with type guards
+- Component props must be explicitly typed interfaces (not inline)
+- Schema files must document every prop with a clear `description` field
 
 ### Import Conventions
 
