@@ -1,0 +1,40 @@
+/**
+ * Single source of truth for UI components in the docs app.
+ * All demos and pages import from here — no duplication of component code.
+ * This re-exports from @hex-ui/components so docs stay in sync with the real library.
+ */
+export {
+	Button,
+	buttonVariants,
+	type ButtonProps,
+	Input,
+	type InputProps,
+	Label,
+	type LabelProps,
+	Textarea,
+	type TextareaProps,
+	Checkbox,
+	type CheckboxProps,
+	Switch,
+	type SwitchProps,
+	Badge,
+	badgeVariants,
+	type BadgeProps,
+	Separator,
+	type SeparatorProps,
+	Card,
+	CardHeader,
+	CardTitle,
+	CardDescription,
+	CardContent,
+	CardFooter,
+	Tabs,
+	TabsList,
+	TabsTrigger,
+	TabsContent,
+	Accordion,
+	AccordionItem,
+	AccordionTrigger,
+	AccordionContent,
+	cn,
+} from "@hex-ui/components";
