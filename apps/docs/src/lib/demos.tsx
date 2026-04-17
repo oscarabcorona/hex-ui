@@ -5,14 +5,20 @@ import { AlertDialogDemo } from "../app/demos/alert-dialog-demo";
 import { AspectRatioDemo } from "../app/demos/aspect-ratio-demo";
 import { AvatarDemo } from "../app/demos/avatar-demo";
 import { BadgeDemo } from "../app/demos/badge-demo";
+import { BreadcrumbDemo } from "../app/demos/breadcrumb-demo";
 import { ButtonDemo } from "../app/demos/button-demo";
 import { CardDemo } from "../app/demos/card-demo";
 import { CheckboxDemo } from "../app/demos/checkbox-demo";
+import { CollapsibleDemo } from "../app/demos/collapsible-demo";
+import { ContextMenuDemo } from "../app/demos/context-menu-demo";
 import { DialogDemo } from "../app/demos/dialog-demo";
 import { DropdownMenuDemo } from "../app/demos/dropdown-menu-demo";
 import { FormDemo } from "../app/demos/form-demo";
+import { HoverCardDemo } from "../app/demos/hover-card-demo";
 import { InputDemo } from "../app/demos/input-demo";
 import { LabelDemo } from "../app/demos/label-demo";
+import { MenubarDemo } from "../app/demos/menubar-demo";
+import { NavigationMenuDemo } from "../app/demos/navigation-menu-demo";
 import { PopoverDemo } from "../app/demos/popover-demo";
 import { ProgressDemo } from "../app/demos/progress-demo";
 import { RadioGroupDemo } from "../app/demos/radio-group-demo";
@@ -40,14 +46,20 @@ export const demos: Record<string, ComponentType> = {
 	"aspect-ratio": AspectRatioDemo,
 	avatar: AvatarDemo,
 	badge: BadgeDemo,
+	breadcrumb: BreadcrumbDemo,
 	button: ButtonDemo,
 	card: CardDemo,
 	checkbox: CheckboxDemo,
+	collapsible: CollapsibleDemo,
+	"context-menu": ContextMenuDemo,
 	dialog: DialogDemo,
 	"dropdown-menu": DropdownMenuDemo,
 	form: FormDemo,
+	"hover-card": HoverCardDemo,
 	input: InputDemo,
 	label: LabelDemo,
+	menubar: MenubarDemo,
+	"navigation-menu": NavigationMenuDemo,
 	popover: PopoverDemo,
 	progress: ProgressDemo,
 	"radio-group": RadioGroupDemo,

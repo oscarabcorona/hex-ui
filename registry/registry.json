@@ -354,6 +354,24 @@
       "tokenBudget": 650
     },
     {
+      "name": "breadcrumb",
+      "displayName": "Breadcrumb",
+      "description": "A path trail showing the user's location within a hierarchy, with links back to ancestors and a non-interactive current page.",
+      "category": "component",
+      "subcategory": "navigation",
+      "tags": [
+        "breadcrumb",
+        "navigation",
+        "path",
+        "trail",
+        "hierarchy"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 400
+    },
+    {
       "name": "card",
       "displayName": "Card",
       "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
@@ -368,6 +386,38 @@
       ],
       "internalDeps": [],
       "tokenBudget": 400
+    },
+    {
+      "name": "collapsible",
+      "displayName": "Collapsible",
+      "description": "A single section that can be expanded or collapsed. For multiple independent sections use Accordion with type='multiple'.",
+      "category": "component",
+      "subcategory": "disclosure",
+      "tags": [
+        "collapsible",
+        "disclosure",
+        "expand",
+        "show-more"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 250
+    },
+    {
+      "name": "context-menu",
+      "displayName": "Context Menu",
+      "description": "Right-click (or long-press on touch) menu anchored to the trigger region. Same item vocabulary as DropdownMenu.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "context-menu",
+        "right-click",
+        "menu",
+        "actions"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 700
     },
     {
       "name": "dialog",
@@ -418,6 +468,59 @@
         "label"
       ],
       "tokenBudget": 900
+    },
+    {
+      "name": "hover-card",
+      "displayName": "Hover Card",
+      "description": "Rich floating content revealed on hover or focus. Use when Tooltip is too small and Popover requires a click.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "hover-card",
+        "preview",
+        "overlay",
+        "rich-tooltip"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 400
+    },
+    {
+      "name": "menubar",
+      "displayName": "Menubar",
+      "description": "Desktop-app style menu bar (File / Edit / View). Horizontal menu strip with nested dropdowns.",
+      "category": "component",
+      "subcategory": "navigation",
+      "tags": [
+        "menubar",
+        "menu",
+        "desktop",
+        "app-shell",
+        "navigation"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 700
+    },
+    {
+      "name": "navigation-menu",
+      "displayName": "Navigation Menu",
+      "description": "Website-style mega-menu with hover-triggered content panels. Used for marketing/site navigation headers.",
+      "category": "component",
+      "subcategory": "navigation",
+      "tags": [
+        "navigation-menu",
+        "mega-menu",
+        "nav",
+        "header",
+        "site"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 800
     },
     {
       "name": "popover",

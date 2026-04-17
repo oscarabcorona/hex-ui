@@ -1,0 +1,87 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "breadcrumb",
+  "displayName": "Breadcrumb",
+  "description": "A path trail showing the user's location within a hierarchy, with links back to ancestors and a non-interactive current page.",
+  "category": "component",
+  "subcategory": "navigation",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes on the nav element"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "BreadcrumbList containing BreadcrumbItem + BreadcrumbSeparator elements",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/breadcrumb.tsx",
+      "content": "import { Slot } from \"@radix-ui/react-slot\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root nav landmark for breadcrumb navigation. */\nconst Breadcrumb = React.forwardRef<HTMLElement, React.ComponentPropsWithoutRef<\"nav\">>(\n\t(props, ref) => <nav ref={ref} aria-label=\"breadcrumb\" {...props} />,\n);\nBreadcrumb.displayName = \"Breadcrumb\";\n\n/** Ordered list of breadcrumb items. */\nconst BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWithoutRef<\"ol\">>(\n\t({ className, ...props }, ref) => (\n\t\t<ol\n\t\t\tref={ref}\n\t\t\tclassName={cn(\n\t\t\t\t\"flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t),\n);\nBreadcrumbList.displayName = \"BreadcrumbList\";\n\n/** A single breadcrumb list item. */\nconst BreadcrumbItem = React.forwardRef<HTMLLIElement, React.ComponentPropsWithoutRef<\"li\">>(\n\t({ className, ...props }, ref) => (\n\t\t<li\n\t\t\tref={ref}\n\t\t\tclassName={cn(\"inline-flex items-center gap-1.5\", className)}\n\t\t\t{...props}\n\t\t/>\n\t),\n);\nBreadcrumbItem.displayName = \"BreadcrumbItem\";\n\n/** A link inside a breadcrumb item. Use asChild to render e.g. Next.js Link. */\nconst BreadcrumbLink = React.forwardRef<\n\tHTMLAnchorElement,\n\tReact.ComponentPropsWithoutRef<\"a\"> & { asChild?: boolean }\n>(({ asChild, className, ...props }, ref) => {\n\tconst Comp = asChild ? Slot : \"a\";\n\treturn (\n\t\t<Comp\n\t\t\tref={ref}\n\t\t\tclassName={cn(\"transition-colors hover:text-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n});\nBreadcrumbLink.displayName = \"BreadcrumbLink\";\n\n/** The final breadcrumb (current page). Not interactive. */\nconst BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<\"span\">>(\n\t({ className, ...props }, ref) => (\n\t\t<span\n\t\t\tref={ref}\n\t\t\trole=\"link\"\n\t\t\taria-disabled=\"true\"\n\t\t\taria-current=\"page\"\n\t\t\tclassName={cn(\"font-normal text-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t),\n);\nBreadcrumbPage.displayName = \"BreadcrumbPage\";\n\n/**\n * Visual separator between breadcrumb items (chevron by default).\n * @returns An li rendering a decorative chevron icon\n */\nfunction BreadcrumbSeparator({\n\tchildren,\n\tclassName,\n\t...props\n}: React.ComponentProps<\"li\">) {\n\treturn (\n\t\t<li role=\"presentation\" aria-hidden=\"true\" className={cn(\"[&>svg]:h-3.5 [&>svg]:w-3.5\", className)} {...props}>\n\t\t\t{children ?? (\n\t\t\t\t<svg\n\t\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\t\tfill=\"none\"\n\t\t\t\t\tstroke=\"currentColor\"\n\t\t\t\t\tstrokeWidth=\"2\"\n\t\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\t\taria-hidden=\"true\"\n\t\t\t\t>\n\t\t\t\t\t<polyline points=\"9 18 15 12 9 6\" />\n\t\t\t\t</svg>\n\t\t\t)}\n\t\t</li>\n\t);\n}\n\n/**\n * Ellipsis for truncated breadcrumb trails.\n * @returns A span with three dots, marked aria-hidden\n */\nfunction BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<\"span\">) {\n\treturn (\n\t\t<span\n\t\t\trole=\"presentation\"\n\t\t\taria-hidden=\"true\"\n\t\t\tclassName={cn(\"flex h-9 w-9 items-center justify-center\", className)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<svg\n\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\tfill=\"none\"\n\t\t\t\tstroke=\"currentColor\"\n\t\t\t\tstrokeWidth=\"2\"\n\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\tclassName=\"h-4 w-4\"\n\t\t\t>\n\t\t\t\t<circle cx=\"12\" cy=\"12\" r=\"1\" />\n\t\t\t\t<circle cx=\"19\" cy=\"12\" r=\"1\" />\n\t\t\t\t<circle cx=\"5\" cy=\"12\" r=\"1\" />\n\t\t\t</svg>\n\t\t\t<span className=\"sr-only\">More</span>\n\t\t</span>\n\t);\n}\n\nexport {\n\tBreadcrumb,\n\tBreadcrumbList,\n\tBreadcrumbItem,\n\tBreadcrumbLink,\n\tBreadcrumbPage,\n\tBreadcrumbSeparator,\n\tBreadcrumbEllipsis,\n};\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-slot",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "foreground",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Three-level path",
+      "description": "Home / Components / Breadcrumb",
+      "code": "<Breadcrumb>\n  <BreadcrumbList>\n    <BreadcrumbItem>\n      <BreadcrumbLink href=\"/\">Home</BreadcrumbLink>\n    </BreadcrumbItem>\n    <BreadcrumbSeparator />\n    <BreadcrumbItem>\n      <BreadcrumbLink href=\"/docs/components\">Components</BreadcrumbLink>\n    </BreadcrumbItem>\n    <BreadcrumbSeparator />\n    <BreadcrumbItem>\n      <BreadcrumbPage>Breadcrumb</BreadcrumbPage>\n    </BreadcrumbItem>\n  </BreadcrumbList>\n</Breadcrumb>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use to show location within a hierarchical site or app: docs pages, product categories, nested settings. Include the current page as a non-link BreadcrumbPage.",
+    "whenNotToUse": "Don't use for primary navigation (use NavigationMenu). Don't use for flat sites without hierarchy. Don't use when the hierarchy is too deep to display — truncate with BreadcrumbEllipsis.",
+    "commonMistakes": [
+      "Making the current page a link (use BreadcrumbPage)",
+      "Showing just one item (defeats the purpose)",
+      "Using plain text separators without aria-hidden"
+    ],
+    "relatedComponents": [
+      "navigation-menu"
+    ],
+    "accessibilityNotes": "Root <nav aria-label='breadcrumb'> creates a landmark. BreadcrumbPage has aria-current='page'. Separators are aria-hidden (decorative).",
+    "tokenBudget": 400
+  },
+  "tags": [
+    "breadcrumb",
+    "navigation",
+    "path",
+    "trail",
+    "hierarchy"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "hover-card",
+  "displayName": "Hover Card",
+  "description": "Rich floating content revealed on hover or focus. Use when Tooltip is too small and Popover requires a click.",
+  "category": "component",
+  "subcategory": "overlay",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled open state"
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Default open state"
+    },
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on open change"
+    },
+    {
+      "name": "openDelay",
+      "type": "number",
+      "required": false,
+      "default": 700,
+      "description": "Milliseconds before the card appears"
+    },
+    {
+      "name": "closeDelay",
+      "type": "number",
+      "required": false,
+      "default": 300,
+      "description": "Milliseconds before the card closes after leaving"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "HoverCardTrigger + HoverCardContent",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/hover-card.tsx",
+      "content": "import * as HoverCardPrimitive from \"@radix-ui/react-hover-card\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container for a hover-card. */\nconst HoverCard = HoverCardPrimitive.Root;\n\n/** The element that reveals the card on hover/focus. */\nconst HoverCardTrigger = HoverCardPrimitive.Trigger;\n\n/** The floating hover-card content panel. Richer than a tooltip. */\nconst HoverCardContent = React.forwardRef<\n\tReact.ComponentRef<typeof HoverCardPrimitive.Content>,\n\tReact.ComponentPropsWithoutRef<typeof HoverCardPrimitive.Content>\n>(({ className, align = \"center\", sideOffset = 4, ...props }, ref) => (\n\t<HoverCardPrimitive.Portal>\n\t\t<HoverCardPrimitive.Content\n\t\t\tref={ref}\n\t\t\talign={align}\n\t\t\tsideOffset={sideOffset}\n\t\t\tclassName={cn(\n\t\t\t\t\"z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none\",\n\t\t\t\t\"data-[state=open]:animate-in data-[state=closed]:animate-out\",\n\t\t\t\t\"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0\",\n\t\t\t\t\"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95\",\n\t\t\t\t\"data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t</HoverCardPrimitive.Portal>\n));\nHoverCardContent.displayName = \"HoverCardContent\";\n\nexport { HoverCard, HoverCardTrigger, HoverCardContent };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-hover-card",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "popover",
+    "popover-foreground",
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "User profile preview",
+      "description": "Username link that expands into a mini profile on hover",
+      "code": "<HoverCard>\n  <HoverCardTrigger asChild>\n    <a href=\"#\">@shadcn</a>\n  </HoverCardTrigger>\n  <HoverCardContent>\n    <div className=\"flex gap-3\">\n      <Avatar><AvatarImage src=\"https://github.com/shadcn.png\" alt=\"@shadcn\" /><AvatarFallback>CN</AvatarFallback></Avatar>\n      <div>\n        <h4 className=\"font-semibold\">@shadcn</h4>\n        <p className=\"text-xs text-muted-foreground\">Builds UI components</p>\n      </div>\n    </div>\n  </HoverCardContent>\n</HoverCard>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for rich hover previews: user profile cards, link previews, inline references. Contains multiple elements — more than a tooltip can hold.",
+    "whenNotToUse": "Don't use for simple hover labels (use Tooltip). Don't use for click-triggered content (use Popover). Don't use as primary info on touch devices — hover doesn't exist there.",
+    "commonMistakes": [
+      "Using HoverCard for critical info (invisible on touch)",
+      "Too-short openDelay causes flicker on mouse-over traffic",
+      "Omitting asChild on HoverCardTrigger with a custom element"
+    ],
+    "relatedComponents": [
+      "tooltip",
+      "popover"
+    ],
+    "accessibilityNotes": "Radix opens on hover and keyboard focus. Content must be meaningful on focus as well as hover. Consider an alternative for touch users.",
+    "tokenBudget": 400
+  },
+  "tags": [
+    "hover-card",
+    "preview",
+    "overlay",
+    "rich-tooltip"
+  ]
+}
