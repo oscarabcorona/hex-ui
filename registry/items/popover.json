@@ -1,0 +1,109 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "popover",
+  "displayName": "Popover",
+  "description": "Floating content anchored to a trigger element. Non-modal by default — clicks outside dismiss it. Use for inline forms, info, or quick actions.",
+  "category": "component",
+  "subcategory": "overlay",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled open state"
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Default open state"
+    },
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on open state change: (open: boolean) => void"
+    },
+    {
+      "name": "modal",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "When true, content outside the popover is inert"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "PopoverTrigger + PopoverContent",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/popover.tsx",
+      "content": "import * as PopoverPrimitive from \"@radix-ui/react-popover\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container for a popover. */\nconst Popover = PopoverPrimitive.Root;\n\n/** The element that anchors and opens the popover. */\nconst PopoverTrigger = PopoverPrimitive.Trigger;\n\n/** Helper to explicitly anchor the popover to a different element. */\nconst PopoverAnchor = PopoverPrimitive.Anchor;\n\n/** The floating popover content panel. */\nconst PopoverContent = React.forwardRef<\n\tReact.ComponentRef<typeof PopoverPrimitive.Content>,\n\tReact.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>\n>(({ className, align = \"center\", sideOffset = 4, ...props }, ref) => (\n\t<PopoverPrimitive.Portal>\n\t\t<PopoverPrimitive.Content\n\t\t\tref={ref}\n\t\t\talign={align}\n\t\t\tsideOffset={sideOffset}\n\t\t\tclassName={cn(\n\t\t\t\t\"z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none\",\n\t\t\t\t\"data-[state=open]:animate-in data-[state=closed]:animate-out\",\n\t\t\t\t\"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0\",\n\t\t\t\t\"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95\",\n\t\t\t\t\"data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t</PopoverPrimitive.Portal>\n));\nPopoverContent.displayName = \"PopoverContent\";\n\nexport { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-popover",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "popover",
+    "popover-foreground",
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "Basic popover",
+      "description": "Quick settings anchored to a button",
+      "code": "<Popover>\n  <PopoverTrigger asChild>\n    <Button variant=\"outline\">Open</Button>\n  </PopoverTrigger>\n  <PopoverContent>\n    <div className=\"space-y-2\">\n      <h4 className=\"font-medium\">Dimensions</h4>\n      <p className=\"text-sm text-muted-foreground\">Set the dimensions for the layer.</p>\n    </div>\n  </PopoverContent>\n</Popover>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for inline forms, quick settings, info panels, or color pickers. Anchored to a trigger, non-modal, dismisses on outside click.",
+    "whenNotToUse": "Don't use for critical tasks that interrupt (use Dialog). Don't use for hover-only info (use Tooltip or HoverCard). Don't use for menu actions (use DropdownMenu).",
+    "commonMistakes": [
+      "Using Popover when the user must address the content (should be Dialog)",
+      "Missing asChild on PopoverTrigger when using a styled Button",
+      "Popover content too wide — keep it focused and compact"
+    ],
+    "relatedComponents": [
+      "tooltip",
+      "hover-card",
+      "dialog",
+      "dropdown-menu"
+    ],
+    "accessibilityNotes": "Radix manages focus, aria-expanded on the trigger, and closes on Escape. Content is portalled to body so stacking contexts don't clip it.",
+    "tokenBudget": 400
+  },
+  "tags": [
+    "popover",
+    "overlay",
+    "floating",
+    "inline",
+    "anchored"
+  ]
+}

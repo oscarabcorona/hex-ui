@@ -149,6 +149,22 @@
       "tokenBudget": 400
     },
     {
+      "name": "alert-dialog",
+      "displayName": "Alert Dialog",
+      "description": "A modal dialog for destructive confirmations. The user must explicitly accept or cancel — there is no close button. Built on Radix UI AlertDialog.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "alert-dialog",
+        "confirm",
+        "destructive",
+        "modal",
+        "overlay"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 650
+    },
+    {
       "name": "card",
       "displayName": "Card",
       "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
@@ -160,6 +176,54 @@
         "panel",
         "layout",
         "surface"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 400
+    },
+    {
+      "name": "dialog",
+      "displayName": "Dialog",
+      "description": "A modal dialog that interrupts the user with important content. Built on Radix UI with focus trap, escape handling, and scroll lock.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "dialog",
+        "modal",
+        "overlay",
+        "popup",
+        "form"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 600
+    },
+    {
+      "name": "dropdown-menu",
+      "displayName": "Dropdown Menu",
+      "description": "A menu of actions displayed to the user when a trigger is activated. Supports items, checkboxes, radio groups, sub-menus, and keyboard shortcuts.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "dropdown",
+        "menu",
+        "actions",
+        "overflow",
+        "contextual"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 700
+    },
+    {
+      "name": "popover",
+      "displayName": "Popover",
+      "description": "Floating content anchored to a trigger element. Non-modal by default — clicks outside dismiss it. Use for inline forms, info, or quick actions.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "popover",
+        "overlay",
+        "floating",
+        "inline",
+        "anchored"
       ],
       "internalDeps": [],
       "tokenBudget": 400
@@ -179,6 +243,22 @@
       ],
       "internalDeps": [],
       "tokenBudget": 350
+    },
+    {
+      "name": "tooltip",
+      "displayName": "Tooltip",
+      "description": "A small floating label that reveals on hover or focus. Wrap your app in TooltipProvider, then use Tooltip/TooltipTrigger/TooltipContent per tooltip.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "tooltip",
+        "hint",
+        "label",
+        "hover",
+        "overlay"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 300
     }
   ]
 }
