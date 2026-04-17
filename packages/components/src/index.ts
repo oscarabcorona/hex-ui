@@ -24,6 +24,58 @@ export {
 	AccordionTrigger,
 	AccordionContent,
 } from "./components/accordion/accordion.js";
+export {
+	Dialog,
+	DialogPortal,
+	DialogOverlay,
+	DialogTrigger,
+	DialogClose,
+	DialogContent,
+	DialogHeader,
+	DialogFooter,
+	DialogTitle,
+	DialogDescription,
+} from "./components/dialog/dialog.js";
+export {
+	AlertDialog,
+	AlertDialogPortal,
+	AlertDialogOverlay,
+	AlertDialogTrigger,
+	AlertDialogContent,
+	AlertDialogHeader,
+	AlertDialogFooter,
+	AlertDialogTitle,
+	AlertDialogDescription,
+	AlertDialogAction,
+	AlertDialogCancel,
+} from "./components/alert-dialog/alert-dialog.js";
+export {
+	DropdownMenu,
+	DropdownMenuTrigger,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuCheckboxItem,
+	DropdownMenuRadioItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuGroup,
+	DropdownMenuPortal,
+	DropdownMenuSub,
+	DropdownMenuRadioGroup,
+} from "./components/dropdown-menu/dropdown-menu.js";
+export {
+	Popover,
+	PopoverTrigger,
+	PopoverContent,
+	PopoverAnchor,
+} from "./components/popover/popover.js";
+export {
+	Tooltip,
+	TooltipTrigger,
+	TooltipContent,
+	TooltipProvider,
+} from "./components/tooltip/tooltip.js";
 
 // Schemas
 export { buttonSchema } from "./primitives/button/button.schema.js";
@@ -37,6 +89,11 @@ export { separatorSchema } from "./primitives/separator/separator.schema.js";
 export { cardSchema } from "./components/card/card.schema.js";
 export { tabsSchema } from "./components/tabs/tabs.schema.js";
 export { accordionSchema } from "./components/accordion/accordion.schema.js";
+export { dialogSchema } from "./components/dialog/dialog.schema.js";
+export { alertDialogSchema } from "./components/alert-dialog/alert-dialog.schema.js";
+export { dropdownMenuSchema } from "./components/dropdown-menu/dropdown-menu.schema.js";
+export { popoverSchema } from "./components/popover/popover.schema.js";
+export { tooltipSchema } from "./components/tooltip/tooltip.schema.js";
 
 // Utilities
 export { cn } from "./lib/utils.js";

@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* Scan workspace component source so Tailwind picks up classes used in @hex-ui/components */
+@source "../../../../packages/components/src/**/*.{ts,tsx}";
 
 /* Hex UI Design Tokens — Default Theme */
 @theme inline {
