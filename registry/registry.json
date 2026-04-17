@@ -86,6 +86,39 @@
       "tokenBudget": 200
     },
     {
+      "name": "radio-group",
+      "displayName": "Radio Group",
+      "description": "A set of mutually exclusive radio options. Built on Radix UI RadioGroup with roving focus and arrow-key navigation.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "radio",
+        "radio-group",
+        "form",
+        "choice",
+        "mutually-exclusive"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 400
+    },
+    {
+      "name": "select",
+      "displayName": "Select",
+      "description": "An accessible dropdown select for choosing one option from a list. Built on Radix UI Select with full keyboard navigation, typeahead, and RTL support.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "select",
+        "dropdown",
+        "form",
+        "field",
+        "options",
+        "choose"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 800
+    },
+    {
       "name": "separator",
       "displayName": "Separator",
       "description": "A visual divider between content sections with horizontal or vertical orientation.",
@@ -99,6 +132,22 @@
       ],
       "internalDeps": [],
       "tokenBudget": 150
+    },
+    {
+      "name": "slider",
+      "displayName": "Slider",
+      "description": "A range input with draggable thumbs. Supports single value, ranges (two thumbs), custom steps, and full keyboard control.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "slider",
+        "range",
+        "form",
+        "numeric",
+        "input"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 450
     },
     {
       "name": "switch",
@@ -131,6 +180,40 @@
       ],
       "internalDeps": [],
       "tokenBudget": 250
+    },
+    {
+      "name": "toggle",
+      "displayName": "Toggle",
+      "description": "A two-state button that stays pressed when toggled on. Used for formatting toolbars (bold/italic) or option toggles.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "toggle",
+        "button",
+        "pressed",
+        "two-state",
+        "toolbar"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 400
+    },
+    {
+      "name": "toggle-group",
+      "displayName": "Toggle Group",
+      "description": "A set of toggles where one or multiple can be pressed. Inherits Toggle's variant/size via context. Useful for alignment/formatting toolbars.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "tags": [
+        "toggle-group",
+        "toolbar",
+        "formatting",
+        "alignment",
+        "multi-select"
+      ],
+      "internalDeps": [
+        "toggle"
+      ],
+      "tokenBudget": 500
     },
     {
       "name": "accordion",
@@ -211,6 +294,24 @@
       ],
       "internalDeps": [],
       "tokenBudget": 700
+    },
+    {
+      "name": "form",
+      "displayName": "Form",
+      "description": "A form primitive built on react-hook-form + zod. Provides Form/FormField/FormItem/FormLabel/FormControl/FormDescription/FormMessage with automatic aria wiring and error display.",
+      "category": "component",
+      "subcategory": "forms",
+      "tags": [
+        "form",
+        "react-hook-form",
+        "zod",
+        "validation",
+        "field"
+      ],
+      "internalDeps": [
+        "label"
+      ],
+      "tokenBudget": 900
     },
     {
       "name": "popover",

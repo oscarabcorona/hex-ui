@@ -1,0 +1,171 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "toggle",
+  "displayName": "Toggle",
+  "description": "A two-state button that stays pressed when toggled on. Used for formatting toolbars (bold/italic) or option toggles.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "pressed",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled pressed state"
+    },
+    {
+      "name": "defaultPressed",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Default pressed state for uncontrolled usage"
+    },
+    {
+      "name": "onPressedChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on pressed change: (pressed: boolean) => void"
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "Visual style",
+      "enumValues": [
+        "default",
+        "outline"
+      ]
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "Toggle size",
+      "enumValues": [
+        "default",
+        "sm",
+        "lg"
+      ]
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the toggle"
+    }
+  ],
+  "variants": [
+    {
+      "name": "variant",
+      "description": "Visual variants",
+      "values": [
+        {
+          "value": "default",
+          "description": "Transparent ghost-style toggle"
+        },
+        {
+          "value": "outline",
+          "description": "Bordered toggle"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "name": "size",
+      "description": "Size variants",
+      "values": [
+        {
+          "value": "default",
+          "description": "Standard size (h-10)"
+        },
+        {
+          "value": "sm",
+          "description": "Compact size (h-9)"
+        },
+        {
+          "value": "lg",
+          "description": "Large size (h-11)"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Toggle label or icon",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/toggle.tsx",
+      "content": "import * as TogglePrimitive from \"@radix-ui/react-toggle\";\nimport { type VariantProps, cva } from \"class-variance-authority\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\nconst toggleVariants = cva(\n\t[\n\t\t\"inline-flex items-center justify-center rounded-md text-sm font-medium\",\n\t\t\"transition-all duration-200 ease-out\",\n\t\t\"hover:bg-muted hover:text-muted-foreground\",\n\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\"disabled:pointer-events-none disabled:opacity-50\",\n\t\t\"data-[state=on]:bg-accent data-[state=on]:text-accent-foreground\",\n\t\t\"[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0\",\n\t].join(\" \"),\n\t{\n\t\tvariants: {\n\t\t\tvariant: {\n\t\t\t\tdefault: \"bg-transparent\",\n\t\t\t\toutline: \"border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground\",\n\t\t\t},\n\t\t\tsize: {\n\t\t\t\tdefault: \"h-10 px-3 min-w-10\",\n\t\t\t\tsm: \"h-9 px-2.5 min-w-9\",\n\t\t\t\tlg: \"h-11 px-5 min-w-11\",\n\t\t\t},\n\t\t},\n\t\tdefaultVariants: { variant: \"default\", size: \"default\" },\n\t},\n);\n\n/**\n * A two-state button. Stays pressed when toggled on.\n * @returns A styled Radix Toggle root\n */\nconst Toggle = React.forwardRef<\n\tReact.ComponentRef<typeof TogglePrimitive.Root>,\n\tReact.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> & VariantProps<typeof toggleVariants>\n>(({ className, variant, size, ...props }, ref) => (\n\t<TogglePrimitive.Root\n\t\tref={ref}\n\t\tclassName={cn(toggleVariants({ variant, size, className }))}\n\t\t{...props}\n\t/>\n));\nToggle.displayName = \"Toggle\";\n\nexport { Toggle, toggleVariants };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-toggle",
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "muted",
+    "muted-foreground",
+    "accent",
+    "accent-foreground",
+    "input",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic toggle",
+      "description": "Bold text toggle",
+      "code": "<Toggle aria-label=\"Toggle bold\">B</Toggle>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for binary on/off actions that persist: toolbar formatting buttons (bold, italic), layout mode switches, filter toggles. Not submitted as form data.",
+    "whenNotToUse": "Don't use for instant settings (use Switch). Don't use for form boolean fields (use Checkbox). Don't use for choosing one of many (use ToggleGroup).",
+    "commonMistakes": [
+      "Using for form field submission (use Checkbox instead)",
+      "Forgetting aria-label on icon-only toggles",
+      "Using Toggle when ToggleGroup's single-select mode is needed"
+    ],
+    "relatedComponents": [
+      "toggle-group",
+      "switch",
+      "checkbox",
+      "button"
+    ],
+    "accessibilityNotes": "Radix sets aria-pressed correctly. Icon-only toggles MUST have aria-label. Space/Enter toggles state.",
+    "tokenBudget": 400
+  },
+  "tags": [
+    "toggle",
+    "button",
+    "pressed",
+    "two-state",
+    "toolbar"
+  ]
+}

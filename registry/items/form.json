@@ -1,0 +1,90 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "form",
+  "displayName": "Form",
+  "description": "A form primitive built on react-hook-form + zod. Provides Form/FormField/FormItem/FormLabel/FormControl/FormDescription/FormMessage with automatic aria wiring and error display.",
+  "category": "component",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "FormField + FormItem subtrees",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/form.tsx",
+      "content": "\"use client\";\n\nimport * as LabelPrimitive from \"@radix-ui/react-label\";\nimport { Slot } from \"@radix-ui/react-slot\";\nimport * as React from \"react\";\nimport {\n\tController,\n\ttype ControllerProps,\n\ttype FieldPath,\n\ttype FieldValues,\n\tFormProvider,\n\tuseFormContext,\n\tuseFormState,\n} from \"react-hook-form\";\nimport { Label } from \"../../primitives/label/label.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root form provider. Wraps react-hook-form's FormProvider. */\nconst Form = FormProvider;\n\ninterface FormFieldContextValue<\n\tTFieldValues extends FieldValues = FieldValues,\n\tTName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,\n> {\n\tname: TName;\n}\n\nconst FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);\n\n/**\n * Binds a field name to a react-hook-form Controller.\n * Provides context so FormItem children can access field state.\n * @param props - Controller props including name, control, render\n * @returns A Controller with FormFieldContext\n */\nconst FormField = <\n\tTFieldValues extends FieldValues = FieldValues,\n\tTName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,\n>({\n\t...props\n}: ControllerProps<TFieldValues, TName>) => {\n\treturn (\n\t\t<FormFieldContext.Provider value={{ name: props.name }}>\n\t\t\t<Controller {...props} />\n\t\t</FormFieldContext.Provider>\n\t);\n};\n\ninterface FormItemContextValue {\n\tid: string;\n}\n\nconst FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);\n\n/**\n * Hook that returns the current field's id, name, error, and derived aria ids.\n * Must be called inside a FormField + FormItem subtree.\n * @returns Field state + aria descriptors\n */\nfunction useFormField() {\n\tconst fieldContext = React.useContext(FormFieldContext);\n\tconst itemContext = React.useContext(FormItemContext);\n\tif (!fieldContext?.name) {\n\t\tthrow new Error(\"useFormField should be used within <FormField>\");\n\t}\n\n\tconst { getFieldState } = useFormContext();\n\tconst formState = useFormState({ name: fieldContext.name });\n\tconst fieldState = getFieldState(fieldContext.name, formState);\n\n\tconst { id } = itemContext;\n\treturn {\n\t\tid,\n\t\tname: fieldContext.name,\n\t\tformItemId: `${id}-form-item`,\n\t\tformDescriptionId: `${id}-form-item-description`,\n\t\tformMessageId: `${id}-form-item-message`,\n\t\t...fieldState,\n\t};\n}\n\n/** Wraps a single form field (label + control + description + message). */\nconst FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n\t({ className, ...props }, ref) => {\n\t\tconst id = React.useId();\n\t\treturn (\n\t\t\t<FormItemContext.Provider value={{ id }}>\n\t\t\t\t<div ref={ref} className={cn(\"space-y-2\", className)} {...props} />\n\t\t\t</FormItemContext.Provider>\n\t\t);\n\t},\n);\nFormItem.displayName = \"FormItem\";\n\n/** Accessible label wired to the FormItem's control. Turns red on error. */\nconst FormLabel = React.forwardRef<\n\tReact.ComponentRef<typeof LabelPrimitive.Root>,\n\tReact.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>\n>(({ className, ...props }, ref) => {\n\tconst { error, formItemId } = useFormField();\n\treturn (\n\t\t<Label\n\t\t\tref={ref}\n\t\t\tclassName={cn(error && \"text-destructive\", className)}\n\t\t\thtmlFor={formItemId}\n\t\t\t{...props}\n\t\t/>\n\t);\n});\nFormLabel.displayName = \"FormLabel\";\n\n/** Wraps the form control and wires id + aria-describedby + aria-invalid. */\nconst FormControl = React.forwardRef<\n\tReact.ComponentRef<typeof Slot>,\n\tReact.ComponentPropsWithoutRef<typeof Slot>\n>(({ ...props }, ref) => {\n\tconst { error, formItemId, formDescriptionId, formMessageId } = useFormField();\n\treturn (\n\t\t<Slot\n\t\t\tref={ref}\n\t\t\tid={formItemId}\n\t\t\taria-describedby={\n\t\t\t\terror ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`\n\t\t\t}\n\t\t\taria-invalid={!!error}\n\t\t\t{...props}\n\t\t/>\n\t);\n});\nFormControl.displayName = \"FormControl\";\n\n/** Optional helper text below the control. */\nconst FormDescription = React.forwardRef<\n\tHTMLParagraphElement,\n\tReact.HTMLAttributes<HTMLParagraphElement>\n>(({ className, ...props }, ref) => {\n\tconst { formDescriptionId } = useFormField();\n\treturn (\n\t\t<p\n\t\t\tref={ref}\n\t\t\tid={formDescriptionId}\n\t\t\tclassName={cn(\"text-sm text-muted-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n});\nFormDescription.displayName = \"FormDescription\";\n\n/** Validation error message. Renders the error string when the field is invalid. */\nconst FormMessage = React.forwardRef<\n\tHTMLParagraphElement,\n\tReact.HTMLAttributes<HTMLParagraphElement>\n>(({ className, children, ...props }, ref) => {\n\tconst { error, formMessageId } = useFormField();\n\tconst body = error?.message ? String(error.message) : children;\n\tif (!body) return null;\n\treturn (\n\t\t<p\n\t\t\tref={ref}\n\t\t\tid={formMessageId}\n\t\t\tclassName={cn(\"text-sm font-medium text-destructive\", className)}\n\t\t\t{...props}\n\t\t>\n\t\t\t{body}\n\t\t</p>\n\t);\n});\nFormMessage.displayName = \"FormMessage\";\n\nexport {\n\tuseFormField,\n\tForm,\n\tFormItem,\n\tFormLabel,\n\tFormControl,\n\tFormDescription,\n\tFormMessage,\n\tFormField,\n};\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "react-hook-form",
+      "@hookform/resolvers",
+      "zod",
+      "@radix-ui/react-label",
+      "@radix-ui/react-slot",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "label"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "destructive",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Zod-validated form",
+      "description": "Username form with react-hook-form + zod",
+      "code": "import { zodResolver } from \"@hookform/resolvers/zod\";\nimport { useForm } from \"react-hook-form\";\nimport { z } from \"zod\";\n\nconst formSchema = z.object({\n  username: z.string().min(2, \"Username must be at least 2 characters\"),\n});\n\nfunction ProfileForm() {\n  const form = useForm({\n    resolver: zodResolver(formSchema),\n    defaultValues: { username: \"\" },\n  });\n\n  return (\n    <Form {...form}>\n      <form onSubmit={form.handleSubmit((values) => console.log(values))} className=\"space-y-6\">\n        <FormField\n          control={form.control}\n          name=\"username\"\n          render={({ field }) => (\n            <FormItem>\n              <FormLabel>Username</FormLabel>\n              <FormControl><Input placeholder=\"shadcn\" {...field} /></FormControl>\n              <FormDescription>Your public display name.</FormDescription>\n              <FormMessage />\n            </FormItem>\n          )}\n        />\n        <Button type=\"submit\">Submit</Button>\n      </form>\n    </Form>\n  );\n}"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for any form that needs validation, per-field errors, and accessible aria-describedby/aria-invalid wiring. Pair with zod schemas via @hookform/resolvers/zod.",
+    "whenNotToUse": "Don't use for trivial single-input forms that don't need validation (render a plain Input + Button). Don't use for server actions forms in Next.js 16 (consider useActionState + useFormStatus instead).",
+    "commonMistakes": [
+      "Forgetting to spread {...field} into the form control (connects value/onChange)",
+      "Putting FormLabel outside FormItem (loses htmlFor wiring)",
+      "Using useForm without a resolver when zod validation is desired",
+      "Calling form.handleSubmit without a callback"
+    ],
+    "relatedComponents": [
+      "input",
+      "textarea",
+      "select",
+      "checkbox",
+      "radio-group",
+      "switch"
+    ],
+    "accessibilityNotes": "FormControl automatically wires id, aria-describedby, and aria-invalid. FormLabel uses htmlFor matching the control id. Errors are announced via FormMessage with matching aria-describedby.",
+    "tokenBudget": 900
+  },
+  "tags": [
+    "form",
+    "react-hook-form",
+    "zod",
+    "validation",
+    "field"
+  ]
+}
