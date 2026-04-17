@@ -1,0 +1,115 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "sonner",
+  "displayName": "Sonner (Toast)",
+  "description": "Ephemeral toast notifications via Sonner. Render <Toaster /> once at app root, then call toast() anywhere.",
+  "category": "component",
+  "subcategory": "feedback",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "position",
+      "type": "enum",
+      "required": false,
+      "default": "bottom-right",
+      "description": "Where toasts appear on screen",
+      "enumValues": [
+        "top-left",
+        "top-center",
+        "top-right",
+        "bottom-left",
+        "bottom-center",
+        "bottom-right"
+      ]
+    },
+    {
+      "name": "richColors",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Enable success/error/warning color variants via toast.success/error/warning"
+    },
+    {
+      "name": "closeButton",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Show a close button on each toast"
+    },
+    {
+      "name": "theme",
+      "type": "enum",
+      "required": false,
+      "default": "system",
+      "description": "Visual theme",
+      "enumValues": [
+        "light",
+        "dark",
+        "system"
+      ]
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/sonner.tsx",
+      "content": "\"use client\";\n\nimport { Toaster as SonnerToaster, toast } from \"sonner\";\n\ntype ToasterProps = React.ComponentProps<typeof SonnerToaster>;\n\n/**\n * The global toast container. Render once in your app root.\n * Re-export of Sonner's Toaster styled to use Hex UI theme tokens.\n * @param props - Sonner Toaster props (position, richColors, etc.)\n * @returns A styled portal container for toast notifications\n */\nfunction Toaster({ ...props }: ToasterProps) {\n\treturn (\n\t\t<SonnerToaster\n\t\t\ttheme=\"system\"\n\t\t\tclassName=\"toaster group\"\n\t\t\ttoastOptions={{\n\t\t\t\tclassNames: {\n\t\t\t\t\ttoast:\n\t\t\t\t\t\t\"group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg\",\n\t\t\t\t\tdescription: \"group-[.toast]:text-muted-foreground\",\n\t\t\t\t\tactionButton:\n\t\t\t\t\t\t\"group-[.toast]:bg-primary group-[.toast]:text-primary-foreground\",\n\t\t\t\t\tcancelButton:\n\t\t\t\t\t\t\"group-[.toast]:bg-muted group-[.toast]:text-muted-foreground\",\n\t\t\t\t},\n\t\t\t}}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\nexport { Toaster, toast };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "sonner"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "foreground",
+    "border",
+    "muted",
+    "muted-foreground",
+    "primary",
+    "primary-foreground"
+  ],
+  "examples": [
+    {
+      "title": "App setup + fire toast",
+      "description": "Render Toaster once, call toast() anywhere",
+      "code": "// In your root layout:\n<Toaster />\n\n// Anywhere in your app:\nimport { toast } from \"@/components/ui/sonner\";\n\n<Button onClick={() => toast(\"Event created\", { description: \"Friday, Dec 11 at 10:00 AM\" })}>\n  Show toast\n</Button>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for transient feedback: save confirmations, error messages, background task completion. Pairs well with mutation handlers (onSuccess/onError).",
+    "whenNotToUse": "Don't use for persistent info (use Alert). Don't use for destructive confirmations (use AlertDialog). Don't use for critical errors that block user workflow.",
+    "commonMistakes": [
+      "Rendering multiple <Toaster /> components (one is enough)",
+      "Calling toast() during server rendering (must be client-side)",
+      "Using toast for messages the user needs to re-read (they auto-dismiss)"
+    ],
+    "relatedComponents": [
+      "alert",
+      "alert-dialog"
+    ],
+    "accessibilityNotes": "Sonner handles aria-live='polite' on the toast region so screen readers announce new toasts. Critical messages should still use Alert/AlertDialog for persistent visibility.",
+    "tokenBudget": 450
+  },
+  "tags": [
+    "toast",
+    "sonner",
+    "notification",
+    "transient",
+    "feedback"
+  ]
+}

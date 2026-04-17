@@ -60,25 +60,53 @@ function findSchemaFiles(): SchemaFile[] {
 function extractSchemaObject(filePath: string): Record<string, unknown> | null {
 	const content = fs.readFileSync(filePath, "utf-8");
 
-	// Extract the object literal from the schema file
-	// Find the first { after the = sign of the export
-	const exportMatch = content.match(/export\s+const\s+\w+Schema[^=]*=\s*(\{[\s\S]*\})\s*;?\s*$/m);
-	if (!exportMatch) return null;
+	// Find the start of the exported schema object: `export const <name>Schema[...] = {`
+	const start = content.search(/export\s+const\s+\w+Schema[^=]*=\s*\{/);
+	if (start === -1) return null;
 
-	let objStr = exportMatch[1];
+	// Find the opening brace after the `=`
+	const braceOpen = content.indexOf("{", start);
+	if (braceOpen === -1) return null;
 
-	// Simple TS-to-JSON conversion:
-	// Remove type annotations, convert to valid JSON-ish format
-	// We'll use a Function constructor approach for safety within build scripts
+	// Walk forward counting braces (ignoring those inside strings/template literals) to find the matching close brace
+	let depth = 0;
+	let inString: '"' | "'" | "`" | null = null;
+	let escapeNext = false;
+	let end = -1;
+	for (let i = braceOpen; i < content.length; i++) {
+		const ch = content[i];
+		if (escapeNext) {
+			escapeNext = false;
+			continue;
+		}
+		if (inString) {
+			if (ch === "\\") {
+				escapeNext = true;
+				continue;
+			}
+			if (ch === inString) inString = null;
+			continue;
+		}
+		if (ch === '"' || ch === "'" || ch === "`") {
+			inString = ch;
+		} else if (ch === "{") {
+			depth++;
+		} else if (ch === "}") {
+			depth--;
+			if (depth === 0) {
+				end = i;
+				break;
+			}
+		}
+	}
+	if (end === -1) return null;
+
+	const objStr = content.slice(braceOpen, end + 1);
 	try {
-		// Replace single-line comments
-		objStr = objStr.replace(/\/\/.*$/gm, "");
-		// The object uses JS syntax (unquoted keys, trailing commas, template literals)
-		// Use eval in build context only (this is a build script, not runtime)
 		const fn = new Function(`return (${objStr})`);
 		return fn() as Record<string, unknown>;
-	} catch {
-		console.warn(`  Warning: Could not parse schema from ${filePath}`);
+	} catch (err) {
+		console.warn(`  Warning: Could not parse schema from ${filePath}`, err);
 		return null;
 	}
 }

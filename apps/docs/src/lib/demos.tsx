@@ -1,6 +1,9 @@
 import type { ComponentType } from "react";
 import { AccordionDemo } from "../app/demos/accordion-demo";
+import { AlertDemo } from "../app/demos/alert-demo";
 import { AlertDialogDemo } from "../app/demos/alert-dialog-demo";
+import { AspectRatioDemo } from "../app/demos/aspect-ratio-demo";
+import { AvatarDemo } from "../app/demos/avatar-demo";
 import { BadgeDemo } from "../app/demos/badge-demo";
 import { ButtonDemo } from "../app/demos/button-demo";
 import { CardDemo } from "../app/demos/card-demo";
@@ -11,10 +14,14 @@ import { FormDemo } from "../app/demos/form-demo";
 import { InputDemo } from "../app/demos/input-demo";
 import { LabelDemo } from "../app/demos/label-demo";
 import { PopoverDemo } from "../app/demos/popover-demo";
+import { ProgressDemo } from "../app/demos/progress-demo";
 import { RadioGroupDemo } from "../app/demos/radio-group-demo";
+import { ScrollAreaDemo } from "../app/demos/scroll-area-demo";
 import { SelectDemo } from "../app/demos/select-demo";
 import { SeparatorDemo } from "../app/demos/separator-demo";
+import { SkeletonDemo } from "../app/demos/skeleton-demo";
 import { SliderDemo } from "../app/demos/slider-demo";
+import { SonnerDemo } from "../app/demos/sonner-demo";
 import { SwitchDemo } from "../app/demos/switch-demo";
 import { TabsDemo } from "../app/demos/tabs-demo";
 import { TextareaDemo } from "../app/demos/textarea-demo";
@@ -28,7 +35,10 @@ import { TooltipDemo } from "../app/demos/tooltip-demo";
  */
 export const demos: Record<string, ComponentType> = {
 	accordion: AccordionDemo,
+	alert: AlertDemo,
 	"alert-dialog": AlertDialogDemo,
+	"aspect-ratio": AspectRatioDemo,
+	avatar: AvatarDemo,
 	badge: BadgeDemo,
 	button: ButtonDemo,
 	card: CardDemo,
@@ -39,10 +49,14 @@ export const demos: Record<string, ComponentType> = {
 	input: InputDemo,
 	label: LabelDemo,
 	popover: PopoverDemo,
+	progress: ProgressDemo,
 	"radio-group": RadioGroupDemo,
+	"scroll-area": ScrollAreaDemo,
 	select: SelectDemo,
 	separator: SeparatorDemo,
+	skeleton: SkeletonDemo,
 	slider: SliderDemo,
+	sonner: SonnerDemo,
 	switch: SwitchDemo,
 	tabs: TabsDemo,
 	textarea: TextareaDemo,

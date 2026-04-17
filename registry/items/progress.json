@@ -1,0 +1,91 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "progress",
+  "displayName": "Progress",
+  "description": "A horizontal progress bar showing completion from 0 to 100%. Built on Radix UI Progress.",
+  "category": "primitive",
+  "subcategory": "feedback",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": false,
+      "description": "Current value (0–100). Undefined renders indeterminate state"
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "required": false,
+      "default": 100,
+      "description": "Maximum value"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/progress.tsx",
+      "content": "import * as ProgressPrimitive from \"@radix-ui/react-progress\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * A horizontal progress bar from 0–100%.\n * Built on Radix UI Progress for aria-valuenow/max wiring.\n */\nconst Progress = React.forwardRef<\n\tReact.ComponentRef<typeof ProgressPrimitive.Root>,\n\tReact.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>\n>(({ className, value, max = 100, ...props }, ref) => {\n\tconst pct = Math.max(0, Math.min(100, ((value ?? 0) / max) * 100));\n\treturn (\n\t\t<ProgressPrimitive.Root\n\t\t\tref={ref}\n\t\t\tvalue={value}\n\t\t\tmax={max}\n\t\t\tclassName={cn(\n\t\t\t\t\"relative h-2 w-full overflow-hidden rounded-full bg-secondary\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<ProgressPrimitive.Indicator\n\t\t\t\tclassName=\"h-full w-full flex-1 bg-primary transition-transform duration-500 ease-out\"\n\t\t\t\tstyle={{ transform: `translateX(-${100 - pct}%)` }}\n\t\t\t/>\n\t\t</ProgressPrimitive.Root>\n\t);\n});\nProgress.displayName = \"Progress\";\n\nexport { Progress };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-progress",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "secondary",
+    "primary"
+  ],
+  "examples": [
+    {
+      "title": "Basic progress",
+      "description": "At 60%",
+      "code": "<Progress value={60} />"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for deterministic progress where completion is measurable: file uploads, multi-step form completion, batch processing. Pair with a visible numeric label where precision matters.",
+    "whenNotToUse": "Don't use for indeterminate waits (use a spinner or Skeleton). Don't use for completion over long time-spans without a human-readable ETA.",
+    "commonMistakes": [
+      "Passing 0–1 float instead of 0–100",
+      "Not labeling the progress (users can't tell what's progressing)",
+      "Updating too frequently (>30fps) — wastes renders"
+    ],
+    "relatedComponents": [
+      "skeleton"
+    ],
+    "accessibilityNotes": "Radix wires role='progressbar', aria-valuenow, aria-valuemin, aria-valuemax. Pair with a visible label or aria-label for context.",
+    "tokenBudget": 250
+  },
+  "tags": [
+    "progress",
+    "loading",
+    "bar",
+    "feedback",
+    "determinate"
+  ]
+}

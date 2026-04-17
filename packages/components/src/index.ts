@@ -21,6 +21,11 @@ export { RadioGroup, RadioGroupItem } from "./primitives/radio-group/radio-group
 export { Slider } from "./primitives/slider/slider.js";
 export { Toggle, toggleVariants } from "./primitives/toggle/toggle.js";
 export { ToggleGroup, ToggleGroupItem } from "./primitives/toggle-group/toggle-group.js";
+export { Avatar, AvatarImage, AvatarFallback } from "./primitives/avatar/avatar.js";
+export { Skeleton } from "./primitives/skeleton/skeleton.js";
+export { Progress } from "./primitives/progress/progress.js";
+export { ScrollArea, ScrollBar } from "./primitives/scroll-area/scroll-area.js";
+export { AspectRatio } from "./primitives/aspect-ratio/aspect-ratio.js";
 
 // Components
 export {
@@ -100,6 +105,8 @@ export {
 	FormField,
 	useFormField,
 } from "./components/form/form.js";
+export { Alert, AlertTitle, AlertDescription, alertVariants } from "./components/alert/alert.js";
+export { Toaster, toast } from "./components/sonner/sonner.js";
 
 // Schemas
 export { buttonSchema } from "./primitives/button/button.schema.js";
@@ -124,6 +131,13 @@ export { sliderSchema } from "./primitives/slider/slider.schema.js";
 export { toggleSchema } from "./primitives/toggle/toggle.schema.js";
 export { toggleGroupSchema } from "./primitives/toggle-group/toggle-group.schema.js";
 export { formSchema } from "./components/form/form.schema.js";
+export { avatarSchema } from "./primitives/avatar/avatar.schema.js";
+export { skeletonSchema } from "./primitives/skeleton/skeleton.schema.js";
+export { progressSchema } from "./primitives/progress/progress.schema.js";
+export { scrollAreaSchema } from "./primitives/scroll-area/scroll-area.schema.js";
+export { aspectRatioSchema } from "./primitives/aspect-ratio/aspect-ratio.schema.js";
+export { alertSchema } from "./components/alert/alert.schema.js";
+export { sonnerSchema } from "./components/sonner/sonner.schema.js";
 
 // Utilities
 export { cn } from "./lib/utils.js";

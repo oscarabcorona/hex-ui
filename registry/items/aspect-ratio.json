@@ -1,0 +1,78 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "aspect-ratio",
+  "displayName": "Aspect Ratio",
+  "description": "Constrain children to a specific width-to-height ratio (e.g. 16/9 for video, 1/1 for square).",
+  "category": "primitive",
+  "subcategory": "layout",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Width-to-height ratio (e.g. 16/9 ≈ 1.778)"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Content to constrain (usually an image or iframe)",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/aspect-ratio.tsx",
+      "content": "import * as AspectRatioPrimitive from \"@radix-ui/react-aspect-ratio\";\n\n/** A container that maintains a specified width-to-height ratio for its children. */\nconst AspectRatio = AspectRatioPrimitive.Root;\n\nexport { AspectRatio };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-aspect-ratio"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [],
+  "examples": [
+    {
+      "title": "16:9 video thumbnail",
+      "description": "Image constrained to widescreen ratio",
+      "code": "<AspectRatio ratio={16 / 9} className=\"bg-muted\">\n  <img src=\"/hero.jpg\" alt=\"Hero\" className=\"h-full w-full rounded-md object-cover\" />\n</AspectRatio>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use when an image or iframe must maintain a specific ratio regardless of container width: video thumbnails, product images, hero banners, embeds.",
+    "whenNotToUse": "Don't use for content with known fixed dimensions (just use width/height). Don't use for text content (ratios don't make sense for prose).",
+    "commonMistakes": [
+      "Passing ratio as a string instead of a number (use {16/9}, not '16/9')",
+      "Forgetting that children must fill 100% width + height (add object-cover or similar)"
+    ],
+    "relatedComponents": [],
+    "accessibilityNotes": "AspectRatio is purely structural. Ensure inner <img> has alt text and inner <iframe> has a descriptive title.",
+    "tokenBudget": 200
+  },
+  "tags": [
+    "aspect-ratio",
+    "layout",
+    "image",
+    "video",
+    "ratio"
+  ]
+}

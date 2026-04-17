@@ -6,6 +6,40 @@
   "homepage": "https://hex-ui.dev",
   "items": [
     {
+      "name": "aspect-ratio",
+      "displayName": "Aspect Ratio",
+      "description": "Constrain children to a specific width-to-height ratio (e.g. 16/9 for video, 1/1 for square).",
+      "category": "primitive",
+      "subcategory": "layout",
+      "tags": [
+        "aspect-ratio",
+        "layout",
+        "image",
+        "video",
+        "ratio"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 200
+    },
+    {
+      "name": "avatar",
+      "displayName": "Avatar",
+      "description": "A user profile image with a fallback (usually initials) rendered when the image is missing or fails to load. Built on Radix UI Avatar — AvatarFallback accepts a delayMs prop to avoid flashing during fast loads.",
+      "category": "primitive",
+      "subcategory": "display",
+      "tags": [
+        "avatar",
+        "profile",
+        "user",
+        "image",
+        "display"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 250
+    },
+    {
       "name": "badge",
       "displayName": "Badge",
       "description": "A small status indicator with multiple style variants. Used for tags, statuses, and categorization.",
@@ -86,6 +120,24 @@
       "tokenBudget": 200
     },
     {
+      "name": "progress",
+      "displayName": "Progress",
+      "description": "A horizontal progress bar showing completion from 0 to 100%. Built on Radix UI Progress.",
+      "category": "primitive",
+      "subcategory": "feedback",
+      "tags": [
+        "progress",
+        "loading",
+        "bar",
+        "feedback",
+        "determinate"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 250
+    },
+    {
       "name": "radio-group",
       "displayName": "Radio Group",
       "description": "A set of mutually exclusive radio options. Built on Radix UI RadioGroup with roving focus and arrow-key navigation.",
@@ -100,6 +152,24 @@
       ],
       "internalDeps": [],
       "tokenBudget": 400
+    },
+    {
+      "name": "scroll-area",
+      "displayName": "Scroll Area",
+      "description": "A scrollable region with custom-styled scrollbars that match the design system. Content must be explicitly sized.",
+      "category": "primitive",
+      "subcategory": "layout",
+      "tags": [
+        "scroll-area",
+        "scroll",
+        "overflow",
+        "scrollbar",
+        "layout"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 350
     },
     {
       "name": "select",
@@ -132,6 +202,23 @@
       ],
       "internalDeps": [],
       "tokenBudget": 150
+    },
+    {
+      "name": "skeleton",
+      "displayName": "Skeleton",
+      "description": "A pulsing placeholder shown while content is loading. Pair with explicit dimensions.",
+      "category": "primitive",
+      "subcategory": "feedback",
+      "tags": [
+        "skeleton",
+        "loading",
+        "placeholder",
+        "shimmer"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 200
     },
     {
       "name": "slider",
@@ -232,6 +319,25 @@
       "tokenBudget": 400
     },
     {
+      "name": "alert",
+      "displayName": "Alert",
+      "description": "An inline notification banner for important messages. Supports default and destructive variants with optional leading icon.",
+      "category": "component",
+      "subcategory": "feedback",
+      "tags": [
+        "alert",
+        "notification",
+        "banner",
+        "info",
+        "warning",
+        "error"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 350
+    },
+    {
       "name": "alert-dialog",
       "displayName": "Alert Dialog",
       "description": "A modal dialog for destructive confirmations. The user must explicitly accept or cancel — there is no close button. Built on Radix UI AlertDialog.",
@@ -328,6 +434,22 @@
       ],
       "internalDeps": [],
       "tokenBudget": 400
+    },
+    {
+      "name": "sonner",
+      "displayName": "Sonner (Toast)",
+      "description": "Ephemeral toast notifications via Sonner. Render <Toaster /> once at app root, then call toast() anywhere.",
+      "category": "component",
+      "subcategory": "feedback",
+      "tags": [
+        "toast",
+        "sonner",
+        "notification",
+        "transient",
+        "feedback"
+      ],
+      "internalDeps": [],
+      "tokenBudget": 450
     },
     {
       "name": "tabs",
