@@ -7,6 +7,20 @@ export { Checkbox, type CheckboxProps } from "./primitives/checkbox/checkbox.js"
 export { Switch, type SwitchProps } from "./primitives/switch/switch.js";
 export { Badge, badgeVariants, type BadgeProps } from "./primitives/badge/badge.js";
 export { Separator, type SeparatorProps } from "./primitives/separator/separator.js";
+export {
+	Select,
+	SelectGroup,
+	SelectValue,
+	SelectTrigger,
+	SelectContent,
+	SelectLabel,
+	SelectItem,
+	SelectSeparator,
+} from "./primitives/select/select.js";
+export { RadioGroup, RadioGroupItem } from "./primitives/radio-group/radio-group.js";
+export { Slider } from "./primitives/slider/slider.js";
+export { Toggle, toggleVariants } from "./primitives/toggle/toggle.js";
+export { ToggleGroup, ToggleGroupItem } from "./primitives/toggle-group/toggle-group.js";
 
 // Components
 export {
@@ -76,6 +90,16 @@ export {
 	TooltipContent,
 	TooltipProvider,
 } from "./components/tooltip/tooltip.js";
+export {
+	Form,
+	FormItem,
+	FormLabel,
+	FormControl,
+	FormDescription,
+	FormMessage,
+	FormField,
+	useFormField,
+} from "./components/form/form.js";
 
 // Schemas
 export { buttonSchema } from "./primitives/button/button.schema.js";
@@ -94,6 +118,12 @@ export { alertDialogSchema } from "./components/alert-dialog/alert-dialog.schema
 export { dropdownMenuSchema } from "./components/dropdown-menu/dropdown-menu.schema.js";
 export { popoverSchema } from "./components/popover/popover.schema.js";
 export { tooltipSchema } from "./components/tooltip/tooltip.schema.js";
+export { selectSchema } from "./primitives/select/select.schema.js";
+export { radioGroupSchema } from "./primitives/radio-group/radio-group.schema.js";
+export { sliderSchema } from "./primitives/slider/slider.schema.js";
+export { toggleSchema } from "./primitives/toggle/toggle.schema.js";
+export { toggleGroupSchema } from "./primitives/toggle-group/toggle-group.schema.js";
+export { formSchema } from "./components/form/form.schema.js";
 
 // Utilities
 export { cn } from "./lib/utils.js";

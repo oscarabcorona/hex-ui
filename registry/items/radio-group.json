@@ -1,0 +1,124 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "radio-group",
+  "displayName": "Radio Group",
+  "description": "A set of mutually exclusive radio options. Built on Radix UI RadioGroup with roving focus and arrow-key navigation.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled selected value"
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Default selected value for uncontrolled usage"
+    },
+    {
+      "name": "onValueChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on value change: (value: string) => void"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable all items"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": false,
+      "description": "Form field name (for native form submission)"
+    },
+    {
+      "name": "orientation",
+      "type": "enum",
+      "required": false,
+      "default": "vertical",
+      "description": "Layout direction",
+      "enumValues": [
+        "horizontal",
+        "vertical"
+      ]
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "RadioGroupItem elements, typically paired with Labels",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/radio-group.tsx",
+      "content": "import * as RadioGroupPrimitive from \"@radix-ui/react-radio-group\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container for a radio group. Pair with one or more RadioGroupItem. */\nconst RadioGroup = React.forwardRef<\n\tReact.ComponentRef<typeof RadioGroupPrimitive.Root>,\n\tReact.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>\n>(({ className, ...props }, ref) => (\n\t<RadioGroupPrimitive.Root\n\t\tclassName={cn(\n\t\t\t\"grid gap-2 data-[orientation=horizontal]:flex data-[orientation=horizontal]:flex-row\",\n\t\t\tclassName,\n\t\t)}\n\t\tref={ref}\n\t\t{...props}\n\t/>\n));\nRadioGroup.displayName = \"RadioGroup\";\n\n/** A single radio option within a RadioGroup. */\nconst RadioGroupItem = React.forwardRef<\n\tReact.ComponentRef<typeof RadioGroupPrimitive.Item>,\n\tReact.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>\n>(({ className, ...props }, ref) => (\n\t<RadioGroupPrimitive.Item\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"aspect-square h-4 w-4 rounded-full border border-input\",\n\t\t\t\"transition-all duration-200 ease-out shadow-sm\",\n\t\t\t\"hover:border-ring/50 hover:shadow-md\",\n\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\"disabled:cursor-not-allowed disabled:opacity-50\",\n\t\t\t\"data-[state=checked]:border-primary\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t<RadioGroupPrimitive.Indicator className=\"flex items-center justify-center\">\n\t\t\t<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" className=\"h-2 w-2 text-primary\" aria-hidden=\"true\">\n\t\t\t\t<circle cx=\"12\" cy=\"12\" r=\"10\" />\n\t\t\t</svg>\n\t\t</RadioGroupPrimitive.Indicator>\n\t</RadioGroupPrimitive.Item>\n));\nRadioGroupItem.displayName = \"RadioGroupItem\";\n\nexport { RadioGroup, RadioGroupItem };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-radio-group",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "input",
+    "primary",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic radio group",
+      "description": "Select a notification preference",
+      "code": "<RadioGroup defaultValue=\"comfortable\">\n  <div className=\"flex items-center gap-2\">\n    <RadioGroupItem value=\"default\" id=\"r1\" />\n    <Label htmlFor=\"r1\">Default</Label>\n  </div>\n  <div className=\"flex items-center gap-2\">\n    <RadioGroupItem value=\"comfortable\" id=\"r2\" />\n    <Label htmlFor=\"r2\">Comfortable</Label>\n  </div>\n  <div className=\"flex items-center gap-2\">\n    <RadioGroupItem value=\"compact\" id=\"r3\" />\n    <Label htmlFor=\"r3\">Compact</Label>\n  </div>\n</RadioGroup>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for mutually exclusive choices from a short list (2-5 options) where all options should be visible. Pair each RadioGroupItem with a Label.",
+    "whenNotToUse": "Don't use for many options (use Select). Don't use for boolean toggles (use Switch or Checkbox). Don't use for multi-select.",
+    "commonMistakes": [
+      "Missing Label for each RadioGroupItem",
+      "Using for more than 5 options (use Select)",
+      "Using htmlFor id mismatch between Label and RadioGroupItem"
+    ],
+    "relatedComponents": [
+      "select",
+      "checkbox",
+      "label"
+    ],
+    "accessibilityNotes": "Radix implements the WAI-ARIA radio group pattern. Arrow keys move focus+selection. Radix handles aria-checked, role='radiogroup', role='radio'.",
+    "tokenBudget": 400
+  },
+  "tags": [
+    "radio",
+    "radio-group",
+    "form",
+    "choice",
+    "mutually-exclusive"
+  ]
+}

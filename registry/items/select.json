@@ -1,0 +1,129 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "select",
+  "displayName": "Select",
+  "description": "An accessible dropdown select for choosing one option from a list. Built on Radix UI Select with full keyboard navigation, typeahead, and RTL support.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "[Select root prop] Controlled selected value"
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "[Select root prop] Default selected value for uncontrolled usage"
+    },
+    {
+      "name": "onValueChange",
+      "type": "function",
+      "required": false,
+      "description": "[Select root prop] Callback on value change: (value: string) => void"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "[Select root prop] Disable the entire select"
+    },
+    {
+      "name": "required",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "[Select root prop] Mark as required for form validation"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": false,
+      "description": "[Select root prop] Form field name (for native form submission)"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "SelectTrigger + SelectContent (with SelectItems, Groups, Labels)",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/select.tsx",
+      "content": "import * as SelectPrimitive from \"@radix-ui/react-select\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container controlling the select's state. */\nconst Select = SelectPrimitive.Root;\n\n/** Groups a set of related SelectItem elements. */\nconst SelectGroup = SelectPrimitive.Group;\n\n/** Renders the selected value (or placeholder) inside the trigger. */\nconst SelectValue = SelectPrimitive.Value;\n\n/** The button users click to open the dropdown. */\nconst SelectTrigger = React.forwardRef<\n\tReact.ComponentRef<typeof SelectPrimitive.Trigger>,\n\tReact.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>\n>(({ className, children, ...props }, ref) => (\n\t<SelectPrimitive.Trigger\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm\",\n\t\t\t\"transition-all duration-200 ease-out shadow-sm\",\n\t\t\t\"placeholder:text-muted-foreground\",\n\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\"focus-visible:shadow-md focus-visible:border-ring/50\",\n\t\t\t\"hover:border-ring/30 hover:shadow-md\",\n\t\t\t\"disabled:cursor-not-allowed disabled:opacity-50\",\n\t\t\t\"[&>span]:line-clamp-1\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t{children}\n\t\t<SelectPrimitive.Icon asChild>\n\t\t\t<svg\n\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\tfill=\"none\"\n\t\t\t\tstroke=\"currentColor\"\n\t\t\t\tstrokeWidth=\"2\"\n\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\tclassName=\"h-4 w-4 opacity-50\"\n\t\t\t\taria-hidden=\"true\"\n\t\t\t>\n\t\t\t\t<path d=\"m7 15 5 5 5-5\" />\n\t\t\t\t<path d=\"m7 9 5-5 5 5\" />\n\t\t\t</svg>\n\t\t</SelectPrimitive.Icon>\n\t</SelectPrimitive.Trigger>\n));\nSelectTrigger.displayName = \"SelectTrigger\";\n\n/** The dropdown panel containing selectable options. */\nconst SelectContent = React.forwardRef<\n\tReact.ComponentRef<typeof SelectPrimitive.Content>,\n\tReact.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>\n>(({ className, children, position = \"popper\", ...props }, ref) => (\n\t<SelectPrimitive.Portal>\n\t\t<SelectPrimitive.Content\n\t\t\tref={ref}\n\t\t\tposition={position}\n\t\t\tclassName={cn(\n\t\t\t\t\"relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md\",\n\t\t\t\t\"data-[state=open]:animate-in data-[state=closed]:animate-out\",\n\t\t\t\t\"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0\",\n\t\t\t\t\"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95\",\n\t\t\t\t\"data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2\",\n\t\t\t\tposition === \"popper\" &&\n\t\t\t\t\t\"data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<SelectPrimitive.Viewport\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"p-1\",\n\t\t\t\t\tposition === \"popper\" &&\n\t\t\t\t\t\t\"h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]\",\n\t\t\t\t)}\n\t\t\t>\n\t\t\t\t{children}\n\t\t\t</SelectPrimitive.Viewport>\n\t\t</SelectPrimitive.Content>\n\t</SelectPrimitive.Portal>\n));\nSelectContent.displayName = \"SelectContent\";\n\n/** A non-interactive label within a SelectGroup. */\nconst SelectLabel = React.forwardRef<\n\tReact.ComponentRef<typeof SelectPrimitive.Label>,\n\tReact.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>\n>(({ className, ...props }, ref) => (\n\t<SelectPrimitive.Label\n\t\tref={ref}\n\t\tclassName={cn(\"py-1.5 pl-8 pr-2 text-sm font-semibold\", className)}\n\t\t{...props}\n\t/>\n));\nSelectLabel.displayName = \"SelectLabel\";\n\n/** A selectable option. */\nconst SelectItem = React.forwardRef<\n\tReact.ComponentRef<typeof SelectPrimitive.Item>,\n\tReact.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>\n>(({ className, children, ...props }, ref) => (\n\t<SelectPrimitive.Item\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none\",\n\t\t\t\"transition-colors duration-150\",\n\t\t\t\"focus:bg-accent focus:text-accent-foreground\",\n\t\t\t\"data-[disabled]:pointer-events-none data-[disabled]:opacity-50\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t<span className=\"absolute left-2 flex h-3.5 w-3.5 items-center justify-center\">\n\t\t\t<SelectPrimitive.ItemIndicator>\n\t\t\t\t<svg\n\t\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\t\tfill=\"none\"\n\t\t\t\t\tstroke=\"currentColor\"\n\t\t\t\t\tstrokeWidth=\"3\"\n\t\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\t\tclassName=\"h-4 w-4\"\n\t\t\t\t\taria-hidden=\"true\"\n\t\t\t\t>\n\t\t\t\t\t<polyline points=\"20 6 9 17 4 12\" />\n\t\t\t\t</svg>\n\t\t\t</SelectPrimitive.ItemIndicator>\n\t\t</span>\n\t\t<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>\n\t</SelectPrimitive.Item>\n));\nSelectItem.displayName = \"SelectItem\";\n\n/** Horizontal divider between groups inside SelectContent. */\nconst SelectSeparator = React.forwardRef<\n\tReact.ComponentRef<typeof SelectPrimitive.Separator>,\n\tReact.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>\n>(({ className, ...props }, ref) => (\n\t<SelectPrimitive.Separator\n\t\tref={ref}\n\t\tclassName={cn(\"-mx-1 my-1 h-px bg-muted\", className)}\n\t\t{...props}\n\t/>\n));\nSelectSeparator.displayName = \"SelectSeparator\";\n\nexport {\n\tSelect,\n\tSelectGroup,\n\tSelectValue,\n\tSelectTrigger,\n\tSelectContent,\n\tSelectLabel,\n\tSelectItem,\n\tSelectSeparator,\n};\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-select",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "input",
+    "background",
+    "ring",
+    "muted-foreground",
+    "popover",
+    "popover-foreground",
+    "accent",
+    "accent-foreground",
+    "muted",
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "Basic select",
+      "description": "Choose a timezone",
+      "code": "<Select>\n  <SelectTrigger className=\"w-[180px]\">\n    <SelectValue placeholder=\"Select a fruit\" />\n  </SelectTrigger>\n  <SelectContent>\n    <SelectGroup>\n      <SelectLabel>Fruits</SelectLabel>\n      <SelectItem value=\"apple\">Apple</SelectItem>\n      <SelectItem value=\"banana\">Banana</SelectItem>\n      <SelectItem value=\"orange\">Orange</SelectItem>\n    </SelectGroup>\n  </SelectContent>\n</Select>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for choosing one option from a known, finite list (<= ~20 items): timezones, categories, roles, country codes. Pair with Label.",
+    "whenNotToUse": "Don't use for large searchable lists (use Combobox). Don't use for boolean choices (use Switch/Checkbox). Don't use for action menus (use DropdownMenu). Don't use for multi-select (needs a different component).",
+    "commonMistakes": [
+      "Missing Label pairing",
+      "Forgetting SelectValue inside SelectTrigger",
+      "Using Select when the list is large (use Combobox)",
+      "Putting non-SelectItem children inside SelectContent"
+    ],
+    "relatedComponents": [
+      "combobox",
+      "dropdown-menu",
+      "radio-group"
+    ],
+    "accessibilityNotes": "Full keyboard nav: arrow keys, Home, End, typeahead, Escape to close. Radix handles role='combobox' on trigger, role='listbox' on content, aria-selected on items.",
+    "tokenBudget": 800
+  },
+  "tags": [
+    "select",
+    "dropdown",
+    "form",
+    "field",
+    "options",
+    "choose"
+  ]
+}

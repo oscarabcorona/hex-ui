@@ -1,0 +1,135 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "slider",
+  "displayName": "Slider",
+  "description": "A range input with draggable thumbs. Supports single value, ranges (two thumbs), custom steps, and full keyboard control.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "value",
+      "type": "object",
+      "required": false,
+      "description": "Controlled array of thumb values (number[]), e.g. [50] for single, [20, 80] for range"
+    },
+    {
+      "name": "defaultValue",
+      "type": "object",
+      "required": false,
+      "description": "Default array of thumb values (number[]) for uncontrolled usage"
+    },
+    {
+      "name": "onValueChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on value change: (value: number[]) => void"
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Minimum value"
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "required": false,
+      "default": 100,
+      "description": "Maximum value"
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Step interval between valid values"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the slider"
+    },
+    {
+      "name": "orientation",
+      "type": "enum",
+      "required": false,
+      "default": "horizontal",
+      "description": "Slider direction",
+      "enumValues": [
+        "horizontal",
+        "vertical"
+      ]
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/slider.tsx",
+      "content": "import * as SliderPrimitive from \"@radix-ui/react-slider\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * A range input with one or more draggable thumbs.\n * Built on Radix UI Slider with keyboard controls (arrows, Home, End, PageUp/Down).\n */\nconst Slider = React.forwardRef<\n\tReact.ComponentRef<typeof SliderPrimitive.Root>,\n\tReact.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>\n>(({ className, ...props }, ref) => (\n\t<SliderPrimitive.Root\n\t\tref={ref}\n\t\tclassName={cn(\"relative flex w-full touch-none select-none items-center\", className)}\n\t\t{...props}\n\t>\n\t\t<SliderPrimitive.Track className=\"relative h-2 w-full grow overflow-hidden rounded-full bg-secondary\">\n\t\t\t<SliderPrimitive.Range className=\"absolute h-full bg-primary\" />\n\t\t</SliderPrimitive.Track>\n\t\t{(props.value ?? props.defaultValue ?? [0]).map((_, i) => (\n\t\t\t<SliderPrimitive.Thumb\n\t\t\t\t// biome-ignore lint/suspicious/noArrayIndexKey: Radix renders one thumb per value by index\n\t\t\t\tkey={i}\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"block h-5 w-5 rounded-full border-2 border-primary bg-background\",\n\t\t\t\t\t\"transition-all duration-200 ease-out shadow-md\",\n\t\t\t\t\t\"hover:shadow-lg hover:scale-110\",\n\t\t\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\t\t\"disabled:pointer-events-none disabled:opacity-50\",\n\t\t\t\t)}\n\t\t\t/>\n\t\t))}\n\t</SliderPrimitive.Root>\n));\nSlider.displayName = \"Slider\";\n\nexport { Slider };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-slider",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "secondary",
+    "primary",
+    "background",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic slider",
+      "description": "Single-thumb slider",
+      "code": "<Slider defaultValue={[50]} max={100} step={1} />"
+    },
+    {
+      "title": "Range slider",
+      "description": "Two-thumb range",
+      "code": "<Slider defaultValue={[20, 80]} max={100} step={1} />"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for continuous numeric inputs with a known range: volume, brightness, price range filter, opacity. Pair value with a visible number display when the exact value matters.",
+    "whenNotToUse": "Don't use when the user needs to enter an exact number (use Input type=number). Don't use for discrete choices (use Select or RadioGroup).",
+    "commonMistakes": [
+      "Using Slider for exact values without showing the number",
+      "Missing min/max bounds",
+      "Using step=1 for fractional values (set step=0.01)",
+      "Not providing aria-label when there's no visible label"
+    ],
+    "relatedComponents": [
+      "input"
+    ],
+    "accessibilityNotes": "Arrow keys step by step, Home/End jump to min/max, PageUp/PageDown step larger. Radix handles aria-valuemin/max/now. Add aria-label if no visible label.",
+    "tokenBudget": 450
+  },
+  "tags": [
+    "slider",
+    "range",
+    "form",
+    "numeric",
+    "input"
+  ]
+}
