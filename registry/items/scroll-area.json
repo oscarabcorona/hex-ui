@@ -1,0 +1,97 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "scroll-area",
+  "displayName": "Scroll Area",
+  "description": "A scrollable region with custom-styled scrollbars that match the design system. Content must be explicitly sized.",
+  "category": "primitive",
+  "subcategory": "layout",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "type",
+      "type": "enum",
+      "required": false,
+      "default": "hover",
+      "description": "When scrollbars are visible",
+      "enumValues": [
+        "auto",
+        "always",
+        "scroll",
+        "hover"
+      ]
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Set dimensions via Tailwind (e.g. h-72 w-48)"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Any content — will be wrapped in a scrollable viewport",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/scroll-area.tsx",
+      "content": "import * as ScrollAreaPrimitive from \"@radix-ui/react-scroll-area\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** A scrollable area with custom-styled scrollbars. Content must be explicitly sized. */\nconst ScrollArea = React.forwardRef<\n\tReact.ComponentRef<typeof ScrollAreaPrimitive.Root>,\n\tReact.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>\n>(({ className, children, ...props }, ref) => (\n\t<ScrollAreaPrimitive.Root\n\t\tref={ref}\n\t\tclassName={cn(\"relative overflow-hidden\", className)}\n\t\t{...props}\n\t>\n\t\t<ScrollAreaPrimitive.Viewport className=\"h-full w-full rounded-[inherit]\">\n\t\t\t{children}\n\t\t</ScrollAreaPrimitive.Viewport>\n\t\t<ScrollBar />\n\t\t<ScrollAreaPrimitive.Corner />\n\t</ScrollAreaPrimitive.Root>\n));\nScrollArea.displayName = \"ScrollArea\";\n\n/** Styled scrollbar track + thumb. Rendered inside ScrollArea automatically. */\nconst ScrollBar = React.forwardRef<\n\tReact.ComponentRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,\n\tReact.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>\n>(({ className, orientation = \"vertical\", ...props }, ref) => (\n\t<ScrollAreaPrimitive.ScrollAreaScrollbar\n\t\tref={ref}\n\t\torientation={orientation}\n\t\tclassName={cn(\n\t\t\t\"flex touch-none select-none transition-colors\",\n\t\t\torientation === \"vertical\" &&\n\t\t\t\t\"h-full w-2.5 border-l border-l-transparent p-[1px]\",\n\t\t\torientation === \"horizontal\" &&\n\t\t\t\t\"h-2.5 flex-col border-t border-t-transparent p-[1px]\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t<ScrollAreaPrimitive.ScrollAreaThumb className=\"relative flex-1 rounded-full bg-border\" />\n\t</ScrollAreaPrimitive.ScrollAreaScrollbar>\n));\nScrollBar.displayName = \"ScrollBar\";\n\nexport { ScrollArea, ScrollBar };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-scroll-area",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "Fixed-height list",
+      "description": "50 items in a 200px-tall scrollable region",
+      "code": "<ScrollArea className=\"h-[200px] w-[350px] rounded-md border p-4\">\n  {Array.from({ length: 50 }).map((_, i) => (\n    <div key={i} className=\"text-sm\">Item {i + 1}</div>\n  ))}\n</ScrollArea>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use when you need styled scrollbars that match the design system — sidebars, code blocks, large lists in dialogs. Must have explicit dimensions (height/width).",
+    "whenNotToUse": "Don't use for the whole page (use native browser scrollbars). Don't use for content that should grow freely (omit the ScrollArea and use overflow-auto directly).",
+    "commonMistakes": [
+      "Forgetting to set height/width — scrollbars don't appear",
+      "Using for the whole page",
+      "Nesting ScrollAreas (confusing UX)"
+    ],
+    "relatedComponents": [],
+    "accessibilityNotes": "Radix doesn't make the viewport focusable by default — add tabIndex={0} on a focusable child or the viewport to enable keyboard scrolling (arrow keys, PgUp/PgDn, Home/End). For long lists, consider pagination or virtualization.",
+    "tokenBudget": 350
+  },
+  "tags": [
+    "scroll-area",
+    "scroll",
+    "overflow",
+    "scrollbar",
+    "layout"
+  ]
+}

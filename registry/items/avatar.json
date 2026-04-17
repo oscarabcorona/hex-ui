@@ -1,0 +1,88 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "avatar",
+  "displayName": "Avatar",
+  "description": "A user profile image with a fallback (usually initials) rendered when the image is missing or fails to load. Built on Radix UI Avatar — AvatarFallback accepts a delayMs prop to avoid flashing during fast loads.",
+  "category": "primitive",
+  "subcategory": "display",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes on the root"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "AvatarImage + AvatarFallback",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/avatar.tsx",
+      "content": "import * as AvatarPrimitive from \"@radix-ui/react-avatar\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container for an avatar (image + fallback). */\nconst Avatar = React.forwardRef<\n\tReact.ComponentRef<typeof AvatarPrimitive.Root>,\n\tReact.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>\n>(({ className, ...props }, ref) => (\n\t<AvatarPrimitive.Root\n\t\tref={ref}\n\t\tclassName={cn(\"relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full\", className)}\n\t\t{...props}\n\t/>\n));\nAvatar.displayName = \"Avatar\";\n\n/** Avatar image. AvatarFallback renders in its place when the image is missing or errors. */\nconst AvatarImage = React.forwardRef<\n\tReact.ComponentRef<typeof AvatarPrimitive.Image>,\n\tReact.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>\n>(({ className, ...props }, ref) => (\n\t<AvatarPrimitive.Image\n\t\tref={ref}\n\t\tclassName={cn(\"aspect-square h-full w-full object-cover\", className)}\n\t\t{...props}\n\t/>\n));\nAvatarImage.displayName = \"AvatarImage\";\n\n/** Fallback content (usually initials or an icon) shown when the image is missing or fails. Supports delayMs to avoid flashing for fast-loading images. */\nconst AvatarFallback = React.forwardRef<\n\tReact.ComponentRef<typeof AvatarPrimitive.Fallback>,\n\tReact.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>\n>(({ className, ...props }, ref) => (\n\t<AvatarPrimitive.Fallback\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"flex h-full w-full items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t/>\n));\nAvatarFallback.displayName = \"AvatarFallback\";\n\nexport { Avatar, AvatarImage, AvatarFallback };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-avatar",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "muted",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Basic avatar",
+      "description": "Image with initials fallback",
+      "code": "<Avatar>\n  <AvatarImage src=\"https://github.com/shadcn.png\" alt=\"@shadcn\" />\n  <AvatarFallback>CN</AvatarFallback>\n</Avatar>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for user profile images: headers, comments, user lists. Always include AvatarFallback for accessibility and loading states.",
+    "whenNotToUse": "Don't use for decorative icons (use an <img> or icon component). Don't use for product/brand images (use <img> with proper sizing).",
+    "commonMistakes": [
+      "Missing alt text on AvatarImage",
+      "No AvatarFallback — shows nothing when image is missing or errors",
+      "Omitting delayMs on AvatarFallback causes flicker for fast-loading images",
+      "Using for non-circular images (override rounded-full if needed)"
+    ],
+    "relatedComponents": [
+      "badge"
+    ],
+    "accessibilityNotes": "AvatarImage requires alt text. AvatarFallback renders initials or an icon — ensure the visible text is meaningful.",
+    "tokenBudget": 250
+  },
+  "tags": [
+    "avatar",
+    "profile",
+    "user",
+    "image",
+    "display"
+  ]
+}
