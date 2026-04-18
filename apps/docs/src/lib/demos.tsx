@@ -17,6 +17,7 @@ import { ContextMenuDemo } from "../app/demos/context-menu-demo";
 import { DataTableDemo } from "../app/demos/data-table-demo";
 import { DatePickerDemo } from "../app/demos/date-picker-demo";
 import { DialogDemo } from "../app/demos/dialog-demo";
+import { DrawerDemo } from "../app/demos/drawer-demo";
 import { DropdownMenuDemo } from "../app/demos/dropdown-menu-demo";
 import { FormDemo } from "../app/demos/form-demo";
 import { HoverCardDemo } from "../app/demos/hover-card-demo";
@@ -29,9 +30,12 @@ import { PaginationDemo } from "../app/demos/pagination-demo";
 import { PopoverDemo } from "../app/demos/popover-demo";
 import { ProgressDemo } from "../app/demos/progress-demo";
 import { RadioGroupDemo } from "../app/demos/radio-group-demo";
+import { ResizableDemo } from "../app/demos/resizable-demo";
 import { ScrollAreaDemo } from "../app/demos/scroll-area-demo";
 import { SelectDemo } from "../app/demos/select-demo";
 import { SeparatorDemo } from "../app/demos/separator-demo";
+import { SheetDemo } from "../app/demos/sheet-demo";
+import { SidebarDemo } from "../app/demos/sidebar-demo";
 import { SkeletonDemo } from "../app/demos/skeleton-demo";
 import { SliderDemo } from "../app/demos/slider-demo";
 import { SonnerDemo } from "../app/demos/sonner-demo";
@@ -66,6 +70,7 @@ export const demos: Record<string, ComponentType> = {
 	"data-table": DataTableDemo,
 	"date-picker": DatePickerDemo,
 	dialog: DialogDemo,
+	drawer: DrawerDemo,
 	"dropdown-menu": DropdownMenuDemo,
 	form: FormDemo,
 	"hover-card": HoverCardDemo,
@@ -78,9 +83,12 @@ export const demos: Record<string, ComponentType> = {
 	popover: PopoverDemo,
 	progress: ProgressDemo,
 	"radio-group": RadioGroupDemo,
+	resizable: ResizableDemo,
 	"scroll-area": ScrollAreaDemo,
 	select: SelectDemo,
 	separator: SeparatorDemo,
+	sheet: SheetDemo,
+	sidebar: SidebarDemo,
 	skeleton: SkeletonDemo,
 	slider: SliderDemo,
 	sonner: SonnerDemo,

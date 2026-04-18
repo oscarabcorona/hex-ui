@@ -531,6 +531,24 @@
       "tokenBudget": 600
     },
     {
+      "name": "drawer",
+      "displayName": "Drawer",
+      "description": "Bottom-sheet drawer built on vaul. Mobile-native feel: drag-to-dismiss, snap points, body-scale-on-open. Use for quick mobile actions, filters, pickers.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "drawer",
+        "bottom-sheet",
+        "vaul",
+        "mobile",
+        "overlay"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 700
+    },
+    {
       "name": "dropdown-menu",
       "displayName": "Dropdown Menu",
       "description": "A menu of actions displayed to the user when a trigger is activated. Supports items, checkboxes, radio groups, sub-menus, and keyboard shortcuts.",
@@ -669,6 +687,58 @@
       ],
       "internalDeps": [],
       "tokenBudget": 400
+    },
+    {
+      "name": "resizable",
+      "displayName": "Resizable",
+      "description": "Draggable split panes built on react-resizable-panels v4. Horizontal or vertical, with keyboard-accessible handles and persistable layout.",
+      "category": "component",
+      "subcategory": "layout",
+      "tags": [
+        "resizable",
+        "split-pane",
+        "layout",
+        "panels"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 700
+    },
+    {
+      "name": "sheet",
+      "displayName": "Sheet",
+      "description": "Side drawer built on Radix Dialog with a directional slide animation. Use for navigation, filters, quick edit, or any off-canvas panel.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "sheet",
+        "drawer",
+        "side-panel",
+        "off-canvas",
+        "overlay"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 700
+    },
+    {
+      "name": "sidebar",
+      "displayName": "Sidebar",
+      "description": "App-shell sidebar with collapsible width, context-driven open state, and composable Header/Content/Footer/Item parts. Provider-based so any descendant can toggle it.",
+      "category": "component",
+      "subcategory": "navigation",
+      "tags": [
+        "sidebar",
+        "navigation",
+        "app-shell",
+        "layout"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 900
     },
     {
       "name": "sonner",
