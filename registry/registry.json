@@ -372,6 +372,23 @@
       "tokenBudget": 400
     },
     {
+      "name": "calendar",
+      "displayName": "Calendar",
+      "description": "Date grid built on react-day-picker v9. Supports single, multiple, and range selection modes. Keyboard navigable and localizable.",
+      "category": "component",
+      "subcategory": "input",
+      "tags": [
+        "calendar",
+        "date",
+        "date-picker",
+        "input"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 800
+    },
+    {
       "name": "card",
       "displayName": "Card",
       "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
@@ -401,6 +418,45 @@
       ],
       "internalDeps": [],
       "tokenBudget": 250
+    },
+    {
+      "name": "combobox",
+      "displayName": "Combobox",
+      "description": "Searchable single-select input. Composes Popover + Command (cmdk) + a styled trigger. Pass a list of { value, label } options.",
+      "category": "component",
+      "subcategory": "input",
+      "tags": [
+        "combobox",
+        "select",
+        "search",
+        "cmdk",
+        "input"
+      ],
+      "internalDeps": [
+        "components/command/command",
+        "components/popover/popover",
+        "lib/utils"
+      ],
+      "tokenBudget": 900
+    },
+    {
+      "name": "command",
+      "displayName": "Command",
+      "description": "Composable command menu built on cmdk — search input + filtered list with keyboard navigation. Use as an inline palette or, wrapped in CommandDialog, as a ⌘K-style launcher.",
+      "category": "component",
+      "subcategory": "overlay",
+      "tags": [
+        "command",
+        "cmdk",
+        "palette",
+        "search",
+        "launcher"
+      ],
+      "internalDeps": [
+        "components/dialog/dialog",
+        "lib/utils"
+      ],
+      "tokenBudget": 900
     },
     {
       "name": "context-menu",
@@ -437,6 +493,26 @@
         "components/table/table"
       ],
       "tokenBudget": 900
+    },
+    {
+      "name": "date-picker",
+      "displayName": "Date Picker",
+      "description": "Date input composed from Popover + Calendar. Shows the selected date formatted via date-fns, opens a calendar grid on click.",
+      "category": "component",
+      "subcategory": "input",
+      "tags": [
+        "date-picker",
+        "date",
+        "input",
+        "popover",
+        "calendar"
+      ],
+      "internalDeps": [
+        "components/calendar/calendar",
+        "components/popover/popover",
+        "lib/utils"
+      ],
+      "tokenBudget": 700
     },
     {
       "name": "dialog",
@@ -504,6 +580,25 @@
         "lib/utils"
       ],
       "tokenBudget": 400
+    },
+    {
+      "name": "input-otp",
+      "displayName": "Input OTP",
+      "description": "One-time-password / verification-code entry built on the input-otp library. Renders N character slots with active/caret state and auto-advance on type.",
+      "category": "component",
+      "subcategory": "forms",
+      "tags": [
+        "input-otp",
+        "otp",
+        "verification",
+        "2fa",
+        "code",
+        "pin"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 700
     },
     {
       "name": "menubar",

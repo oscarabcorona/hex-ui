@@ -1,0 +1,160 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "calendar",
+  "displayName": "Calendar",
+  "description": "Date grid built on react-day-picker v9. Supports single, multiple, and range selection modes. Keyboard navigable and localizable.",
+  "category": "component",
+  "subcategory": "input",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "mode",
+      "type": "string",
+      "required": false,
+      "default": "single",
+      "description": "Selection mode: 'single' | 'multiple' | 'range'"
+    },
+    {
+      "name": "selected",
+      "type": "object",
+      "required": false,
+      "description": "Controlled selected value (Date, Date[], or DateRange depending on mode)"
+    },
+    {
+      "name": "onSelect",
+      "type": "function",
+      "required": false,
+      "description": "Callback when selection changes"
+    },
+    {
+      "name": "disabled",
+      "type": "object",
+      "required": false,
+      "description": "DayPicker Matcher — accepts a Date, Date[], { from, to }, { before | after }, or a (date: Date) => boolean predicate"
+    },
+    {
+      "name": "showOutsideDays",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Render days from the previous/next month in the grid"
+    },
+    {
+      "name": "numberOfMonths",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "How many months to display side-by-side"
+    },
+    {
+      "name": "defaultMonth",
+      "type": "object",
+      "required": false,
+      "description": "The month to render first (uncontrolled). Date object."
+    },
+    {
+      "name": "fromDate",
+      "type": "object",
+      "required": false,
+      "description": "Earliest selectable date (Date). Days before are disabled."
+    },
+    {
+      "name": "toDate",
+      "type": "object",
+      "required": false,
+      "description": "Latest selectable date (Date). Days after are disabled."
+    },
+    {
+      "name": "locale",
+      "type": "object",
+      "required": false,
+      "description": "date-fns Locale object (e.g. `import { es } from 'date-fns/locale'`) for weekday/month labels"
+    },
+    {
+      "name": "weekStartsOn",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "First day of the week (0 = Sunday, 1 = Monday, …, 6 = Saturday)"
+    },
+    {
+      "name": "classNames",
+      "type": "object",
+      "required": false,
+      "description": "Per-part className overrides (merged with defaults)"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/calendar.tsx",
+      "content": "import * as React from \"react\";\nimport { DayPicker } from \"react-day-picker\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Calendar date grid built on react-day-picker v9. Forwards all DayPicker props.\n *\n * Pass `mode=\"single\" | \"multiple\" | \"range\"` and bind `selected` / `onSelect`\n * to control date selection. Style tokens follow the project palette; individual\n * parts can be overridden via the `classNames` prop.\n * @returns A themed react-day-picker DayPicker instance.\n */\nfunction Calendar({\n\tclassName,\n\tclassNames,\n\tshowOutsideDays = true,\n\t...props\n}: React.ComponentProps<typeof DayPicker>) {\n\treturn (\n\t\t<DayPicker\n\t\t\tshowOutsideDays={showOutsideDays}\n\t\t\tclassName={cn(\"relative p-3\", className)}\n\t\t\tclassNames={{\n\t\t\t\tmonths: \"flex flex-col sm:flex-row gap-4\",\n\t\t\t\tmonth: \"flex flex-col gap-4\",\n\t\t\t\tmonth_caption: \"flex h-7 items-center justify-center\",\n\t\t\t\tcaption_label: \"text-sm font-medium\",\n\t\t\t\tnav: \"absolute inset-x-3 top-3 z-10 flex items-center justify-between pointer-events-none [&>button]:pointer-events-auto\",\n\t\t\t\tbutton_previous: cn(\n\t\t\t\t\t\"inline-flex h-7 w-7 items-center justify-center rounded-md border bg-transparent p-0 opacity-60 transition-opacity hover:opacity-100 disabled:pointer-events-none disabled:opacity-30\",\n\t\t\t\t),\n\t\t\t\tbutton_next: cn(\n\t\t\t\t\t\"inline-flex h-7 w-7 items-center justify-center rounded-md border bg-transparent p-0 opacity-60 transition-opacity hover:opacity-100 disabled:pointer-events-none disabled:opacity-30\",\n\t\t\t\t),\n\t\t\t\tmonth_grid: \"w-full border-collapse space-y-1\",\n\t\t\t\tweekdays: \"flex\",\n\t\t\t\tweekday: \"text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]\",\n\t\t\t\tweek: \"flex w-full mt-2\",\n\t\t\t\tday: \"relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].range-end)]:rounded-r-md [&:has([aria-selected].range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md\",\n\t\t\t\tday_button:\n\t\t\t\t\t\"inline-flex h-9 w-9 items-center justify-center rounded-md p-0 text-sm font-normal transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-selected:opacity-100\",\n\t\t\t\tselected:\n\t\t\t\t\t\"bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground\",\n\t\t\t\ttoday: \"bg-accent text-accent-foreground\",\n\t\t\t\toutside:\n\t\t\t\t\t\"day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground\",\n\t\t\t\tdisabled: \"text-muted-foreground opacity-50\",\n\t\t\t\trange_start: \"day-range-start range-start\",\n\t\t\t\trange_end: \"day-range-end range-end\",\n\t\t\t\trange_middle:\n\t\t\t\t\t\"aria-selected:bg-accent aria-selected:text-accent-foreground rounded-none\",\n\t\t\t\thidden: \"invisible\",\n\t\t\t\t...classNames,\n\t\t\t}}\n\t\t\tcomponents={{\n\t\t\t\tChevron: ({ orientation, className: chevronClassName }) => {\n\t\t\t\t\tconst rotation =\n\t\t\t\t\t\torientation === \"left\"\n\t\t\t\t\t\t\t? \"rotate-90\"\n\t\t\t\t\t\t\t: orientation === \"right\"\n\t\t\t\t\t\t\t\t? \"-rotate-90\"\n\t\t\t\t\t\t\t\t: orientation === \"up\"\n\t\t\t\t\t\t\t\t\t? \"rotate-180\"\n\t\t\t\t\t\t\t\t\t: \"\";\n\t\t\t\t\treturn (\n\t\t\t\t\t\t<svg\n\t\t\t\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\t\t\t\tfill=\"none\"\n\t\t\t\t\t\t\tstroke=\"currentColor\"\n\t\t\t\t\t\t\tstrokeWidth=\"2\"\n\t\t\t\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\t\t\t\tclassName={cn(\"h-4 w-4\", rotation, chevronClassName)}\n\t\t\t\t\t\t\taria-hidden=\"true\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t\t<polyline points=\"6 9 12 15 18 9\" />\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t);\n\t\t\t\t},\n\t\t\t}}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\nCalendar.displayName = \"Calendar\";\n\nexport { Calendar };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "react-day-picker",
+      "date-fns",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "accent",
+    "accent-foreground",
+    "primary",
+    "primary-foreground",
+    "muted-foreground",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Single date selection",
+      "description": "Bind a Date state to selected/onSelect",
+      "code": "import { useState } from \"react\";\nimport { Calendar } from \"@/components/ui/calendar\";\n\nexport function Example() {\n  const [date, setDate] = useState<Date | undefined>(new Date());\n  return <Calendar mode=\"single\" selected={date} onSelect={setDate} className=\"rounded-md border\" />;\n}"
+    },
+    {
+      "title": "Range selection",
+      "description": "Pick a start and end date",
+      "code": "import { useState } from \"react\";\nimport type { DateRange } from \"react-day-picker\";\nimport { Calendar } from \"@/components/ui/calendar\";\n\nexport function Example() {\n  const [range, setRange] = useState<DateRange | undefined>();\n  return <Calendar mode=\"range\" selected={range} onSelect={setRange} numberOfMonths={2} />;\n}"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for inline date selection UIs, or as the month-grid inside a DatePicker (wrapped in a Popover). Supports single date, multi-date, and range modes.",
+    "whenNotToUse": "Don't use when only a text date input is needed (use Input type=date). Don't embed inside a very narrow container — the grid needs ~280px min width. For scheduling UIs with time, combine with a separate time picker.",
+    "commonMistakes": [
+      "Passing a string to selected (must be a Date, Date[], or DateRange object)",
+      "Forgetting mode prop (default is single, but being explicit avoids confusion)",
+      "Overriding classNames completely instead of spreading — loses default styling",
+      "Using inside a Server Component without marking the consumer 'use client'"
+    ],
+    "relatedComponents": [
+      "date-picker",
+      "popover",
+      "input"
+    ],
+    "accessibilityNotes": "react-day-picker wires aria-label, aria-selected, and keyboard navigation (arrows, Home/End, PageUp/Down). Focus rings on day buttons use the ring token.",
+    "tokenBudget": 800
+  },
+  "tags": [
+    "calendar",
+    "date",
+    "date-picker",
+    "input"
+  ]
+}
