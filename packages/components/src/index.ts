@@ -201,6 +201,45 @@ export {
 	CommandSeparator,
 } from "./components/command/command.js";
 export { Combobox, type ComboboxOption, type ComboboxProps } from "./components/combobox/combobox.js";
+export {
+	Sheet,
+	SheetPortal,
+	SheetOverlay,
+	SheetTrigger,
+	SheetClose,
+	SheetContent,
+	SheetHeader,
+	SheetFooter,
+	SheetTitle,
+	SheetDescription,
+} from "./components/sheet/sheet.js";
+export {
+	Drawer,
+	DrawerPortal,
+	DrawerOverlay,
+	DrawerTrigger,
+	DrawerClose,
+	DrawerContent,
+	DrawerHeader,
+	DrawerFooter,
+	DrawerTitle,
+	DrawerDescription,
+} from "./components/drawer/drawer.js";
+export {
+	ResizablePanelGroup,
+	ResizablePanel,
+	ResizableHandle,
+} from "./components/resizable/resizable.js";
+export {
+	SidebarProvider,
+	Sidebar,
+	SidebarTrigger,
+	SidebarHeader,
+	SidebarContent,
+	SidebarFooter,
+	SidebarItem,
+	useSidebar,
+} from "./components/sidebar/sidebar.js";
 
 // Schemas
 export { buttonSchema } from "./primitives/button/button.schema.js";
@@ -246,6 +285,10 @@ export { datePickerSchema } from "./components/date-picker/date-picker.schema.js
 export { inputOTPSchema } from "./components/input-otp/input-otp.schema.js";
 export { commandSchema } from "./components/command/command.schema.js";
 export { comboboxSchema } from "./components/combobox/combobox.schema.js";
+export { sheetSchema } from "./components/sheet/sheet.schema.js";
+export { drawerSchema } from "./components/drawer/drawer.schema.js";
+export { resizableSchema } from "./components/resizable/resizable.schema.js";
+export { sidebarSchema } from "./components/sidebar/sidebar.schema.js";
 
 // Utilities
 export { cn } from "./lib/utils.js";

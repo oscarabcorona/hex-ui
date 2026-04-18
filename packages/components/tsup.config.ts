@@ -22,6 +22,8 @@ export default defineConfig({
 		"date-fns",
 		"cmdk",
 		"input-otp",
+		"vaul",
+		"react-resizable-panels",
 		/^@radix-ui\//,
 		"class-variance-authority",
 		"clsx",
