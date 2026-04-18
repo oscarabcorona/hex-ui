@@ -7,16 +7,21 @@ import { AvatarDemo } from "../app/demos/avatar-demo";
 import { BadgeDemo } from "../app/demos/badge-demo";
 import { BreadcrumbDemo } from "../app/demos/breadcrumb-demo";
 import { ButtonDemo } from "../app/demos/button-demo";
+import { CalendarDemo } from "../app/demos/calendar-demo";
 import { CardDemo } from "../app/demos/card-demo";
 import { CheckboxDemo } from "../app/demos/checkbox-demo";
 import { CollapsibleDemo } from "../app/demos/collapsible-demo";
+import { ComboboxDemo } from "../app/demos/combobox-demo";
+import { CommandDemo } from "../app/demos/command-demo";
 import { ContextMenuDemo } from "../app/demos/context-menu-demo";
 import { DataTableDemo } from "../app/demos/data-table-demo";
+import { DatePickerDemo } from "../app/demos/date-picker-demo";
 import { DialogDemo } from "../app/demos/dialog-demo";
 import { DropdownMenuDemo } from "../app/demos/dropdown-menu-demo";
 import { FormDemo } from "../app/demos/form-demo";
 import { HoverCardDemo } from "../app/demos/hover-card-demo";
 import { InputDemo } from "../app/demos/input-demo";
+import { InputOTPDemo } from "../app/demos/input-otp-demo";
 import { LabelDemo } from "../app/demos/label-demo";
 import { MenubarDemo } from "../app/demos/menubar-demo";
 import { NavigationMenuDemo } from "../app/demos/navigation-menu-demo";
@@ -51,16 +56,21 @@ export const demos: Record<string, ComponentType> = {
 	badge: BadgeDemo,
 	breadcrumb: BreadcrumbDemo,
 	button: ButtonDemo,
+	calendar: CalendarDemo,
 	card: CardDemo,
 	checkbox: CheckboxDemo,
 	collapsible: CollapsibleDemo,
+	combobox: ComboboxDemo,
+	command: CommandDemo,
 	"context-menu": ContextMenuDemo,
 	"data-table": DataTableDemo,
+	"date-picker": DatePickerDemo,
 	dialog: DialogDemo,
 	"dropdown-menu": DropdownMenuDemo,
 	form: FormDemo,
 	"hover-card": HoverCardDemo,
 	input: InputDemo,
+	"input-otp": InputOTPDemo,
 	label: LabelDemo,
 	menubar: MenubarDemo,
 	"navigation-menu": NavigationMenuDemo,

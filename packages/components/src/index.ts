@@ -180,6 +180,27 @@ export {
 	PaginationNext,
 	PaginationPrevious,
 } from "./components/pagination/pagination.js";
+export { Calendar } from "./components/calendar/calendar.js";
+export { DatePicker, type DatePickerProps } from "./components/date-picker/date-picker.js";
+export {
+	InputOTP,
+	InputOTPGroup,
+	InputOTPSlot,
+	InputOTPSeparator,
+	type InputOTPProps,
+} from "./components/input-otp/input-otp.js";
+export {
+	Command,
+	CommandDialog,
+	CommandInput,
+	CommandList,
+	CommandEmpty,
+	CommandGroup,
+	CommandItem,
+	CommandShortcut,
+	CommandSeparator,
+} from "./components/command/command.js";
+export { Combobox, type ComboboxOption, type ComboboxProps } from "./components/combobox/combobox.js";
 
 // Schemas
 export { buttonSchema } from "./primitives/button/button.schema.js";
@@ -220,6 +241,11 @@ export { sonnerSchema } from "./components/sonner/sonner.schema.js";
 export { tableSchema } from "./components/table/table.schema.js";
 export { dataTableSchema } from "./components/data-table/data-table.schema.js";
 export { paginationSchema } from "./components/pagination/pagination.schema.js";
+export { calendarSchema } from "./components/calendar/calendar.schema.js";
+export { datePickerSchema } from "./components/date-picker/date-picker.schema.js";
+export { inputOTPSchema } from "./components/input-otp/input-otp.schema.js";
+export { commandSchema } from "./components/command/command.schema.js";
+export { comboboxSchema } from "./components/combobox/combobox.schema.js";
 
 // Utilities
 export { cn } from "./lib/utils.js";

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "combobox",
+  "displayName": "Combobox",
+  "description": "Searchable single-select input. Composes Popover + Command (cmdk) + a styled trigger. Pass a list of { value, label } options.",
+  "category": "component",
+  "subcategory": "input",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "options",
+      "type": "object",
+      "required": true,
+      "description": "Array of { value: string, label: string, disabled?: boolean }"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled selected option value"
+    },
+    {
+      "name": "onChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback when the user picks an option: (value: string) => void"
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "default": "Select…",
+      "description": "Text shown on the trigger when nothing is selected"
+    },
+    {
+      "name": "searchPlaceholder",
+      "type": "string",
+      "required": false,
+      "default": "Search…",
+      "description": "Placeholder for the filter input"
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "required": false,
+      "default": "No results found.",
+      "description": "Shown inside the list when the search has no matches"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the trigger"
+    },
+    {
+      "name": "aria-label",
+      "type": "string",
+      "required": false,
+      "description": "Accessible label — required when no adjacent visible <label> is used"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/combobox.tsx",
+      "content": "import * as React from \"react\";\nimport {\n\tCommand,\n\tCommandEmpty,\n\tCommandGroup,\n\tCommandInput,\n\tCommandItem,\n\tCommandList,\n} from \"../command/command.js\";\nimport { Popover, PopoverContent, PopoverTrigger } from \"../popover/popover.js\";\nimport { cn } from \"../../lib/utils.js\";\n\ninterface ComboboxOption {\n\t/** The value returned from onChange (stable, unique). */\n\tvalue: string;\n\t/** The display label shown in the list and the trigger. */\n\tlabel: string;\n\t/** Mark as non-selectable. */\n\tdisabled?: boolean;\n}\n\ninterface ComboboxProps {\n\t/** The list of selectable options. */\n\toptions: ComboboxOption[];\n\t/** Controlled selected value. */\n\tvalue?: string;\n\t/** Fired when the user picks an option: (value: string) => void */\n\tonChange?: (value: string) => void;\n\t/** Text shown on the trigger when nothing is selected. */\n\tplaceholder?: string;\n\t/** Input placeholder inside the popover list. */\n\tsearchPlaceholder?: string;\n\t/** Text shown when no options match the search. */\n\temptyText?: string;\n\t/** Disable the trigger. */\n\tdisabled?: boolean;\n\t/** Extra class names on the trigger button. */\n\tclassName?: string;\n\t/** Accessible label for the trigger (required when no adjacent visible <label>). */\n\t\"aria-label\"?: string;\n}\n\n/**\n * Searchable select input built on Command + Popover.\n *\n * Pass `options` with `{ value, label }` shape. The selected label is shown on\n * the trigger; the popover contains a CommandInput and filtered CommandList.\n * @returns A trigger button that opens a filtered option list.\n */\nfunction Combobox({\n\toptions,\n\tvalue,\n\tonChange,\n\tplaceholder = \"Select…\",\n\tsearchPlaceholder = \"Search…\",\n\temptyText = \"No results found.\",\n\tdisabled,\n\tclassName,\n\t\"aria-label\": ariaLabel,\n}: ComboboxProps) {\n\tconst [open, setOpen] = React.useState(false);\n\tconst selected = options.find((o) => o.value === value);\n\n\treturn (\n\t\t<Popover open={open} onOpenChange={setOpen}>\n\t\t\t<PopoverTrigger asChild>\n\t\t\t\t<button\n\t\t\t\t\ttype=\"button\"\n\t\t\t\t\trole=\"combobox\"\n\t\t\t\t\taria-expanded={open}\n\t\t\t\t\taria-haspopup=\"listbox\"\n\t\t\t\t\taria-label={ariaLabel}\n\t\t\t\t\tdisabled={disabled}\n\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\"inline-flex h-10 w-[240px] items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-normal transition-all duration-200 ease-out\",\n\t\t\t\t\t\t\"hover:bg-accent hover:text-accent-foreground\",\n\t\t\t\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\t\t\t\"disabled:pointer-events-none disabled:opacity-50\",\n\t\t\t\t\t\t!selected && \"text-muted-foreground\",\n\t\t\t\t\t\tclassName,\n\t\t\t\t\t)}\n\t\t\t\t>\n\t\t\t\t\t<span className=\"truncate\">{selected ? selected.label : placeholder}</span>\n\t\t\t\t\t<svg\n\t\t\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\t\t\tfill=\"none\"\n\t\t\t\t\t\tstroke=\"currentColor\"\n\t\t\t\t\t\tstrokeWidth=\"2\"\n\t\t\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\t\t\tclassName=\"h-4 w-4 shrink-0 opacity-50\"\n\t\t\t\t\t\taria-hidden=\"true\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<polyline points=\"6 9 12 15 18 9\" />\n\t\t\t\t\t</svg>\n\t\t\t\t</button>\n\t\t\t</PopoverTrigger>\n\t\t\t<PopoverContent className=\"w-[240px] p-0\" align=\"start\">\n\t\t\t\t<Command>\n\t\t\t\t\t<CommandInput placeholder={searchPlaceholder} />\n\t\t\t\t\t<CommandList>\n\t\t\t\t\t\t<CommandEmpty>{emptyText}</CommandEmpty>\n\t\t\t\t\t\t<CommandGroup>\n\t\t\t\t\t\t\t{options.map((option) => (\n\t\t\t\t\t\t\t\t<CommandItem\n\t\t\t\t\t\t\t\t\tkey={option.value}\n\t\t\t\t\t\t\t\t\tvalue={option.label}\n\t\t\t\t\t\t\t\t\tdisabled={option.disabled}\n\t\t\t\t\t\t\t\t\tonSelect={() => {\n\t\t\t\t\t\t\t\t\t\tonChange?.(option.value);\n\t\t\t\t\t\t\t\t\t\tsetOpen(false);\n\t\t\t\t\t\t\t\t\t}}\n\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t<svg\n\t\t\t\t\t\t\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\t\t\t\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\t\t\t\t\t\t\tfill=\"none\"\n\t\t\t\t\t\t\t\t\t\tstroke=\"currentColor\"\n\t\t\t\t\t\t\t\t\t\tstrokeWidth=\"2\"\n\t\t\t\t\t\t\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\t\t\t\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\t\t\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\t\t\t\t\t\"mr-2 h-4 w-4\",\n\t\t\t\t\t\t\t\t\t\t\tvalue === option.value ? \"opacity-100\" : \"opacity-0\",\n\t\t\t\t\t\t\t\t\t\t)}\n\t\t\t\t\t\t\t\t\t\taria-hidden=\"true\"\n\t\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t\t<polyline points=\"20 6 9 17 4 12\" />\n\t\t\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t\t\t\t{option.label}\n\t\t\t\t\t\t\t\t</CommandItem>\n\t\t\t\t\t\t\t))}\n\t\t\t\t\t\t</CommandGroup>\n\t\t\t\t\t</CommandList>\n\t\t\t\t</Command>\n\t\t\t</PopoverContent>\n\t\t</Popover>\n\t);\n}\nCombobox.displayName = \"Combobox\";\n\nexport { Combobox };\nexport type { ComboboxOption, ComboboxProps };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "cmdk",
+      "@radix-ui/react-popover",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "components/command/command",
+      "components/popover/popover",
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "input",
+    "ring",
+    "accent",
+    "accent-foreground",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Framework picker",
+      "description": "Searchable single-select with a small static list",
+      "code": "import { useState } from \"react\";\nimport { Combobox } from \"@/components/ui/combobox\";\n\nconst frameworks = [\n  { value: \"next\", label: \"Next.js\" },\n  { value: \"remix\", label: \"Remix\" },\n  { value: \"astro\", label: \"Astro\" },\n  { value: \"nuxt\", label: \"Nuxt\" },\n];\n\nexport function Example() {\n  const [value, setValue] = useState<string>();\n  return <Combobox options={frameworks} value={value} onChange={setValue} placeholder=\"Pick a framework\" />;\n}"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for a select input when the list is >~8 items or users benefit from typing to narrow. Fuzzy search + keyboard nav + selected-item checkmark.",
+    "whenNotToUse": "Don't use for native-select parity on mobile (use Select). Don't use for multi-select (this component is single-value — compose Command + Popover yourself for multi). Don't use for free-text entry (use Input).",
+    "commonMistakes": [
+      "Passing duplicate option values (breaks selection and filtering)",
+      "Two options with identical labels — cmdk dedupes by the Item's filter value (the label here), so one will be dropped from the list",
+      "Using the label as the value — fine if stable, but prefer a short stable `value` string",
+      "Forgetting to bind value + onChange — uncontrolled mode doesn't exist on this wrapper",
+      "Mixing translated labels without keying on value — label changes won't update selection",
+      "Missing aria-label when there's no adjacent visible <label>"
+    ],
+    "relatedComponents": [
+      "command",
+      "popover",
+      "select"
+    ],
+    "accessibilityNotes": "Trigger has role='combobox' + aria-expanded. Popover traps focus inside the CommandInput. Options are announced via cmdk's aria-activedescendant wiring.",
+    "tokenBudget": 900
+  },
+  "tags": [
+    "combobox",
+    "select",
+    "search",
+    "cmdk",
+    "input"
+  ]
+}
