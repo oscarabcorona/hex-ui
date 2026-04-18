@@ -16,6 +16,8 @@ export default defineConfig({
 		"react-hook-form",
 		"@hookform/resolvers",
 		"zod",
+		"@tanstack/react-table",
+		"sonner",
 		/^@radix-ui\//,
 		"class-variance-authority",
 		"clsx",

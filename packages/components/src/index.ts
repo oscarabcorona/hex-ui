@@ -160,6 +160,26 @@ export {
 	BreadcrumbSeparator,
 	BreadcrumbEllipsis,
 } from "./components/breadcrumb/breadcrumb.js";
+export {
+	Table,
+	TableHeader,
+	TableBody,
+	TableFooter,
+	TableHead,
+	TableRow,
+	TableCell,
+	TableCaption,
+} from "./components/table/table.js";
+export { DataTable, type DataTableProps } from "./components/data-table/data-table.js";
+export {
+	Pagination,
+	PaginationContent,
+	PaginationEllipsis,
+	PaginationItem,
+	PaginationLink,
+	PaginationNext,
+	PaginationPrevious,
+} from "./components/pagination/pagination.js";
 
 // Schemas
 export { buttonSchema } from "./primitives/button/button.schema.js";
@@ -197,6 +217,9 @@ export { navigationMenuSchema } from "./components/navigation-menu/navigation-me
 export { breadcrumbSchema } from "./components/breadcrumb/breadcrumb.schema.js";
 export { alertSchema } from "./components/alert/alert.schema.js";
 export { sonnerSchema } from "./components/sonner/sonner.schema.js";
+export { tableSchema } from "./components/table/table.schema.js";
+export { dataTableSchema } from "./components/data-table/data-table.schema.js";
+export { paginationSchema } from "./components/pagination/pagination.schema.js";
 
 // Utilities
 export { cn } from "./lib/utils.js";

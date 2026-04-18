@@ -420,6 +420,25 @@
       "tokenBudget": 700
     },
     {
+      "name": "data-table",
+      "displayName": "Data Table",
+      "description": "Generic data-driven table built on TanStack Table + Hex UI Table primitives. Pass columns + data; add sorting/filtering/pagination via TanStack hooks.",
+      "category": "component",
+      "subcategory": "data",
+      "tags": [
+        "data-table",
+        "tanstack",
+        "sortable",
+        "filterable",
+        "paginated"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "components/table/table"
+      ],
+      "tokenBudget": 900
+    },
+    {
       "name": "dialog",
       "displayName": "Dialog",
       "description": "A modal dialog that interrupts the user with important content. Built on Radix UI with focus trap, escape handling, and scroll lock.",
@@ -523,6 +542,24 @@
       "tokenBudget": 800
     },
     {
+      "name": "pagination",
+      "displayName": "Pagination",
+      "description": "Composable pagination controls (Pagination / PaginationContent / PaginationItem / PaginationLink / PaginationPrevious / PaginationNext / PaginationEllipsis). Link-based by default — pair with client-side navigation or server params.",
+      "category": "component",
+      "subcategory": "navigation",
+      "tags": [
+        "pagination",
+        "pages",
+        "navigation",
+        "list"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "primitives/button/button"
+      ],
+      "tokenBudget": 500
+    },
+    {
       "name": "popover",
       "displayName": "Popover",
       "description": "Floating content anchored to a trigger element. Non-modal by default — clicks outside dismiss it. Use for inline forms, info, or quick actions.",
@@ -552,6 +589,23 @@
         "feedback"
       ],
       "internalDeps": [],
+      "tokenBudget": 450
+    },
+    {
+      "name": "table",
+      "displayName": "Table",
+      "description": "Styled HTML table primitives (Table / TableHeader / TableBody / TableRow / TableHead / TableCell / TableCaption / TableFooter). Low-level building blocks — use DataTable for sorting/filtering/pagination.",
+      "category": "component",
+      "subcategory": "data",
+      "tags": [
+        "table",
+        "data",
+        "rows",
+        "tabular"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
       "tokenBudget": 450
     },
     {

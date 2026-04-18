@@ -11,6 +11,7 @@ import { CardDemo } from "../app/demos/card-demo";
 import { CheckboxDemo } from "../app/demos/checkbox-demo";
 import { CollapsibleDemo } from "../app/demos/collapsible-demo";
 import { ContextMenuDemo } from "../app/demos/context-menu-demo";
+import { DataTableDemo } from "../app/demos/data-table-demo";
 import { DialogDemo } from "../app/demos/dialog-demo";
 import { DropdownMenuDemo } from "../app/demos/dropdown-menu-demo";
 import { FormDemo } from "../app/demos/form-demo";
@@ -19,6 +20,7 @@ import { InputDemo } from "../app/demos/input-demo";
 import { LabelDemo } from "../app/demos/label-demo";
 import { MenubarDemo } from "../app/demos/menubar-demo";
 import { NavigationMenuDemo } from "../app/demos/navigation-menu-demo";
+import { PaginationDemo } from "../app/demos/pagination-demo";
 import { PopoverDemo } from "../app/demos/popover-demo";
 import { ProgressDemo } from "../app/demos/progress-demo";
 import { RadioGroupDemo } from "../app/demos/radio-group-demo";
@@ -29,6 +31,7 @@ import { SkeletonDemo } from "../app/demos/skeleton-demo";
 import { SliderDemo } from "../app/demos/slider-demo";
 import { SonnerDemo } from "../app/demos/sonner-demo";
 import { SwitchDemo } from "../app/demos/switch-demo";
+import { TableDemo } from "../app/demos/table-demo";
 import { TabsDemo } from "../app/demos/tabs-demo";
 import { TextareaDemo } from "../app/demos/textarea-demo";
 import { ToggleDemo } from "../app/demos/toggle-demo";
@@ -52,6 +55,7 @@ export const demos: Record<string, ComponentType> = {
 	checkbox: CheckboxDemo,
 	collapsible: CollapsibleDemo,
 	"context-menu": ContextMenuDemo,
+	"data-table": DataTableDemo,
 	dialog: DialogDemo,
 	"dropdown-menu": DropdownMenuDemo,
 	form: FormDemo,
@@ -60,6 +64,7 @@ export const demos: Record<string, ComponentType> = {
 	label: LabelDemo,
 	menubar: MenubarDemo,
 	"navigation-menu": NavigationMenuDemo,
+	pagination: PaginationDemo,
 	popover: PopoverDemo,
 	progress: ProgressDemo,
 	"radio-group": RadioGroupDemo,
@@ -70,6 +75,7 @@ export const demos: Record<string, ComponentType> = {
 	slider: SliderDemo,
 	sonner: SonnerDemo,
 	switch: SwitchDemo,
+	table: TableDemo,
 	tabs: TabsDemo,
 	textarea: TextareaDemo,
 	toggle: ToggleDemo,

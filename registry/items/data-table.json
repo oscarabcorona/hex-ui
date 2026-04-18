@@ -1,0 +1,88 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "data-table",
+  "displayName": "Data Table",
+  "description": "Generic data-driven table built on TanStack Table + Hex UI Table primitives. Pass columns + data; add sorting/filtering/pagination via TanStack hooks.",
+  "category": "component",
+  "subcategory": "data",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "columns",
+      "type": "object",
+      "required": true,
+      "description": "ColumnDef<TData, TValue>[] from @tanstack/react-table"
+    },
+    {
+      "name": "data",
+      "type": "object",
+      "required": true,
+      "description": "Array of row data"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/data-table.tsx",
+      "content": "\"use client\";\n\nimport {\n\ttype ColumnDef,\n\tflexRender,\n\tgetCoreRowModel,\n\tuseReactTable,\n} from \"@tanstack/react-table\";\nimport {\n\tTable,\n\tTableBody,\n\tTableCell,\n\tTableHead,\n\tTableHeader,\n\tTableRow,\n} from \"../table/table.js\";\n\n/**\n * Generic DataTable wrapper that renders a TanStack Table model using Hex UI's\n * Table primitives. Pass columns + data; use TanStack hooks for sorting,\n * filtering, pagination, row-selection as needed.\n * @template TData - Row data type. Cell value types are inferred per column by TanStack.\n */\nexport interface DataTableProps<TData> {\n\tcolumns: ColumnDef<TData, unknown>[];\n\tdata: TData[];\n}\n\n/**\n * Render a data-driven table from TanStack column definitions.\n * @param props - Columns and data\n * @returns A styled Table rendered from the TanStack row model\n */\nexport function DataTable<TData>({ columns, data }: DataTableProps<TData>) {\n\tconst table = useReactTable({\n\t\tdata,\n\t\tcolumns,\n\t\tgetCoreRowModel: getCoreRowModel(),\n\t});\n\n\treturn (\n\t\t<div className=\"rounded-md border\">\n\t\t\t<Table>\n\t\t\t\t<TableHeader>\n\t\t\t\t\t{table.getHeaderGroups().map((headerGroup) => (\n\t\t\t\t\t\t<TableRow key={headerGroup.id}>\n\t\t\t\t\t\t\t{headerGroup.headers.map((header) => (\n\t\t\t\t\t\t\t\t<TableHead key={header.id}>\n\t\t\t\t\t\t\t\t\t{header.isPlaceholder\n\t\t\t\t\t\t\t\t\t\t? null\n\t\t\t\t\t\t\t\t\t\t: flexRender(header.column.columnDef.header, header.getContext())}\n\t\t\t\t\t\t\t\t</TableHead>\n\t\t\t\t\t\t\t))}\n\t\t\t\t\t\t</TableRow>\n\t\t\t\t\t))}\n\t\t\t\t</TableHeader>\n\t\t\t\t<TableBody>\n\t\t\t\t\t{table.getRowModel().rows?.length ? (\n\t\t\t\t\t\ttable.getRowModel().rows.map((row) => (\n\t\t\t\t\t\t\t<TableRow key={row.id} data-state={row.getIsSelected() && \"selected\"}>\n\t\t\t\t\t\t\t\t{row.getVisibleCells().map((cell) => (\n\t\t\t\t\t\t\t\t\t<TableCell key={cell.id}>\n\t\t\t\t\t\t\t\t\t\t{flexRender(cell.column.columnDef.cell, cell.getContext())}\n\t\t\t\t\t\t\t\t\t</TableCell>\n\t\t\t\t\t\t\t\t))}\n\t\t\t\t\t\t\t</TableRow>\n\t\t\t\t\t\t))\n\t\t\t\t\t) : (\n\t\t\t\t\t\t<TableRow>\n\t\t\t\t\t\t\t<TableCell colSpan={columns.length} className=\"h-24 text-center\">\n\t\t\t\t\t\t\t\tNo results.\n\t\t\t\t\t\t\t</TableCell>\n\t\t\t\t\t\t</TableRow>\n\t\t\t\t\t)}\n\t\t\t\t</TableBody>\n\t\t\t</Table>\n\t\t</div>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@tanstack/react-table",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "components/table/table"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "border",
+    "muted",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Basic data table",
+      "description": "Three-column table rendered from TanStack column defs",
+      "code": "import type { ColumnDef } from \"@tanstack/react-table\";\nimport { DataTable } from \"@/components/ui/data-table\";\n\ntype Payment = { id: string; amount: number; status: \"pending\" | \"paid\" | \"failed\"; email: string };\n\nconst columns: ColumnDef<Payment>[] = [\n  { accessorKey: \"status\", header: \"Status\" },\n  { accessorKey: \"email\", header: \"Email\" },\n  { accessorKey: \"amount\", header: \"Amount\" },\n];\n\nconst data: Payment[] = [\n  { id: \"1\", amount: 100, status: \"paid\", email: \"a@x.com\" },\n  { id: \"2\", amount: 250, status: \"pending\", email: \"b@x.com\" },\n];\n\nexport function Example() {\n  return <DataTable columns={columns} data={data} />;\n}"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for tabular data that needs sorting, filtering, pagination, or row selection. Define columns once, feed data — TanStack handles the row model. Add more features incrementally (getSortedRowModel, getFilteredRowModel, getPaginationRowModel).",
+    "whenNotToUse": "Don't use for static/simple tables (use Table primitives directly). Don't use for virtualized very-large lists (use TanStack Virtual). Don't use for grid layouts (use CSS grid). DataTable is a Client Component (uses useReactTable hook) — fetch data in a Server Component and pass it as props.",
+    "commonMistakes": [
+      "Forgetting getCoreRowModel() (table renders nothing)",
+      "Recreating columns array on every render (breaks memoization — wrap in useMemo or define outside the component)",
+      "Using accessorKey with nested paths without accessorFn",
+      "Not adding filter/sort row models when those features are needed"
+    ],
+    "relatedComponents": [
+      "table",
+      "pagination"
+    ],
+    "accessibilityNotes": "Uses semantic <table> via Hex UI Table primitives. Add aria-sort to sortable column headers. Announce filter/sort changes via aria-live for dynamic updates.",
+    "tokenBudget": 900
+  },
+  "tags": [
+    "data-table",
+    "tanstack",
+    "sortable",
+    "filterable",
+    "paginated"
+  ]
+}
