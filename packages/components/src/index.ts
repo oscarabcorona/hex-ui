@@ -107,6 +107,59 @@ export {
 } from "./components/form/form.js";
 export { Alert, AlertTitle, AlertDescription, alertVariants } from "./components/alert/alert.js";
 export { Toaster, toast } from "./components/sonner/sonner.js";
+export {
+	Collapsible,
+	CollapsibleTrigger,
+	CollapsibleContent,
+} from "./components/collapsible/collapsible.js";
+export { HoverCard, HoverCardTrigger, HoverCardContent } from "./components/hover-card/hover-card.js";
+export {
+	ContextMenu,
+	ContextMenuTrigger,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuCheckboxItem,
+	ContextMenuRadioItem,
+	ContextMenuLabel,
+	ContextMenuSeparator,
+	ContextMenuShortcut,
+	ContextMenuGroup,
+	ContextMenuPortal,
+	ContextMenuRadioGroup,
+} from "./components/context-menu/context-menu.js";
+export {
+	Menubar,
+	MenubarMenu,
+	MenubarTrigger,
+	MenubarContent,
+	MenubarItem,
+	MenubarLabel,
+	MenubarSeparator,
+	MenubarShortcut,
+	MenubarGroup,
+	MenubarPortal,
+	MenubarRadioGroup,
+} from "./components/menubar/menubar.js";
+export {
+	navigationMenuTriggerStyle,
+	NavigationMenu,
+	NavigationMenuList,
+	NavigationMenuItem,
+	NavigationMenuContent,
+	NavigationMenuTrigger,
+	NavigationMenuLink,
+	NavigationMenuIndicator,
+	NavigationMenuViewport,
+} from "./components/navigation-menu/navigation-menu.js";
+export {
+	Breadcrumb,
+	BreadcrumbList,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbPage,
+	BreadcrumbSeparator,
+	BreadcrumbEllipsis,
+} from "./components/breadcrumb/breadcrumb.js";
 
 // Schemas
 export { buttonSchema } from "./primitives/button/button.schema.js";
@@ -136,6 +189,12 @@ export { skeletonSchema } from "./primitives/skeleton/skeleton.schema.js";
 export { progressSchema } from "./primitives/progress/progress.schema.js";
 export { scrollAreaSchema } from "./primitives/scroll-area/scroll-area.schema.js";
 export { aspectRatioSchema } from "./primitives/aspect-ratio/aspect-ratio.schema.js";
+export { collapsibleSchema } from "./components/collapsible/collapsible.schema.js";
+export { hoverCardSchema } from "./components/hover-card/hover-card.schema.js";
+export { contextMenuSchema } from "./components/context-menu/context-menu.schema.js";
+export { menubarSchema } from "./components/menubar/menubar.schema.js";
+export { navigationMenuSchema } from "./components/navigation-menu/navigation-menu.schema.js";
+export { breadcrumbSchema } from "./components/breadcrumb/breadcrumb.schema.js";
 export { alertSchema } from "./components/alert/alert.schema.js";
 export { sonnerSchema } from "./components/sonner/sonner.schema.js";
 

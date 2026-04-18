@@ -1,0 +1,109 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "context-menu",
+  "displayName": "Context Menu",
+  "description": "Right-click (or long-press on touch) menu anchored to the trigger region. Same item vocabulary as DropdownMenu.",
+  "category": "component",
+  "subcategory": "overlay",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on open change"
+    },
+    {
+      "name": "modal",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "When true, interaction outside is blocked"
+    },
+    {
+      "name": "dir",
+      "type": "enum",
+      "required": false,
+      "description": "Reading direction",
+      "enumValues": [
+        "ltr",
+        "rtl"
+      ]
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "ContextMenuTrigger + ContextMenuContent. Content accepts ContextMenuItem, ContextMenuCheckboxItem, ContextMenuRadioGroup/ContextMenuRadioItem, ContextMenuLabel, ContextMenuSeparator, and ContextMenuShortcut.",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/context-menu.tsx",
+      "content": "import * as ContextMenuPrimitive from \"@radix-ui/react-context-menu\";\nimport * as React from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Root container for a context menu (right-click menu). */\nconst ContextMenu = ContextMenuPrimitive.Root;\n\n/** The element that triggers the context menu on right-click. */\nconst ContextMenuTrigger = ContextMenuPrimitive.Trigger;\n\n/** Groups related items for a11y. */\nconst ContextMenuGroup = ContextMenuPrimitive.Group;\n\n/** Portals content into the body. */\nconst ContextMenuPortal = ContextMenuPrimitive.Portal;\n\n/** Group for checkable radio items. */\nconst ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;\n\n/** The menu panel shown when the trigger is right-clicked. */\nconst ContextMenuContent = React.forwardRef<\n\tReact.ComponentRef<typeof ContextMenuPrimitive.Content>,\n\tReact.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Content>\n>(({ className, ...props }, ref) => (\n\t<ContextMenuPrimitive.Portal>\n\t\t<ContextMenuPrimitive.Content\n\t\t\tref={ref}\n\t\t\tclassName={cn(\n\t\t\t\t\"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md\",\n\t\t\t\t\"data-[state=open]:animate-in data-[state=closed]:animate-out\",\n\t\t\t\t\"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0\",\n\t\t\t\t\"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t</ContextMenuPrimitive.Portal>\n));\nContextMenuContent.displayName = \"ContextMenuContent\";\n\n/** A clickable menu item. */\nconst ContextMenuItem = React.forwardRef<\n\tReact.ComponentRef<typeof ContextMenuPrimitive.Item>,\n\tReact.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Item> & { inset?: boolean }\n>(({ className, inset, ...props }, ref) => (\n\t<ContextMenuPrimitive.Item\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none\",\n\t\t\t\"transition-colors duration-150\",\n\t\t\t\"focus:bg-accent focus:text-accent-foreground\",\n\t\t\t\"data-[disabled]:pointer-events-none data-[disabled]:opacity-50\",\n\t\t\tinset && \"pl-8\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t/>\n));\nContextMenuItem.displayName = \"ContextMenuItem\";\n\n/** A checkable menu item. */\nconst ContextMenuCheckboxItem = React.forwardRef<\n\tReact.ComponentRef<typeof ContextMenuPrimitive.CheckboxItem>,\n\tReact.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.CheckboxItem>\n>(({ className, children, checked, ...props }, ref) => (\n\t<ContextMenuPrimitive.CheckboxItem\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none\",\n\t\t\t\"transition-colors duration-150\",\n\t\t\t\"focus:bg-accent focus:text-accent-foreground\",\n\t\t\t\"data-[disabled]:pointer-events-none data-[disabled]:opacity-50\",\n\t\t\tclassName,\n\t\t)}\n\t\tchecked={checked}\n\t\t{...props}\n\t>\n\t\t<span className=\"absolute left-2 flex h-3.5 w-3.5 items-center justify-center\">\n\t\t\t<ContextMenuPrimitive.ItemIndicator>\n\t\t\t\t<svg\n\t\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\t\tfill=\"none\"\n\t\t\t\t\tstroke=\"currentColor\"\n\t\t\t\t\tstrokeWidth=\"3\"\n\t\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\t\tclassName=\"h-4 w-4\"\n\t\t\t\t\taria-hidden=\"true\"\n\t\t\t\t>\n\t\t\t\t\t<polyline points=\"20 6 9 17 4 12\" />\n\t\t\t\t</svg>\n\t\t\t</ContextMenuPrimitive.ItemIndicator>\n\t\t</span>\n\t\t{children}\n\t</ContextMenuPrimitive.CheckboxItem>\n));\nContextMenuCheckboxItem.displayName = \"ContextMenuCheckboxItem\";\n\n/** A radio menu item. */\nconst ContextMenuRadioItem = React.forwardRef<\n\tReact.ComponentRef<typeof ContextMenuPrimitive.RadioItem>,\n\tReact.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.RadioItem>\n>(({ className, children, ...props }, ref) => (\n\t<ContextMenuPrimitive.RadioItem\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none\",\n\t\t\t\"transition-colors duration-150\",\n\t\t\t\"focus:bg-accent focus:text-accent-foreground\",\n\t\t\t\"data-[disabled]:pointer-events-none data-[disabled]:opacity-50\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t<span className=\"absolute left-2 flex h-3.5 w-3.5 items-center justify-center\">\n\t\t\t<ContextMenuPrimitive.ItemIndicator>\n\t\t\t\t<svg viewBox=\"0 0 24 24\" className=\"h-2 w-2 fill-current\" aria-hidden=\"true\">\n\t\t\t\t\t<circle cx=\"12\" cy=\"12\" r=\"10\" />\n\t\t\t\t</svg>\n\t\t\t</ContextMenuPrimitive.ItemIndicator>\n\t\t</span>\n\t\t{children}\n\t</ContextMenuPrimitive.RadioItem>\n));\nContextMenuRadioItem.displayName = \"ContextMenuRadioItem\";\n\n/** A non-interactive heading label. */\nconst ContextMenuLabel = React.forwardRef<\n\tReact.ComponentRef<typeof ContextMenuPrimitive.Label>,\n\tReact.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Label> & { inset?: boolean }\n>(({ className, inset, ...props }, ref) => (\n\t<ContextMenuPrimitive.Label\n\t\tref={ref}\n\t\tclassName={cn(\"px-2 py-1.5 text-sm font-semibold text-foreground\", inset && \"pl-8\", className)}\n\t\t{...props}\n\t/>\n));\nContextMenuLabel.displayName = \"ContextMenuLabel\";\n\n/** Horizontal divider. */\nconst ContextMenuSeparator = React.forwardRef<\n\tReact.ComponentRef<typeof ContextMenuPrimitive.Separator>,\n\tReact.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Separator>\n>(({ className, ...props }, ref) => (\n\t<ContextMenuPrimitive.Separator\n\t\tref={ref}\n\t\tclassName={cn(\"-mx-1 my-1 h-px bg-border\", className)}\n\t\t{...props}\n\t/>\n));\nContextMenuSeparator.displayName = \"ContextMenuSeparator\";\n\n/**\n * Right-aligned shortcut text (e.g. ⌘⇧N).\n * @returns A span with muted typography\n */\nfunction ContextMenuShortcut({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) {\n\treturn (\n\t\t<span\n\t\t\tclassName={cn(\"ml-auto text-xs tracking-widest text-muted-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\nexport {\n\tContextMenu,\n\tContextMenuTrigger,\n\tContextMenuContent,\n\tContextMenuItem,\n\tContextMenuCheckboxItem,\n\tContextMenuRadioItem,\n\tContextMenuLabel,\n\tContextMenuSeparator,\n\tContextMenuShortcut,\n\tContextMenuGroup,\n\tContextMenuPortal,\n\tContextMenuRadioGroup,\n};\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-context-menu",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [
+    "popover",
+    "popover-foreground",
+    "accent",
+    "accent-foreground",
+    "border",
+    "foreground",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Right-click menu",
+      "description": "Right-click the trigger region for actions",
+      "code": "<ContextMenu>\n  <ContextMenuTrigger className=\"flex h-40 items-center justify-center rounded-md border border-dashed\">Right-click here</ContextMenuTrigger>\n  <ContextMenuContent>\n    <ContextMenuItem>Back</ContextMenuItem>\n    <ContextMenuItem disabled>Forward</ContextMenuItem>\n    <ContextMenuSeparator />\n    <ContextMenuItem>Reload<ContextMenuShortcut>⌘R</ContextMenuShortcut></ContextMenuItem>\n  </ContextMenuContent>\n</ContextMenu>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for right-click menus on a specific region: file-manager-style actions, canvas/editor context actions, row-level actions in tables.",
+    "whenNotToUse": "Don't use for actions triggered by a button (use DropdownMenu). Don't use as the only way to access an action — must have a keyboard/button alternative.",
+    "commonMistakes": [
+      "Using ContextMenu as the only affordance (unreachable on touch)",
+      "Triggering on the whole document (put it on a specific region)",
+      "Missing a keyboard alternative for items"
+    ],
+    "relatedComponents": [
+      "dropdown-menu",
+      "menubar"
+    ],
+    "accessibilityNotes": "Triggered via right-click or Shift+F10 on keyboard. Radix handles role='menu', aria-labelledby, focus management.",
+    "tokenBudget": 700
+  },
+  "tags": [
+    "context-menu",
+    "right-click",
+    "menu",
+    "actions"
+  ]
+}

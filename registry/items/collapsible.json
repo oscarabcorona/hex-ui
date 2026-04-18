@@ -1,0 +1,100 @@
+{
+  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "name": "collapsible",
+  "displayName": "Collapsible",
+  "description": "A single section that can be expanded or collapsed. For multiple independent sections use Accordion with type='multiple'.",
+  "category": "component",
+  "subcategory": "disclosure",
+  "version": "0.1.0",
+  "framework": "react",
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled open state"
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Default open state"
+    },
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on open change: (open: boolean) => void"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable toggling"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "CollapsibleTrigger + CollapsibleContent",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/collapsible.tsx",
+      "content": "import * as CollapsiblePrimitive from \"@radix-ui/react-collapsible\";\n\n/** Root container controlling the expanded state of the content. */\nconst Collapsible = CollapsiblePrimitive.Root;\n\n/** The element that toggles the Collapsible open/closed. */\nconst CollapsibleTrigger = CollapsiblePrimitive.CollapsibleTrigger;\n\n/** The collapsible content shown/hidden by the trigger. */\nconst CollapsibleContent = CollapsiblePrimitive.CollapsibleContent;\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { type ClassValue, clsx } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind CSS conflict resolution.\n * @param inputs - Class values (strings, arrays, objects) to merge\n * @returns A single merged class string with Tailwind conflicts resolved\n */\nexport function cn(...inputs: ClassValue[]) {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@radix-ui/react-collapsible"
+    ],
+    "internal": [],
+    "peer": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "tokensUsed": [],
+  "examples": [
+    {
+      "title": "Show more",
+      "description": "Expand additional content below a preview",
+      "code": "<Collapsible>\n  <div>Yesterday at 9:00 AM</div>\n  <CollapsibleTrigger asChild>\n    <Button variant=\"ghost\" size=\"sm\">Toggle</Button>\n  </CollapsibleTrigger>\n  <CollapsibleContent>\n    <div>Additional details here</div>\n  </CollapsibleContent>\n</Collapsible>"
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for a single show-more/show-less section: 'View full details', 'Advanced settings', preview cards with expandable notes.",
+    "whenNotToUse": "Don't use for multiple related sections (use Accordion). Don't use for overlays (use Dialog/Popover). Don't use for navigation (use DropdownMenu).",
+    "commonMistakes": [
+      "Using Collapsible for multiple sections instead of Accordion",
+      "Missing asChild when passing a Button as trigger",
+      "Not animating content height (Radix exposes --radix-collapsible-content-height for CSS keyframes)"
+    ],
+    "relatedComponents": [
+      "accordion",
+      "dropdown-menu"
+    ],
+    "accessibilityNotes": "Radix sets aria-expanded on the trigger and aria-controls → content id. Trigger is keyboard-operable (Enter/Space).",
+    "tokenBudget": 250
+  },
+  "tags": [
+    "collapsible",
+    "disclosure",
+    "expand",
+    "show-more"
+  ]
+}
