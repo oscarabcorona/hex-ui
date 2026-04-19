@@ -73,7 +73,8 @@
       "Using for non-circular images (override rounded-full if needed)"
     ],
     "relatedComponents": [
-      "badge"
+      "badge",
+      "card"
     ],
     "accessibilityNotes": "AvatarImage requires alt text. AvatarFallback renders initials or an icon — ensure the visible text is meaningful.",
     "tokenBudget": 250

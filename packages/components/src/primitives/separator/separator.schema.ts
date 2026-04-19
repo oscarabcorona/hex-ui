@@ -27,7 +27,7 @@ export const separatorSchema: ComponentSchemaDefinition = {
 		whenToUse: "Use to visually separate content sections, menu items, or sidebar groups.",
 		whenNotToUse: "Don't use for spacing (use margin/padding). Don't use between every list item.",
 		commonMistakes: ["Using as spacing instead of semantic separation", "Forgetting orientation='vertical' needs parent height"],
-		relatedComponents: [],
+		relatedComponents: ["card", "breadcrumb", "dropdown-menu", "menubar"],
 		accessibilityNotes: "Set decorative=false if the separator conveys semantic meaning. Radix handles role='separator'.",
 		tokenBudget: 150,
 	},

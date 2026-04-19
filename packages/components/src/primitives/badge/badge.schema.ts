@@ -44,7 +44,7 @@ export const badgeSchema: ComponentSchemaDefinition = {
 		whenToUse: "Use for status indicators, tags, counts, categories. Place next to headings, in lists, or in table cells.",
 		whenNotToUse: "Don't use for interactive actions (use Button). Don't use for long text content.",
 		commonMistakes: ["Using destructive variant for non-error states", "Badge text too long"],
-		relatedComponents: ["button"],
+		relatedComponents: ["button", "card"],
 		accessibilityNotes: "Purely decorative by default. Add role='status' for dynamic status badges.",
 		tokenBudget: 200,
 	},

@@ -41,7 +41,7 @@ export const avatarSchema: ComponentSchemaDefinition = {
 			"Omitting delayMs on AvatarFallback causes flicker for fast-loading images",
 			"Using for non-circular images (override rounded-full if needed)",
 		],
-		relatedComponents: ["badge"],
+		relatedComponents: ["badge", "card"],
 		accessibilityNotes:
 			"AvatarImage requires alt text. AvatarFallback renders initials or an icon — ensure the visible text is meaningful.",
 		tokenBudget: 250,
