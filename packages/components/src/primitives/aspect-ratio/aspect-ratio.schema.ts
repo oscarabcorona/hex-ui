@@ -46,7 +46,7 @@ export const aspectRatioSchema: ComponentSchemaDefinition = {
 			"Passing ratio as a string instead of a number (use {16/9}, not '16/9')",
 			"Forgetting that children must fill 100% width + height (add object-cover or similar)",
 		],
-		relatedComponents: [],
+		relatedComponents: ["card", "avatar", "skeleton"],
 		accessibilityNotes:
 			"AspectRatio is purely structural. Ensure inner <img> has alt text and inner <iframe> has a descriptive title.",
 		tokenBudget: 200,

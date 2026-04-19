@@ -149,7 +149,7 @@ export const buttonSchema: ComponentSchemaDefinition = {
 			"Missing aria-label when using icon-only size='icon' variant",
 			"Using onClick for navigation instead of asChild with a link",
 		],
-		relatedComponents: ["toggle", "toggle-group", "dropdown-menu"],
+		relatedComponents: ["toggle", "toggle-group", "dropdown-menu", "badge"],
 		accessibilityNotes:
 			"Automatically handles focus ring, disabled state, and aria attributes. Icon-only buttons MUST have aria-label. Loading state automatically sets disabled.",
 		tokenBudget: 500,

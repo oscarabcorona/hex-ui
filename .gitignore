@@ -8,6 +8,7 @@ dist/
 .claude/
 .idea/
 .playwright-mcp/
+.qa/
 CLAUDE.md
 apps/**/CLAUDE.md
 *.png

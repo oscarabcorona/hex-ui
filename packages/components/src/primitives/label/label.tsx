@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "../../lib/utils.js";
 
 const labelVariants = cva(
-	"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 transition-colors duration-150",
+	"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
 );
 
 export interface LabelProps
