@@ -22,7 +22,7 @@ export function NavigationMenuDemo() {
 							<li>
 								<NavigationMenuLink
 									href="/docs/getting-started"
-									className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+									className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
 								>
 									<div className="text-sm font-medium leading-none">Getting Started</div>
 									<p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -33,7 +33,7 @@ export function NavigationMenuDemo() {
 							<li>
 								<NavigationMenuLink
 									href="/docs/components/button"
-									className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+									className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
 								>
 									<div className="text-sm font-medium leading-none">Components</div>
 									<p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
