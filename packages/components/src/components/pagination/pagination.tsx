@@ -124,12 +124,13 @@ function PaginationNext({ className, ...props }: React.ComponentProps<typeof Pag
 
 /**
  * Ellipsis placeholder for truncated page ranges (e.g. 1 … 5 6 7 … 99).
- * @returns A decorative span with three dots
+ * @returns A span containing a decorative SVG (aria-hidden) plus a sr-only "More pages" label for AT.
  */
 function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span">) {
+	// Wrapper stays reachable by AT; only the decorative SVG is aria-hidden so the
+	// sr-only "More pages" label actually reaches screen readers.
 	return (
 		<span
-			aria-hidden="true"
 			className={cn("flex h-9 w-9 items-center justify-center", className)}
 			{...props}
 		>
@@ -142,6 +143,7 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				className="h-4 w-4"
+				aria-hidden="true"
 			>
 				<circle cx="12" cy="12" r="1" />
 				<circle cx="19" cy="12" r="1" />

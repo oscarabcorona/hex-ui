@@ -44,7 +44,7 @@ const BreadcrumbLink = React.forwardRef<
 	return (
 		<Comp
 			ref={ref}
-			className={cn("transition-colors hover:text-foreground", className)}
+			className={cn("transition-all duration-200 ease-out hover:text-foreground", className)}
 			{...props}
 		/>
 	);
@@ -97,13 +97,13 @@ function BreadcrumbSeparator({
 
 /**
  * Ellipsis for truncated breadcrumb trails.
- * @returns A span with three dots, marked aria-hidden
+ * @returns A span containing a decorative SVG (aria-hidden) plus a sr-only "More pages" label for AT.
  */
 function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span">) {
+	// Wrapper stays reachable by AT; only the decorative SVG is aria-hidden so the
+	// sr-only "More pages" label actually reaches screen readers.
 	return (
 		<span
-			role="presentation"
-			aria-hidden="true"
 			className={cn("flex h-9 w-9 items-center justify-center", className)}
 			{...props}
 		>
@@ -116,12 +116,13 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				className="h-4 w-4"
+				aria-hidden="true"
 			>
 				<circle cx="12" cy="12" r="1" />
 				<circle cx="19" cy="12" r="1" />
 				<circle cx="5" cy="12" r="1" />
 			</svg>
-			<span className="sr-only">More</span>
+			<span className="sr-only">More pages</span>
 		</span>
 	);
 }
