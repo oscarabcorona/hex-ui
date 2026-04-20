@@ -14,7 +14,9 @@ const Progress = React.forwardRef<
 	return (
 		<ProgressPrimitive.Root
 			ref={ref}
-			value={value}
+			// Clamp undefined → 0 so ARIA (aria-valuenow) matches the visual fill.
+			// Consumers who want an indeterminate loading bar should use <Skeleton />.
+			value={value ?? 0}
 			max={max}
 			className={cn(
 				"relative h-2 w-full overflow-hidden rounded-full bg-secondary",

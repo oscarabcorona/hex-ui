@@ -39,7 +39,7 @@ export const skeletonSchema: ComponentSchemaDefinition = {
 			"Leaving Skeleton visible for long loads without a timeout/retry",
 			"Using Skeleton for interactive elements users might tap",
 		],
-		relatedComponents: ["progress"],
+		relatedComponents: ["progress", "avatar", "card", "table"],
 		accessibilityNotes:
 			"Add aria-busy='true' on the loading container and a visually hidden status (aria-live='polite') to announce load completion to screen readers.",
 		tokenBudget: 200,

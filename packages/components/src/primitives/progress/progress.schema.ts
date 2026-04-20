@@ -11,7 +11,7 @@ export const progressSchema: ComponentSchemaDefinition = {
 			name: "value",
 			type: "number",
 			required: false,
-			description: "Current value (0–100). Undefined renders indeterminate state",
+			description: "Current value (0–max). Omit to render at 0% (both visually and in ARIA — the component clamps undefined to 0). Use Skeleton for indeterminate loading states.",
 		},
 		{ name: "max", type: "number", required: false, default: 100, description: "Maximum value" },
 		{ name: "className", type: "string", required: false, description: "Additional CSS classes" },
@@ -41,7 +41,7 @@ export const progressSchema: ComponentSchemaDefinition = {
 			"Not labeling the progress (users can't tell what's progressing)",
 			"Updating too frequently (>30fps) — wastes renders",
 		],
-		relatedComponents: ["skeleton"],
+		relatedComponents: ["skeleton", "slider", "sonner"],
 		accessibilityNotes:
 			"Radix wires role='progressbar', aria-valuenow, aria-valuemin, aria-valuemax. Pair with a visible label or aria-label for context.",
 		tokenBudget: 250,
