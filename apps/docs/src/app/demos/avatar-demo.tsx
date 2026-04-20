@@ -11,7 +11,11 @@ export function AvatarDemo() {
 				<p className="mb-2 text-xs font-medium text-muted-foreground">Image + fallback</p>
 				<div className="flex items-center gap-3">
 					<Avatar>
-						<AvatarImage src="https://github.com/oscarabcorona.png" alt="@oscarabcorona" />
+						<AvatarImage
+							src="https://github.com/oscarabcorona.png"
+							alt="@oscarabcorona"
+							referrerPolicy="no-referrer"
+						/>
 						<AvatarFallback>OC</AvatarFallback>
 					</Avatar>
 					<Avatar>
@@ -41,7 +45,11 @@ export function AvatarDemo() {
 				<p className="mb-2 text-xs font-medium text-muted-foreground">With status dot</p>
 				<div className="relative inline-block">
 					<Avatar>
-						<AvatarImage src="https://github.com/oscarabcorona.png" alt="@oscarabcorona" />
+						<AvatarImage
+							src="https://github.com/oscarabcorona.png"
+							alt="@oscarabcorona"
+							referrerPolicy="no-referrer"
+						/>
 						<AvatarFallback>OC</AvatarFallback>
 					</Avatar>
 					{/* Consumers typically map the dot color to their own status palette. */}
