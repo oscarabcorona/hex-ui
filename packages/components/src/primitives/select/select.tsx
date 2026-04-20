@@ -109,7 +109,7 @@ const SelectItem = React.forwardRef<
 		ref={ref}
 		className={cn(
 			"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
-			"transition-colors duration-150",
+			"transition-all duration-200 ease-out",
 			"focus:bg-accent focus:text-accent-foreground",
 			"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 			className,
@@ -126,7 +126,7 @@ const SelectItem = React.forwardRef<
 					strokeWidth="3"
 					strokeLinecap="round"
 					strokeLinejoin="round"
-					className="h-4 w-4"
+					className="h-3.5 w-3.5"
 					aria-hidden="true"
 				>
 					<polyline points="20 6 9 17 4 12" />
