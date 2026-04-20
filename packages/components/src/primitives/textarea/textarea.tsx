@@ -16,7 +16,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 					"transition-all duration-200 ease-out",
 					"shadow-sm",
 					"placeholder:text-muted-foreground",
-					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 					"focus-visible:shadow-md focus-visible:border-ring/50",
 					"hover:border-ring/30 hover:shadow-md",
 					"disabled:cursor-not-allowed disabled:opacity-50",
