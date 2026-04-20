@@ -52,7 +52,7 @@
   "files": [
     {
       "path": "components/ui/checkbox.tsx",
-      "content": "import * as React from \"react\";\nimport * as CheckboxPrimitive from \"@radix-ui/react-checkbox\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * An accessible checkbox component built on Radix UI.\n * Supports checked, unchecked, and indeterminate states with smooth animations.\n */\nexport type CheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>;\n\nconst Checkbox = React.forwardRef<\n\tReact.ComponentRef<typeof CheckboxPrimitive.Root>,\n\tCheckboxProps\n>(({ className, ...props }, ref) => (\n\t<CheckboxPrimitive.Root\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"peer h-4 w-4 shrink-0 rounded-sm border border-input\",\n\t\t\t\"transition-all duration-200 ease-out\",\n\t\t\t\"shadow-sm\",\n\t\t\t\"hover:border-ring/50 hover:shadow-md\",\n\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\"disabled:cursor-not-allowed disabled:opacity-50\",\n\t\t\t\"data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t<CheckboxPrimitive.Indicator className={cn(\"flex items-center justify-center text-current\")}>\n\t\t\t<svg\n\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\tfill=\"none\"\n\t\t\t\tstroke=\"currentColor\"\n\t\t\t\tstrokeWidth=\"3\"\n\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\tclassName=\"h-3.5 w-3.5\"\n\t\t\t\taria-hidden=\"true\"\n\t\t\t>\n\t\t\t\t<polyline points=\"20 6 9 17 4 12\" />\n\t\t\t</svg>\n\t\t</CheckboxPrimitive.Indicator>\n\t</CheckboxPrimitive.Root>\n));\nCheckbox.displayName = \"Checkbox\";\n\nexport { Checkbox };\n",
+      "content": "import * as React from \"react\";\nimport * as CheckboxPrimitive from \"@radix-ui/react-checkbox\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * An accessible checkbox component built on Radix UI.\n * Supports checked, unchecked, and indeterminate states with smooth animations.\n */\nexport type CheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>;\n\nconst Checkbox = React.forwardRef<\n\tReact.ComponentRef<typeof CheckboxPrimitive.Root>,\n\tCheckboxProps\n>(({ className, ...props }, ref) => (\n\t<CheckboxPrimitive.Root\n\t\tref={ref}\n\t\tclassName={cn(\n\t\t\t\"group h-4 w-4 shrink-0 rounded-sm border border-input\",\n\t\t\t\"transition-all duration-200 ease-out\",\n\t\t\t\"shadow-sm\",\n\t\t\t\"hover:border-ring/50 hover:shadow-md\",\n\t\t\t\"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2\",\n\t\t\t\"disabled:cursor-not-allowed disabled:opacity-50\",\n\t\t\t\"data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground\",\n\t\t\t\"data-[state=indeterminate]:bg-primary data-[state=indeterminate]:border-primary data-[state=indeterminate]:text-primary-foreground\",\n\t\t\tclassName,\n\t\t)}\n\t\t{...props}\n\t>\n\t\t<CheckboxPrimitive.Indicator className={cn(\"flex items-center justify-center text-current\")}>\n\t\t\t{/* ✓ when checked; dash when indeterminate. The Root has `group`, so each icon\n\t\t\t    shows only when the Root's data-state matches. */}\n\t\t\t<svg\n\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\tfill=\"none\"\n\t\t\t\tstroke=\"currentColor\"\n\t\t\t\tstrokeWidth=\"3\"\n\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\tclassName=\"hidden h-3.5 w-3.5 group-data-[state=checked]:block\"\n\t\t\t\taria-hidden=\"true\"\n\t\t\t>\n\t\t\t\t<polyline points=\"20 6 9 17 4 12\" />\n\t\t\t</svg>\n\t\t\t<svg\n\t\t\t\txmlns=\"http://www.w3.org/2000/svg\"\n\t\t\t\tviewBox=\"0 0 24 24\"\n\t\t\t\tfill=\"none\"\n\t\t\t\tstroke=\"currentColor\"\n\t\t\t\tstrokeWidth=\"3\"\n\t\t\t\tstrokeLinecap=\"round\"\n\t\t\t\tstrokeLinejoin=\"round\"\n\t\t\t\tclassName=\"hidden h-3.5 w-3.5 group-data-[state=indeterminate]:block\"\n\t\t\t\taria-hidden=\"true\"\n\t\t\t>\n\t\t\t\t<line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\" />\n\t\t\t</svg>\n\t\t</CheckboxPrimitive.Indicator>\n\t</CheckboxPrimitive.Root>\n));\nCheckbox.displayName = \"Checkbox\";\n\nexport { Checkbox };\n",
       "type": "component"
     },
     {
@@ -89,14 +89,20 @@
       "title": "Controlled",
       "description": "Controlled checkbox",
       "code": "const [checked, setChecked] = useState(false);\n<Checkbox checked={checked} onCheckedChange={setChecked} />"
+    },
+    {
+      "title": "Indeterminate (parent/children)",
+      "description": "Parent renders a dash when some (but not all) children are selected",
+      "code": "const [items, setItems] = useState({ email: true, push: false });\nconst count = Object.values(items).filter(Boolean).length;\nconst parent = count === 0 ? false : count === 2 ? true : \"indeterminate\";\n\n<Checkbox\n  checked={parent}\n  onCheckedChange={(v) => setItems({ email: v === true, push: v === true })}\n/>"
     }
   ],
   "ai": {
-    "whenToUse": "Use for boolean toggles in forms: agree to terms, enable options, select items in a list.",
+    "whenToUse": "Use for boolean toggles in forms (agree to terms, enable options), multi-select lists, or parent/children trees where the parent reflects partial selection via the `indeterminate` state.",
     "whenNotToUse": "Don't use for mutually exclusive options (use RadioGroup). Don't use for instant toggles (use Switch).",
     "commonMistakes": [
       "Missing Label pairing",
-      "Using onChange instead of onCheckedChange"
+      "Using onChange instead of onCheckedChange",
+      "Forgetting that onCheckedChange can receive 'indeterminate' as well as boolean"
     ],
     "relatedComponents": [
       "label",
