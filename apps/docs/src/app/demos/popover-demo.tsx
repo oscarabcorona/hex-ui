@@ -52,7 +52,7 @@ export function PopoverDemo() {
 				<Popover>
 					<PopoverTrigger asChild>
 						<Button variant="outline" size="sm">
-							What's this?
+							What&apos;s this?
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent align="start">
@@ -81,9 +81,9 @@ export function PopoverDemo() {
 							<div className="space-y-2 text-sm">
 								<p className="font-medium leading-none">Filter results</p>
 								<p className="text-muted-foreground">
-									This panel anchors to the trigger's right edge via{" "}
+									This panel anchors to the trigger&apos;s right edge via{" "}
 									<code className="rounded bg-muted px-1 py-0.5 text-xs">
-										align="end"
+										{`align="end"`}
 									</code>
 									.
 								</p>

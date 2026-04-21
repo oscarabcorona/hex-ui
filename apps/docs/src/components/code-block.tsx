@@ -1,7 +1,7 @@
 import { codeToHtml } from "shiki";
 import { CodeBlockCopy } from "./code-block-copy";
 
-type SupportedLang = "bash" | "ts" | "tsx" | "json";
+type SupportedLang = "bash" | "ts" | "tsx" | "json" | "css";
 
 const LABEL_TO_LANG: Record<string, SupportedLang> = {
 	pnpm: "bash",
@@ -15,6 +15,7 @@ const LABEL_TO_LANG: Record<string, SupportedLang> = {
 	typescript: "ts",
 	tsx: "tsx",
 	json: "json",
+	css: "css",
 };
 
 function resolveLang(label?: string, language?: SupportedLang): SupportedLang {

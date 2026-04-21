@@ -4,9 +4,30 @@ import { motion, LayoutGroup } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "../lib/utils";
-import { CATEGORY_LABELS, CATEGORY_ORDER, componentsByCategory } from "../lib/registry";
+import { GETTING_STARTED_NAV } from "../lib/docs-nav";
+import {
+	CATEGORY_LABELS,
+	CATEGORY_ORDER,
+	componentsByCategory,
+	type RegistryIndexItem,
+} from "../lib/registry";
 
-const GETTING_STARTED = [{ title: "Introduction", href: "/docs/getting-started" }];
+interface SidebarCategory {
+	key: string;
+	title: string;
+	items: RegistryIndexItem[];
+}
+
+function orderedSidebarCategories(): SidebarCategory[] {
+	const groups = componentsByCategory();
+	const ordered: SidebarCategory[] = [];
+	for (const key of CATEGORY_ORDER) {
+		const items = groups[key];
+		if (!items) continue;
+		ordered.push({ key, title: CATEGORY_LABELS[key] ?? key, items });
+	}
+	return ordered;
+}
 
 /**
  * Docs sidebar navigation. Category groups derive from the registry so new
@@ -15,18 +36,17 @@ const GETTING_STARTED = [{ title: "Introduction", href: "/docs/getting-started" 
  */
 export function Sidebar({ className }: { className?: string }) {
 	const pathname = usePathname();
-	const groups = componentsByCategory();
-	const orderedCategories = CATEGORY_ORDER.filter((c) => groups[c]);
+	const categories = orderedSidebarCategories();
 
 	return (
 		<LayoutGroup id="sidebar-active">
 			<nav className={cn("space-y-8", className)} aria-label="Docs sidebar">
-				<NavGroup title="Getting Started" items={GETTING_STARTED} pathname={pathname} />
-				{orderedCategories.map((category) => (
+				<NavGroup title="Getting Started" items={GETTING_STARTED_NAV} pathname={pathname} />
+				{categories.map((c) => (
 					<NavGroup
-						key={category}
-						title={CATEGORY_LABELS[category] ?? category}
-						items={groups[category].map((item) => ({
+						key={c.key}
+						title={c.title}
+						items={c.items.map((item) => ({
 							title: item.displayName,
 							href: `/docs/components/${item.name}`,
 						}))}
@@ -45,7 +65,7 @@ function NavGroup({
 	pathname,
 }: {
 	title: string;
-	items: { title: string; href: string }[];
+	items: readonly { title: string; href: string }[];
 	pathname: string;
 }) {
 	return (

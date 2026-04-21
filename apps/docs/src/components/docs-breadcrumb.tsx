@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-interface Crumb {
+/** One breadcrumb entry. An entry without `href` renders as plain text. */
+export interface Crumb {
 	label: string;
 	href?: string;
 }
@@ -9,7 +10,7 @@ interface Crumb {
  * Lightweight breadcrumb trail used on docs pages. The last crumb is plain
  * text (current page); earlier crumbs are links.
  */
-export function DocsBreadcrumb({ trail }: { trail: Crumb[] }) {
+export function DocsBreadcrumb({ trail }: { trail: readonly Crumb[] }) {
 	return (
 		<nav aria-label="Breadcrumb" className="mb-4 text-xs text-muted-foreground">
 			<ol className="flex items-center gap-1.5">

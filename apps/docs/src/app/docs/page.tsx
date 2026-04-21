@@ -12,13 +12,29 @@ export const metadata = {
 	description: "Browse every component in the Hex UI registry, grouped by category.",
 };
 
+interface CategoryGroup {
+	key: string;
+	title: string;
+	items: RegistryIndexItem[];
+}
+
+function orderedGroups(): CategoryGroup[] {
+	const groups = componentsByCategory();
+	const ordered: CategoryGroup[] = [];
+	for (const key of CATEGORY_ORDER) {
+		const items = groups[key];
+		if (!items) continue;
+		ordered.push({ key, title: CATEGORY_LABELS[key] ?? key, items });
+	}
+	return ordered;
+}
+
 /**
  * Docs index — grid of every registry component grouped by category. Server
  * component; reads directly from the registry JSON.
  */
 export default function DocsIndexPage() {
-	const groups = componentsByCategory();
-	const categories = CATEGORY_ORDER.filter((c) => groups[c]);
+	const groups = orderedGroups();
 
 	return (
 		<main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
@@ -31,12 +47,8 @@ export default function DocsIndexPage() {
 			</div>
 
 			<div className="space-y-12">
-				{categories.map((category) => (
-					<CategorySection
-						key={category}
-						title={CATEGORY_LABELS[category] ?? category}
-						items={groups[category]}
-					/>
+				{groups.map((g) => (
+					<CategorySection key={g.key} title={g.title} items={g.items} />
 				))}
 			</div>
 

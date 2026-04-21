@@ -53,7 +53,7 @@ export function TabsDemo() {
 					<CardHeader>
 						<CardTitle>Password</CardTitle>
 						<CardDescription>
-							You'll be signed out of other devices after changing your password.
+							You&apos;ll be signed out of other devices after changing your password.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">

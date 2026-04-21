@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "../components/theme-provider";
+import { listComponents } from "../lib/registry";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hex-ui.dev";
 const siteTitle = "Hex UI — AI-Native Component Library";
-const siteDescription =
-	"Component library designed for LLMs and humans. MCP-first distribution, Radix UI + Tailwind CSS, 47 polished primitives and compounds.";
+const componentCount = listComponents().length;
+const siteDescription = `Component library designed for LLMs and humans. MCP-first distribution, Radix UI + Tailwind CSS, ${componentCount} polished primitives and compounds.`;
 
 export const metadata: Metadata = {
 	metadataBase: new URL(siteUrl),
@@ -45,9 +46,10 @@ export const metadata: Metadata = {
 		locale: "en_US",
 	},
 	twitter: {
-		card: "summary",
+		card: "summary_large_image",
 		title: siteTitle,
 		description: siteDescription,
+		images: ["/opengraph-image"],
 	},
 	alternates: {
 		canonical: siteUrl,

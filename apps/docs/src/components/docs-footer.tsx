@@ -1,10 +1,6 @@
 import Link from "next/link";
-import {
-	CATEGORY_LABELS,
-	CATEGORY_ORDER,
-	componentsByCategory,
-	type RegistryIndexItem,
-} from "../lib/registry";
+import { GETTING_STARTED_CATEGORY, GETTING_STARTED_NAV } from "../lib/docs-nav";
+import { CATEGORY_LABELS, CATEGORY_ORDER, componentsByCategory } from "../lib/registry";
 
 interface FooterLink {
 	title: string;
@@ -13,12 +9,14 @@ interface FooterLink {
 }
 
 function buildOrderedList(): FooterLink[] {
-	const items: FooterLink[] = [
-		{ title: "Introduction", category: "Getting Started", href: "/docs/getting-started" },
-	];
+	const items: FooterLink[] = GETTING_STARTED_NAV.map((link) => ({
+		title: link.title,
+		category: GETTING_STARTED_CATEGORY,
+		href: link.href,
+	}));
 	const groups = componentsByCategory();
 	for (const category of CATEGORY_ORDER) {
-		const group = groups[category] as RegistryIndexItem[] | undefined;
+		const group = groups[category];
 		if (!group) continue;
 		for (const item of group) {
 			items.push({

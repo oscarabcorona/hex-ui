@@ -81,15 +81,17 @@ export const CATEGORY_LABELS: Record<string, string> = {
 export const CATEGORY_ORDER = ["primitive", "component", "block", "hook"] as const;
 
 /**
- * Group components by `category` (primitive, component, block, etc.).
- * @returns Record of category → components list
+ * Group components by `category` (primitive, component, block, etc.). Return
+ * type is `Partial<Record>` because callers must handle missing categories
+ * (e.g. the registry has no `hook` entries today).
+ * @returns Record of category → components list (values possibly undefined)
  */
-export function componentsByCategory(): Record<string, RegistryIndexItem[]> {
-	const groups: Record<string, RegistryIndexItem[]> = {};
+export function componentsByCategory(): Partial<Record<string, RegistryIndexItem[]>> {
+	const groups: Partial<Record<string, RegistryIndexItem[]>> = {};
 	for (const item of index.items) {
-		const key = item.category;
-		if (!groups[key]) groups[key] = [];
-		groups[key].push(item);
+		const list = groups[item.category] ?? [];
+		list.push(item);
+		groups[item.category] = list;
 	}
 	return groups;
 }
