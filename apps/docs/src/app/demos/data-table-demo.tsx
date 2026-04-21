@@ -14,12 +14,25 @@ interface Payment {
 const data: Payment[] = [
 	{ id: "m5gr84i9", amount: 316, status: "success", email: "ken99@yahoo.com" },
 	{ id: "3u1reuv4", amount: 242, status: "success", email: "abe45@gmail.com" },
-	{ id: "derv1ws0", amount: 837, status: "processing", email: "monserrat44@yahoo.com" },
-	{ id: "5kma53ae", amount: 874, status: "success", email: "silas22@hotmail.com" },
+	{
+		id: "derv1ws0",
+		amount: 837,
+		status: "processing",
+		email: "monserrat44@yahoo.com",
+	},
+	{
+		id: "5kma53ae",
+		amount: 874,
+		status: "success",
+		email: "silas22@hotmail.com",
+	},
 	{ id: "bhqecj4p", amount: 721, status: "failed", email: "carmella@qmail.com" },
 ];
 
-/** DataTable demo: TanStack-driven payment list with status badges. */
+/**
+ * DataTable demo: TanStack-driven payment list with a status Badge column and
+ * right-aligned currency formatting.
+ */
 export function DataTableDemo() {
 	const columns = useMemo<ColumnDef<Payment>[]>(
 		() => [

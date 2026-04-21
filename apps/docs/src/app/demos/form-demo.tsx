@@ -20,19 +20,25 @@ const formSchema = z.object({
 		.string()
 		.min(2, { message: "Username must be at least 2 characters." })
 		.max(30, { message: "Username must be 30 characters or fewer." }),
+	email: z.string().email({ message: "Enter a valid email address." }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-/** Form demo: username form with zod validation and per-field error display. */
+/**
+ * Form demo: two-field profile form with zod validation, per-field error
+ * display, helper text, and a `loading` Button while react-hook-form is
+ * submitting.
+ */
 export function FormDemo() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: { username: "" },
+		defaultValues: { username: "", email: "" },
 	});
 
-	function onSubmit(values: FormValues) {
-		window.alert(`Submitted: ${JSON.stringify(values)}`);
+	async function onSubmit(values: FormValues) {
+		await new Promise<void>((resolve) => setTimeout(resolve, 800));
+		window.alert(`Submitted: ${JSON.stringify(values, null, 2)}`);
 	}
 
 	return (
@@ -40,6 +46,7 @@ export function FormDemo() {
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
 				className="flex w-full max-w-sm flex-col gap-6"
+				noValidate
 			>
 				<FormField
 					control={form.control}
@@ -55,7 +62,23 @@ export function FormDemo() {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit">Submit</Button>
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Email</FormLabel>
+							<FormControl>
+								<Input type="email" placeholder="you@example.com" {...field} />
+							</FormControl>
+							<FormDescription>We'll never share your email.</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<Button type="submit" loading={form.formState.isSubmitting}>
+					{form.formState.isSubmitting ? "Submitting…" : "Submit"}
+				</Button>
 			</form>
 		</Form>
 	);
