@@ -33,15 +33,17 @@ export function DocsPage({ pathname, title, description, crumbs, sections, child
 	return (
 		<div className="flex">
 			<main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
-				<DocsBreadcrumb trail={trail} />
-				<div className="mb-8">
-					<h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-					<p className="mt-2 text-lg text-muted-foreground">{description}</p>
+				<div className="mx-auto max-w-3xl xl:max-w-4xl">
+					<DocsBreadcrumb trail={trail} />
+					<div className="mb-8">
+						<h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+						<p className="mt-2 text-lg text-muted-foreground">{description}</p>
+					</div>
+
+					<div className="space-y-10">{children}</div>
+
+					<DocsFooter pathname={pathname} />
 				</div>
-
-				<div className="space-y-10">{children}</div>
-
-				<DocsFooter pathname={pathname} />
 			</main>
 			<OnThisPage sections={sections} />
 		</div>

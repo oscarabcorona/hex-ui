@@ -58,7 +58,7 @@ export async function CodeBlock({
 			</div>
 			<div
 				data-shiki=""
-				className="overflow-x-auto p-4 text-sm [&_pre]:!bg-transparent"
+				className="overflow-x-auto p-4 font-mono text-sm [&_pre]:!bg-transparent"
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: Shiki output is trusted server-rendered HTML
 				dangerouslySetInnerHTML={{ __html: html }}
 			/>

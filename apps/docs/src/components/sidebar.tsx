@@ -40,7 +40,7 @@ export function Sidebar({ className }: { className?: string }) {
 
 	return (
 		<LayoutGroup id="sidebar-active">
-			<nav className={cn("space-y-8", className)} aria-label="Docs sidebar">
+			<nav className={cn("space-y-6", className)} aria-label="Docs sidebar">
 				<NavGroup title="Getting Started" items={GETTING_STARTED_NAV} pathname={pathname} />
 				{categories.map((c) => (
 					<NavGroup
@@ -70,10 +70,10 @@ function NavGroup({
 }) {
 	return (
 		<div>
-			<div className="mb-3 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+			<div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/70">
 				{title}
 			</div>
-			<ul className="relative space-y-px border-l border-border/60">
+			<ul className="relative border-l border-border/60">
 				{items.map((item) => {
 					const isActive = pathname === item.href;
 					return (
@@ -90,7 +90,7 @@ function NavGroup({
 							<Link
 								href={item.href}
 								className={cn(
-									"block py-1 pl-4 pr-3 text-sm transition-all duration-200 ease-out",
+									"block py-1.5 pl-4 pr-3 text-sm transition-all duration-200 ease-out",
 									isActive
 										? "font-medium text-foreground"
 										: "text-muted-foreground hover:text-foreground",

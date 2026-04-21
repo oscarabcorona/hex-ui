@@ -2,12 +2,13 @@ import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import { codeToHtml } from "shiki";
 import type { RegistryItem } from "../lib/registry";
-import { INSTALL_COMMAND_LABEL, installCommand, slugify, usageCode } from "../lib/registry";
+import { INSTALL_COMMAND_LABEL, installCommand, slugify, usageFallback } from "../lib/registry";
 import { CodeBlock } from "./code-block";
 import { ComponentPreview } from "./component-preview";
 import { DocsBreadcrumb } from "./docs-breadcrumb";
 import { DocsFooter } from "./docs-footer";
-import { OnThisPage } from "./on-this-page";
+import { OnThisPage, type TocSection } from "./on-this-page";
+import { OnThisPageCompact } from "./on-this-page-compact";
 import { PropsTable } from "./props-table";
 
 async function highlight(code: string, lang: "tsx" | "ts" | "bash" = "tsx"): Promise<string> {
@@ -32,71 +33,83 @@ export async function ComponentPage({
 	item: RegistryItem;
 	Demo: ComponentType | undefined;
 }) {
-	const sections = [
+	const previewCode = item.examples[0]?.code ?? "";
+	const hasInlinePreview = Boolean(Demo && previewCode);
+	const previewHtml = previewCode ? await highlight(previewCode) : "";
+
+	const sections: TocSection[] = [
 		{ id: "installation", title: "Installation" },
-		{ id: "usage", title: "Usage" },
-		...item.examples.map((e) => ({ id: slugify(e.title), title: e.title })),
+		// "Usage" section only shows up when we need the fallback import stub —
+		// otherwise the ComponentPreview's Code tab is the canonical usage view.
+		...(hasInlinePreview ? [] : [{ id: "usage", title: "Usage" }]),
+		...item.examples.slice(hasInlinePreview ? 1 : 0).map((e) => ({
+			id: slugify(e.title),
+			title: e.title,
+		})),
 		{ id: "api-reference", title: "API Reference" },
 		{ id: "ai-guidance", title: "AI Guidance" },
 	];
 
-	const previewCode = item.examples[0]?.code ?? "";
-	const previewHtml = previewCode ? await highlight(previewCode) : "";
-
 	return (
 		<div className="flex">
 			<main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
-				<DocsBreadcrumb
-					trail={[
-						{ label: "Docs", href: "/docs" },
-						{ label: "Components", href: "/docs" },
-						{ label: item.displayName },
-					]}
-				/>
-				<div className="mb-8">
-					<h1 className="text-3xl font-bold tracking-tight">{item.displayName}</h1>
-					<p className="mt-2 text-lg text-muted-foreground">{item.description}</p>
-				</div>
+				<div className="mx-auto max-w-3xl xl:max-w-4xl">
+					<DocsBreadcrumb
+						trail={[
+							{ label: "Docs", href: "/docs" },
+							{ label: "Components", href: "/docs" },
+							{ label: item.displayName },
+						]}
+					/>
+					<div className="mb-8">
+						<h1 className="text-3xl font-bold tracking-tight">{item.displayName}</h1>
+						<p className="mt-2 text-lg text-muted-foreground">{item.description}</p>
+					</div>
 
-				{Demo && previewCode ? (
-					<ComponentPreview code={previewCode} codeHtml={previewHtml}>
-						<Demo />
-					</ComponentPreview>
-				) : Demo ? (
-					<figure className="overflow-hidden rounded-lg border">
-						<figcaption className="border-b bg-muted/40 px-3 py-1.5 text-xs font-medium text-muted-foreground">
-							Live example
-						</figcaption>
-						<div className="flex min-h-[200px] items-center justify-center p-8">
+					<OnThisPageCompact sections={sections} className="mb-6" />
+
+					{Demo && previewCode ? (
+						<ComponentPreview code={previewCode} codeHtml={previewHtml}>
 							<Demo />
-						</div>
-					</figure>
-				) : null}
+						</ComponentPreview>
+					) : Demo ? (
+						<figure className="overflow-hidden rounded-lg border">
+							<figcaption className="border-b bg-muted/40 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+								Live example
+							</figcaption>
+							<div className="flex min-h-[200px] items-center justify-center p-8">
+								<Demo />
+							</div>
+						</figure>
+					) : null}
 
-				<Section id="installation" title="Installation">
-					<CodeBlock label={INSTALL_COMMAND_LABEL} code={installCommand(item.name)} />
-				</Section>
-
-				<Section id="usage" title="Usage">
-					<CodeBlock code={usageCode(item)} />
-				</Section>
-
-				{item.examples.slice(1).map((example) => (
-					<Section key={example.title} id={slugify(example.title)} title={example.title}>
-						<p className="mb-4 text-sm text-muted-foreground">{example.description}</p>
-						<CodeBlock code={example.code} />
+					<Section id="installation" title="Installation">
+						<CodeBlock label={INSTALL_COMMAND_LABEL} code={installCommand(item.name)} />
 					</Section>
-				))}
 
-				<Section id="api-reference" title="API Reference">
-					<PropsTable props={item.props} />
-				</Section>
+					{hasInlinePreview ? null : (
+						<Section id="usage" title="Usage">
+							<CodeBlock code={usageFallback(item)} />
+						</Section>
+					)}
 
-				<Section id="ai-guidance" title="AI Guidance">
-					<AIGuidance ai={item.ai} />
-				</Section>
+					{item.examples.slice(hasInlinePreview ? 1 : 0).map((example) => (
+						<Section key={example.title} id={slugify(example.title)} title={example.title}>
+							<p className="mb-4 text-sm text-muted-foreground">{example.description}</p>
+							<CodeBlock code={example.code} />
+						</Section>
+					))}
 
-				<DocsFooter pathname={`/docs/components/${item.name}`} />
+					<Section id="api-reference" title="API Reference">
+						<PropsTable props={item.props} />
+					</Section>
+
+					<Section id="ai-guidance" title="AI Guidance">
+						<AIGuidance ai={item.ai} />
+					</Section>
+
+					<DocsFooter pathname={`/docs/components/${item.name}`} />
+				</div>
 			</main>
 			<OnThisPage sections={sections} />
 		</div>
@@ -106,7 +119,7 @@ export async function ComponentPage({
 /** A scroll-targeted section heading + content wrapper. */
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
 	return (
-		<section id={id} className="mt-10 scroll-mt-20">
+		<section id={id} className="mt-10 scroll-mt-16">
 			<h2 className="mb-4 text-xl font-semibold">{title}</h2>
 			{children}
 		</section>

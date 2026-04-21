@@ -11,7 +11,7 @@ import { ThemeToggle } from "./theme-toggle";
  */
 export function DocsHeader() {
 	return (
-		<header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-border/60 bg-background/80 px-4 backdrop-blur-md sm:px-6 lg:gap-4 lg:px-8">
+		<header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-border/60 bg-background/90 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 sm:px-6 lg:gap-4 lg:px-8">
 			<div className="flex min-w-0 items-center gap-2 lg:hidden">
 				<MobileNav />
 				<BrandMark size="sm" />

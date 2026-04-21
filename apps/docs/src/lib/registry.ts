@@ -109,14 +109,14 @@ export function installCommand(slug: string): string {
 export const INSTALL_COMMAND_LABEL = "pnpm";
 
 /**
- * Derive a usage code snippet from a registry item.
+ * Fallback usage stub for components without examples. Returns an import-only
+ * snippet so the "Usage" section always has something to render when there's
+ * no live demo/example. Components that ship an `examples[0]` show that code
+ * via `ComponentPreview` instead — the caller is expected to check.
  * @param item - Full registry item
- * @returns A minimal import + usage example
+ * @returns A minimal import stub
  */
-export function usageCode(item: RegistryItem): string {
-	if (item.examples.length > 0) {
-		return item.examples[0].code;
-	}
+export function usageFallback(item: RegistryItem): string {
 	return `import { ${item.displayName} } from "@/components/ui/${item.name}"`;
 }
 

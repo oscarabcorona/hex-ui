@@ -14,7 +14,7 @@ export function DocSection({
 	children: ReactNode;
 }) {
 	return (
-		<section id={id} className="scroll-mt-20 space-y-3">
+		<section id={id} className="scroll-mt-16 space-y-3">
 			<h2 className="text-xl font-semibold">{title}</h2>
 			{children}
 		</section>
