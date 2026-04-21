@@ -31,7 +31,7 @@ export function ComponentPage({
 
 	return (
 		<div className="flex">
-			<article className="flex-1 px-8 py-6">
+			<article className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold tracking-tight">{item.displayName}</h1>
 					<p className="mt-2 text-lg text-muted-foreground">{item.description}</p>

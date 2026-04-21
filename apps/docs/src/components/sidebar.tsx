@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, LayoutGroup } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "../lib/utils";
@@ -15,17 +16,18 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 /**
- * Sidebar navigation for the docs app.
- * Component groups are derived from the registry — no hand-maintained lists.
+ * Docs sidebar navigation. Category groups derive from the registry so new
+ * components show up automatically. Framer Motion's LayoutGroup + layoutId
+ * animate the active-item indicator between routes.
  */
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
 	const pathname = usePathname();
 	const groups = componentsByCategory();
 	const orderedCategories = ["primitive", "component", "block", "hook"].filter((c) => groups[c]);
 
 	return (
-		<aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 overflow-y-auto border-r py-6 pr-4 md:block">
-			<nav className="space-y-6" aria-label="Docs sidebar">
+		<LayoutGroup id="sidebar-active">
+			<nav className={cn("space-y-8", className)} aria-label="Docs sidebar">
 				<NavGroup title="Getting Started" items={GETTING_STARTED} pathname={pathname} />
 				{orderedCategories.map((category) => (
 					<NavGroup
@@ -39,11 +41,11 @@ export function Sidebar() {
 					/>
 				))}
 			</nav>
-		</aside>
+		</LayoutGroup>
 	);
 }
 
-/** A titled group of sidebar links with active-state highlighting. */
+/** A titled group of sidebar links with an animated active indicator. */
 function NavGroup({
 	title,
 	items,
@@ -55,23 +57,36 @@ function NavGroup({
 }) {
 	return (
 		<div>
-			<h4 className="mb-2 px-3 text-sm font-semibold tracking-tight">{title}</h4>
-			<ul className="space-y-0.5">
-				{items.map((item) => (
-					<li key={item.href}>
-						<Link
-							href={item.href}
-							className={cn(
-								"block rounded-md px-3 py-1.5 text-sm transition-colors duration-150",
-								pathname === item.href
-									? "bg-accent font-medium text-accent-foreground"
-									: "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+			<h2 className="mb-3 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+				{title}
+			</h2>
+			<ul className="relative space-y-px border-l border-border/60">
+				{items.map((item) => {
+					const isActive = pathname === item.href;
+					return (
+						<li key={item.href} className="relative">
+							{isActive && (
+								<motion.span
+									layoutId="active-indicator"
+									aria-hidden="true"
+									className="absolute -left-px top-0 bottom-0 w-px bg-foreground"
+									transition={{ type: "spring", stiffness: 500, damping: 40 }}
+								/>
 							)}
-						>
-							{item.title}
-						</Link>
-					</li>
-				))}
+							<Link
+								href={item.href}
+								className={cn(
+									"block py-1 pl-4 pr-3 text-sm transition-all duration-200 ease-out",
+									isActive
+										? "font-medium text-foreground"
+										: "text-muted-foreground hover:text-foreground",
+								)}
+							>
+								{item.title}
+							</Link>
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	);
