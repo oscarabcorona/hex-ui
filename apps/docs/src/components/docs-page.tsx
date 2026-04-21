@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
+import { DOCS_CONTENT_WRAPPER } from "../lib/ui-tokens";
 import { DocsBreadcrumb, type Crumb } from "./docs-breadcrumb";
 import { DocsFooter } from "./docs-footer";
 import { OnThisPage, type TocSection } from "./on-this-page";
+import { OnThisPageCompact } from "./on-this-page-compact";
 
 /** Shape accepted by the shared `DocsPage` chrome component. */
 interface DocsPageProps {
@@ -33,12 +35,14 @@ export function DocsPage({ pathname, title, description, crumbs, sections, child
 	return (
 		<div className="flex">
 			<main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
-				<div className="mx-auto max-w-3xl xl:max-w-4xl">
+				<div className={DOCS_CONTENT_WRAPPER}>
 					<DocsBreadcrumb trail={trail} />
 					<div className="mb-8">
 						<h1 className="text-3xl font-bold tracking-tight">{title}</h1>
 						<p className="mt-2 text-lg text-muted-foreground">{description}</p>
 					</div>
+
+					<OnThisPageCompact sections={sections} className="mb-6" />
 
 					<div className="space-y-10">{children}</div>
 

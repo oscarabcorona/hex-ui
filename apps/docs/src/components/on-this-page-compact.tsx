@@ -1,12 +1,12 @@
-"use client";
-
 import { cn } from "../lib/utils";
 import type { TocSection } from "./on-this-page";
 
 /**
- * Compact "Jump to…" dropdown TOC. Shown on `lg` viewports (where the right-
- * rail is too cramped). Native `<select>` keeps it accessible and
- * keyboard-navigable with zero custom state.
+ * Compact "On this page" nav for the `lg` breakpoint (1024–1279px), where the
+ * right-rail TOC is too cramped. Renders a wrapping row of anchor links —
+ * server-rendered, browser-native hash navigation, keyboard + right-click
+ * friendly (no JS state). The responsive range is baked into the default so
+ * callers can't silently hide it by forgetting the override class.
  */
 export function OnThisPageCompact({
 	sections,
@@ -18,29 +18,27 @@ export function OnThisPageCompact({
 	if (sections.length === 0) return null;
 
 	return (
-		<div className={cn("hidden lg:block xl:hidden", className)}>
-			<label className="flex items-center gap-2 text-xs text-muted-foreground">
-				<span className="uppercase tracking-wide">On this page</span>
-				<select
-					defaultValue=""
-					onChange={(e) => {
-						const id = e.target.value;
-						if (!id) return;
-						window.location.hash = `#${id}`;
-					}}
-					className="flex h-8 flex-1 rounded-md border border-input bg-background px-2 text-sm text-foreground transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-					aria-label="Jump to section"
-				>
-					<option value="" disabled>
-						Jump to…
-					</option>
-					{sections.map((s) => (
-						<option key={s.id} value={s.id}>
-							{s.title}
-						</option>
-					))}
-				</select>
-			</label>
-		</div>
+		<nav
+			aria-label="On this page"
+			className={cn(
+				"hidden rounded-md border bg-muted/30 px-3 py-2 lg:block xl:hidden",
+				className,
+			)}
+		>
+			<div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+				<span className="font-semibold uppercase tracking-wider text-foreground/70">
+					On this page
+				</span>
+				{sections.map((s) => (
+					<a
+						key={s.id}
+						href={`#${s.id}`}
+						className="text-muted-foreground transition-all duration-200 ease-out hover:text-foreground"
+					>
+						{s.title}
+					</a>
+				))}
+			</div>
+		</nav>
 	);
 }

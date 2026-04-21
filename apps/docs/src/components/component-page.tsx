@@ -3,6 +3,7 @@ import type { ComponentType, ReactNode } from "react";
 import { codeToHtml } from "shiki";
 import type { RegistryItem } from "../lib/registry";
 import { INSTALL_COMMAND_LABEL, installCommand, slugify, usageFallback } from "../lib/registry";
+import { DOCS_CONTENT_WRAPPER } from "../lib/ui-tokens";
 import { CodeBlock } from "./code-block";
 import { ComponentPreview } from "./component-preview";
 import { DocsBreadcrumb } from "./docs-breadcrumb";
@@ -33,16 +34,20 @@ export async function ComponentPage({
 	item: RegistryItem;
 	Demo: ComponentType | undefined;
 }) {
-	const previewCode = item.examples[0]?.code ?? "";
-	const hasInlinePreview = Boolean(Demo && previewCode);
-	const previewHtml = previewCode ? await highlight(previewCode) : "";
+	// P5: narrow on the example's existence + non-empty code, not on
+	// boolean-coerced previewCode alone (guards against zero-length code strings).
+	const firstExample = item.examples[0];
+	const previewCode = firstExample?.code ?? "";
+	const hasInlinePreview = Boolean(Demo && firstExample && previewCode.length > 0);
+	const previewHtml = hasInlinePreview ? await highlight(previewCode) : "";
+	const extraExamples = hasInlinePreview ? item.examples.slice(1) : item.examples;
 
 	const sections: TocSection[] = [
 		{ id: "installation", title: "Installation" },
 		// "Usage" section only shows up when we need the fallback import stub —
 		// otherwise the ComponentPreview's Code tab is the canonical usage view.
 		...(hasInlinePreview ? [] : [{ id: "usage", title: "Usage" }]),
-		...item.examples.slice(hasInlinePreview ? 1 : 0).map((e) => ({
+		...extraExamples.map((e) => ({
 			id: slugify(e.title),
 			title: e.title,
 		})),
@@ -53,7 +58,7 @@ export async function ComponentPage({
 	return (
 		<div className="flex">
 			<main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
-				<div className="mx-auto max-w-3xl xl:max-w-4xl">
+				<div className={DOCS_CONTENT_WRAPPER}>
 					<DocsBreadcrumb
 						trail={[
 							{ label: "Docs", href: "/docs" },
@@ -68,7 +73,7 @@ export async function ComponentPage({
 
 					<OnThisPageCompact sections={sections} className="mb-6" />
 
-					{Demo && previewCode ? (
+					{hasInlinePreview && Demo ? (
 						<ComponentPreview code={previewCode} codeHtml={previewHtml}>
 							<Demo />
 						</ComponentPreview>
@@ -93,7 +98,7 @@ export async function ComponentPage({
 						</Section>
 					)}
 
-					{item.examples.slice(hasInlinePreview ? 1 : 0).map((example) => (
+					{extraExamples.map((example) => (
 						<Section key={example.title} id={slugify(example.title)} title={example.title}>
 							<p className="mb-4 text-sm text-muted-foreground">{example.description}</p>
 							<CodeBlock code={example.code} />
