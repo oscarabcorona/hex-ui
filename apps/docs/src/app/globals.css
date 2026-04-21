@@ -104,3 +104,17 @@ body {
 * {
 	border-color: var(--color-border);
 }
+
+/*
+ * Shiki dual-theme support. `themes: { light, dark }` with `defaultColor: false`
+ * emits --shiki-light / --shiki-dark CSS vars on every span. We map them to
+ * `color` based on the active theme.
+ */
+[data-shiki] span {
+	color: var(--shiki-light);
+	background-color: var(--shiki-light-bg, transparent);
+}
+.dark [data-shiki] span {
+	color: var(--shiki-dark);
+	background-color: var(--shiki-dark-bg, transparent);
+}

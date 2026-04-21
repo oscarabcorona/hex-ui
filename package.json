@@ -8,8 +8,8 @@
 		"build:registry": "tsx scripts/build-registry.ts",
 		"validate": "turbo validate",
 		"test": "turbo test",
-		"lint": "eslint .",
-		"lint:fix": "eslint . --fix",
+		"lint": "eslint . && turbo lint",
+		"lint:fix": "eslint . --fix && turbo lint -- --fix",
 		"format": "prettier --write .",
 		"clean": "turbo clean"
 	},

@@ -1,0 +1,103 @@
+import { CodeBlock } from "../../../components/code-block";
+import { DocSection, InlineCode } from "../../../components/doc-section";
+import { DocsPage } from "../../../components/docs-page";
+
+export const metadata = {
+	title: "MCP Server",
+	description: "Wire the Hex UI MCP server into Claude Code for natural-language component discovery.",
+};
+
+const CLAUDE_CONFIG = `// .claude/settings.json
+{
+  "mcpServers": {
+    "hex-ui": {
+      "command": "npx",
+      "args": ["@hex-ui/mcp"]
+    }
+  }
+}`;
+
+const CURSOR_CONFIG = `// .cursor/mcp.json
+{
+  "mcpServers": {
+    "hex-ui": {
+      "command": "npx",
+      "args": ["@hex-ui/mcp"]
+    }
+  }
+}`;
+
+const SECTIONS = [
+	{ id: "why", title: "Why MCP?" },
+	{ id: "claude-code", title: "Claude Code" },
+	{ id: "cursor", title: "Cursor" },
+	{ id: "tools", title: "Available tools" },
+	{ id: "prompts", title: "Example prompts" },
+];
+
+/** MCP integration guide — client configs, available tools, prompt recipes. */
+export default function McpPage() {
+	return (
+		<DocsPage
+			pathname="/docs/mcp"
+			title="MCP Server"
+			description="The Hex UI MCP server exposes the component registry as structured tool calls. Install once and let your AI agent pick the right primitive."
+			sections={SECTIONS}
+		>
+			<DocSection id="why" title="Why MCP?">
+				<p className="text-sm leading-6">
+					Traditional docs are text — the agent reads hundreds of tokens to find a
+					component. MCP gives the agent a <em>structured</em> catalog: search by
+					behavior, read typed schemas, and install components as a tool call. The
+					<InlineCode>.schema.ts</InlineCode> metadata is the contract.
+				</p>
+			</DocSection>
+
+			<DocSection id="claude-code" title="Claude Code">
+				<p className="text-sm leading-6">
+					Add this to the Claude Code settings for your project (or the global settings
+					under <InlineCode>~/.claude/</InlineCode>).
+				</p>
+				<CodeBlock label="json" code={CLAUDE_CONFIG} />
+			</DocSection>
+
+			<DocSection id="cursor" title="Cursor">
+				<p className="text-sm leading-6">
+					Cursor reads a <InlineCode>.cursor/mcp.json</InlineCode> at the project root.
+				</p>
+				<CodeBlock label="json" code={CURSOR_CONFIG} />
+			</DocSection>
+
+			<DocSection id="tools" title="Available tools">
+				<ul className="list-disc space-y-2 pl-6 text-sm text-muted-foreground">
+					<li>
+						<strong>search_components</strong> — fuzzy search over name, description,
+						tags, and AI hints
+					</li>
+					<li>
+						<strong>get_component</strong> — full registry item (props, variants, AI
+						hints, examples) for a slug
+					</li>
+					<li>
+						<strong>list_components</strong> — paginated index grouped by category
+					</li>
+					<li>
+						<strong>install_component</strong> — copies the component source and its
+						internal deps into <InlineCode>src/components/ui/</InlineCode>
+					</li>
+				</ul>
+			</DocSection>
+
+			<DocSection id="prompts" title="Example prompts">
+				<ul className="list-disc space-y-1 pl-6 text-sm text-muted-foreground">
+					<li>&ldquo;Find a hex-ui component for a confirmation dialog and add it.&rdquo;</li>
+					<li>
+						&ldquo;Search hex-ui for a data table primitive and wire it to my users
+						list.&rdquo;
+					</li>
+					<li>&ldquo;What hex-ui components should I use for a settings page?&rdquo;</li>
+				</ul>
+			</DocSection>
+		</DocsPage>
+	);
+}

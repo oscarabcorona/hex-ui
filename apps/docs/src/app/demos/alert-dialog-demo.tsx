@@ -56,7 +56,7 @@ export function AlertDialogDemo() {
 						<AlertDialogHeader>
 							<AlertDialogTitle>Revoke access for @oscarabcorona?</AlertDialogTitle>
 							<AlertDialogDescription>
-								They'll lose access to every project in this team immediately and
+								They&apos;ll lose access to every project in this team immediately and
 								will need a new invitation to rejoin.
 							</AlertDialogDescription>
 						</AlertDialogHeader>

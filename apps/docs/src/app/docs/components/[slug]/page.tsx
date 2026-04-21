@@ -24,10 +24,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug } = await params;
 	const item = await getRegistryItem(slug);
-	if (!item) return {};
+	if (!item) return { title: "Not found" };
 	return {
-		title: `${item.displayName} — Hex UI`,
+		title: item.displayName,
 		description: item.description,
+		openGraph: {
+			title: `${item.displayName} — Hex UI`,
+			description: item.description,
+			url: `/docs/components/${slug}`,
+			type: "article",
+		},
 	};
 }
 
@@ -42,3 +48,5 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
 	return <ComponentPage item={item} Demo={getDemo(slug)} />;
 }
+
+export const dynamicParams = false;

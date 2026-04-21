@@ -69,16 +69,29 @@ export function listComponents(): RegistryIndexItem[] {
 	return index.items;
 }
 
+/** Display labels for the `category` field on each registry item. */
+export const CATEGORY_LABELS: Record<string, string> = {
+	primitive: "Primitives",
+	component: "Components",
+	block: "Blocks",
+	hook: "Hooks",
+};
+
+/** Preferred display order of categories across the docs surface. */
+export const CATEGORY_ORDER = ["primitive", "component", "block", "hook"] as const;
+
 /**
- * Group components by `category` (primitive, component, block, etc.).
- * @returns Record of category → components list
+ * Group components by `category` (primitive, component, block, etc.). Return
+ * type is `Partial<Record>` because callers must handle missing categories
+ * (e.g. the registry has no `hook` entries today).
+ * @returns Record of category → components list (values possibly undefined)
  */
-export function componentsByCategory(): Record<string, RegistryIndexItem[]> {
-	const groups: Record<string, RegistryIndexItem[]> = {};
+export function componentsByCategory(): Partial<Record<string, RegistryIndexItem[]>> {
+	const groups: Partial<Record<string, RegistryIndexItem[]>> = {};
 	for (const item of index.items) {
-		const key = item.category;
-		if (!groups[key]) groups[key] = [];
-		groups[key].push(item);
+		const list = groups[item.category] ?? [];
+		list.push(item);
+		groups[item.category] = list;
 	}
 	return groups;
 }
@@ -96,14 +109,14 @@ export function installCommand(slug: string): string {
 export const INSTALL_COMMAND_LABEL = "pnpm";
 
 /**
- * Derive a usage code snippet from a registry item.
+ * Fallback usage stub for components without examples. Returns an import-only
+ * snippet so the "Usage" section always has something to render when there's
+ * no live demo/example. Components that ship an `examples[0]` show that code
+ * via `ComponentPreview` instead — the caller is expected to check.
  * @param item - Full registry item
- * @returns A minimal import + usage example
+ * @returns A minimal import stub
  */
-export function usageCode(item: RegistryItem): string {
-	if (item.examples.length > 0) {
-		return item.examples[0].code;
-	}
+export function usageFallback(item: RegistryItem): string {
 	return `import { ${item.displayName} } from "@/components/ui/${item.name}"`;
 }
 

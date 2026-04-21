@@ -3,12 +3,18 @@
 import { useEffect, useState } from "react";
 import { cn } from "../lib/utils";
 
+/** One entry in the right-rail TOC. `id` must match a DOM element on the page. */
+export interface TocSection {
+	id: string;
+	title: string;
+}
+
 /**
  * Right-rail "On This Page" TOC with IntersectionObserver-driven scroll-spy.
  * The currently-visible section is highlighted; clicking a link scroll-jumps
  * and updates the URL hash without triggering a full scroll-spy re-measure.
  */
-export function OnThisPage({ sections }: { sections: { id: string; title: string }[] }) {
+export function OnThisPage({ sections }: { sections: readonly TocSection[] }) {
 	const [activeId, setActiveId] = useState<string | null>(sections[0]?.id ?? null);
 
 	useEffect(() => {
@@ -47,7 +53,7 @@ export function OnThisPage({ sections }: { sections: { id: string; title: string
 							<a
 								href={`#${section.id}`}
 								className={cn(
-									"block text-sm transition-colors duration-150",
+									"block text-sm transition-all duration-200 ease-out",
 									isActive
 										? "font-medium text-foreground"
 										: "text-muted-foreground hover:text-foreground",

@@ -1,23 +1,24 @@
 "use client";
 
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { BrandMark } from "./brand-mark";
 import { Sidebar } from "./sidebar";
 
 /**
- * Mobile navigation slide-in. Hamburger trigger in DocsHeader opens a
- * full-height Dialog panel that mirrors the desktop Sidebar. Closes on route
- * change so the menu doesn't linger after a link click.
+ * Mobile navigation slide-in. Hamburger trigger opens a full-height Dialog
+ * panel that mirrors the desktop Sidebar. The panel closes on any anchor
+ * click inside it (via event delegation on the panel) so the menu doesn't
+ * linger after the user picks a page.
  */
 export function MobileNav() {
 	const [open, setOpen] = useState(false);
-	const pathname = usePathname();
 
-	useEffect(() => {
-		setOpen(false);
-	}, [pathname]);
+	const handlePanelClick = (e: React.MouseEvent<HTMLDivElement>) => {
+		if (e.target instanceof Element && e.target.closest("a[href]")) {
+			setOpen(false);
+		}
+	};
 
 	return (
 		<>
@@ -34,17 +35,20 @@ export function MobileNav() {
 				</svg>
 			</button>
 
-			<Dialog open={open} onClose={setOpen} className="relative z-50 lg:hidden">
+			<Dialog
+				open={open}
+				onClose={setOpen}
+				aria-label="Navigation menu"
+				className="relative z-50 lg:hidden"
+			>
 				<DialogBackdrop className="fixed inset-0 bg-background/80 backdrop-blur-sm" />
 				<div className="fixed inset-0 flex">
-					<DialogPanel className="flex h-full w-72 max-w-[80vw] flex-col overflow-y-auto border-r bg-background px-6 pt-4 pb-8">
+					<DialogPanel
+						onClick={handlePanelClick}
+						className="flex h-full w-72 max-w-[80vw] flex-col overflow-y-auto border-r bg-background px-6 pt-4 pb-8"
+					>
 						<div className="mb-6 flex items-center justify-between">
-							<Link href="/" className="flex items-center gap-2" aria-label="Home">
-								<span className="text-base font-bold tracking-tight">Hex UI</span>
-								<span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-									v0.1
-								</span>
-							</Link>
+							<BrandMark size="sm" />
 							<button
 								type="button"
 								onClick={() => setOpen(false)}

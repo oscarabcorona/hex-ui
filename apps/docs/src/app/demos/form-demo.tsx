@@ -71,7 +71,7 @@ export function FormDemo() {
 							<FormControl>
 								<Input type="email" placeholder="you@example.com" {...field} />
 							</FormControl>
-							<FormDescription>We'll never share your email.</FormDescription>
+							<FormDescription>We&apos;ll never share your email.</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
