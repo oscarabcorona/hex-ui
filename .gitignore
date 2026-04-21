@@ -12,3 +12,4 @@ dist/
 CLAUDE.md
 apps/**/CLAUDE.md
 *.png
+protocol-ts/

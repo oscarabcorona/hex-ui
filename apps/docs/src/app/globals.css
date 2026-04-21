@@ -4,8 +4,15 @@
 /* Scan workspace component source so Tailwind picks up classes used in @hex-ui/components */
 @source "../../../../packages/components/src/**/*.{ts,tsx}";
 
-/* Hex UI Design Tokens — Default Theme */
-@theme inline {
+/* Dark-mode variant — class-based, set on <html> by next-themes. */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Color tokens live in @theme (non-inline) so generated utilities emit
+ * var(--color-*), allowing .dark { ... } overrides below to flip every
+ * bg-background / text-muted-foreground / border-input usage at runtime.
+ */
+@theme {
 	--color-background: hsl(0 0% 100%);
 	--color-foreground: hsl(240 10% 3.9%);
 	--color-card: hsl(0 0% 100%);
@@ -25,11 +32,72 @@
 	--color-border: hsl(240 5.9% 90%);
 	--color-input: hsl(240 5.9% 90%);
 	--color-ring: hsl(240 5.9% 10%);
+	--shadow-glow: 0 0 4px rgb(0 0 0 / 0.1);
+}
+
+/*
+ * Non-color tokens (fonts, radii, typography scale, containers) stay inlined
+ * because they never change between themes. Inlining removes the var()
+ * indirection for smaller CSS output.
+ */
+@theme inline {
 	--radius-sm: 0.25rem;
 	--radius-md: 0.5rem;
 	--radius-lg: 0.625rem;
+
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
+
+	--text-2xs: 0.75rem;
+	--text-2xs--line-height: 1.25rem;
+	--text-xs: 0.8125rem;
+	--text-xs--line-height: 1.5rem;
+	--text-sm: 0.875rem;
+	--text-sm--line-height: 1.5rem;
+	--text-base: 1rem;
+	--text-base--line-height: 1.75rem;
+	--text-lg: 1.125rem;
+	--text-lg--line-height: 1.75rem;
+	--text-xl: 1.25rem;
+	--text-xl--line-height: 1.75rem;
+	--text-2xl: 1.5rem;
+	--text-2xl--line-height: 2rem;
+	--text-3xl: 1.875rem;
+	--text-3xl--line-height: 2.25rem;
+	--text-4xl: 2.25rem;
+	--text-4xl--line-height: 2.5rem;
+	--text-5xl: 3rem;
+	--text-5xl--line-height: 1;
+
+	--container-lg: 33rem;
+	--container-2xl: 40rem;
+	--container-3xl: 50rem;
+	--container-5xl: 66rem;
+}
+
+/* Dark-mode palette — applied when next-themes sets <html class="dark">. */
+.dark {
+	--color-background: hsl(240 10% 3.9%);
+	--color-foreground: hsl(0 0% 98%);
+	--color-card: hsl(240 10% 3.9%);
+	--color-card-foreground: hsl(0 0% 98%);
+	--color-popover: hsl(240 10% 3.9%);
+	--color-popover-foreground: hsl(0 0% 98%);
+	--color-primary: hsl(0 0% 98%);
+	--color-primary-foreground: hsl(240 5.9% 10%);
+	--color-secondary: hsl(240 3.7% 15.9%);
+	--color-secondary-foreground: hsl(0 0% 98%);
+	--color-muted: hsl(240 3.7% 15.9%);
+	/* WCAG AA: bump muted-fg for safe small-text contrast (~5.25:1 on muted bg). */
+	--color-muted-foreground: hsl(240 5% 70%);
+	--color-accent: hsl(240 3.7% 15.9%);
+	--color-accent-foreground: hsl(0 0% 98%);
+	--color-destructive: hsl(0 62.8% 30.6%);
+	--color-destructive-foreground: hsl(0 0% 98%);
+	--color-border: hsl(240 3.7% 15.9%);
+	--color-input: hsl(240 3.7% 15.9%);
+	--color-ring: hsl(240 4.9% 83.9%);
+	--shadow-glow: 0 0 4px rgb(255 255 255 / 0.1);
 }
 
 body {
