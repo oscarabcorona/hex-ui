@@ -27,10 +27,10 @@ function Calendar({
 				caption_label: "text-sm font-medium",
 				nav: "absolute inset-x-3 top-3 z-10 flex items-center justify-between pointer-events-none [&>button]:pointer-events-auto",
 				button_previous: cn(
-					"inline-flex h-7 w-7 items-center justify-center rounded-md border bg-transparent p-0 opacity-60 transition-opacity hover:opacity-100 disabled:pointer-events-none disabled:opacity-30",
+					"inline-flex h-7 w-7 items-center justify-center rounded-md border bg-transparent p-0 opacity-60 transition-all duration-200 ease-out hover:opacity-100 disabled:pointer-events-none disabled:opacity-30",
 				),
 				button_next: cn(
-					"inline-flex h-7 w-7 items-center justify-center rounded-md border bg-transparent p-0 opacity-60 transition-opacity hover:opacity-100 disabled:pointer-events-none disabled:opacity-30",
+					"inline-flex h-7 w-7 items-center justify-center rounded-md border bg-transparent p-0 opacity-60 transition-all duration-200 ease-out hover:opacity-100 disabled:pointer-events-none disabled:opacity-30",
 				),
 				month_grid: "w-full border-collapse space-y-1",
 				weekdays: "flex",
@@ -38,7 +38,7 @@ function Calendar({
 				week: "flex w-full mt-2",
 				day: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].range-end)]:rounded-r-md [&:has([aria-selected].range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
 				day_button:
-					"inline-flex h-9 w-9 items-center justify-center rounded-md p-0 text-sm font-normal transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-selected:opacity-100",
+					"inline-flex h-9 w-9 items-center justify-center rounded-md p-0 text-sm font-normal transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-selected:opacity-100",
 				selected:
 					"bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
 				today: "bg-accent text-accent-foreground",
