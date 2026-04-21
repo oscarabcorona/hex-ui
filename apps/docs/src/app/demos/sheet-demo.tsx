@@ -14,34 +14,47 @@ import {
 	SheetTrigger,
 } from "../../components/ui";
 
-/** Sheet demo: right-side slide-in edit panel. */
+const sides = ["top", "right", "bottom", "left"] as const;
+
+/**
+ * Sheet demo: four triggers demonstrating slide-in from every edge
+ * (top / right / bottom / left) with a shared profile-edit form body.
+ */
 export function SheetDemo() {
 	return (
-		<Sheet>
-			<SheetTrigger asChild>
-				<Button variant="outline">Open sheet</Button>
-			</SheetTrigger>
-			<SheetContent>
-				<SheetHeader>
-					<SheetTitle>Edit profile</SheetTitle>
-					<SheetDescription>Make changes and save when done.</SheetDescription>
-				</SheetHeader>
-				<div className="grid gap-4 py-4">
-					<div className="grid gap-2">
-						<Label htmlFor="sheet-name">Name</Label>
-						<Input id="sheet-name" defaultValue="Jane Doe" />
-					</div>
-					<div className="grid gap-2">
-						<Label htmlFor="sheet-email">Email</Label>
-						<Input id="sheet-email" defaultValue="jane@example.com" />
-					</div>
-				</div>
-				<SheetFooter>
-					<SheetClose asChild>
-						<Button>Save changes</Button>
-					</SheetClose>
-				</SheetFooter>
-			</SheetContent>
-		</Sheet>
+		<div className="grid grid-cols-2 gap-2">
+			{sides.map((side) => (
+				<Sheet key={side}>
+					<SheetTrigger asChild>
+						<Button variant="outline" className="capitalize">
+							{side}
+						</Button>
+					</SheetTrigger>
+					<SheetContent side={side}>
+						<SheetHeader>
+							<SheetTitle>Edit profile</SheetTitle>
+							<SheetDescription>
+								Make changes and save when done. Enters from the {side}.
+							</SheetDescription>
+						</SheetHeader>
+						<div className="grid gap-4 py-4">
+							<div className="grid gap-2">
+								<Label htmlFor={`sheet-name-${side}`}>Name</Label>
+								<Input id={`sheet-name-${side}`} defaultValue="Jane Doe" />
+							</div>
+							<div className="grid gap-2">
+								<Label htmlFor={`sheet-email-${side}`}>Email</Label>
+								<Input id={`sheet-email-${side}`} defaultValue="jane@example.com" />
+							</div>
+						</div>
+						<SheetFooter>
+							<SheetClose asChild>
+								<Button>Save changes</Button>
+							</SheetClose>
+						</SheetFooter>
+					</SheetContent>
+				</Sheet>
+			))}
+		</div>
 	);
 }
