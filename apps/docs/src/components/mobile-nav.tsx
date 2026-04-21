@@ -34,7 +34,12 @@ export function MobileNav() {
 				</svg>
 			</button>
 
-			<Dialog open={open} onClose={setOpen} className="relative z-50 lg:hidden">
+			<Dialog
+				open={open}
+				onClose={setOpen}
+				aria-label="Navigation menu"
+				className="relative z-50 lg:hidden"
+			>
 				<DialogBackdrop className="fixed inset-0 bg-background/80 backdrop-blur-sm" />
 				<div className="fixed inset-0 flex">
 					<DialogPanel className="flex h-full w-72 max-w-[80vw] flex-col overflow-y-auto border-r bg-background px-6 pt-4 pb-8">

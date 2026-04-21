@@ -13,9 +13,45 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hex-ui.dev";
+const siteTitle = "Hex UI — AI-Native Component Library";
+const siteDescription =
+	"Component library designed for LLMs and humans. MCP-first distribution, Radix UI + Tailwind CSS, 47 polished primitives and compounds.";
+
 export const metadata: Metadata = {
-	title: "Hex UI — AI-Native Component Library",
-	description: "Component library designed for LLMs and humans. MCP-first distribution.",
+	metadataBase: new URL(siteUrl),
+	title: {
+		default: siteTitle,
+		template: "%s — Hex UI",
+	},
+	description: siteDescription,
+	applicationName: "Hex UI",
+	authors: [{ name: "Hex UI" }],
+	keywords: [
+		"hex ui",
+		"component library",
+		"mcp",
+		"ai-native",
+		"react components",
+		"radix ui",
+		"tailwind css",
+	],
+	openGraph: {
+		type: "website",
+		url: siteUrl,
+		siteName: "Hex UI",
+		title: siteTitle,
+		description: siteDescription,
+		locale: "en_US",
+	},
+	twitter: {
+		card: "summary",
+		title: siteTitle,
+		description: siteDescription,
+	},
+	alternates: {
+		canonical: siteUrl,
+	},
 };
 
 /**
@@ -31,6 +67,7 @@ export default function RootLayout({
 		<html
 			lang="en"
 			className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+			style={{ colorScheme: "light dark" }}
 			suppressHydrationWarning
 		>
 			<body className="min-h-screen bg-background font-sans">

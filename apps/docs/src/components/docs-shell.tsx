@@ -26,7 +26,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
 			</div>
 			<div className="relative flex h-full flex-col">
 				<DocsHeader />
-				<main className="flex-auto">{children}</main>
+				<div className="flex-auto">{children}</div>
 			</div>
 		</div>
 	);

@@ -10,7 +10,7 @@ import { ThemeToggle } from "./theme-toggle";
  */
 export function DocsHeader() {
 	return (
-		<header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-4 border-b border-border/60 bg-background/80 px-4 backdrop-blur-md sm:px-6 lg:px-8">
+		<header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-border/60 bg-background/80 px-4 backdrop-blur-md sm:px-6 lg:gap-4 lg:px-8">
 			<div className="flex min-w-0 items-center gap-2 lg:hidden">
 				<MobileNav />
 				<Link href="/" className="flex min-w-0 items-center gap-2" aria-label="Home">
@@ -20,13 +20,9 @@ export function DocsHeader() {
 					</span>
 				</Link>
 			</div>
-			<div className="hidden flex-1 lg:block">
+			<div className="ml-auto flex items-center gap-1 sm:gap-2 lg:ml-0 lg:w-full">
 				<DocsSearch />
-			</div>
-			<div className="flex items-center gap-1 sm:gap-2">
-				<div className="lg:hidden">
-					<DocsSearch />
-				</div>
+				<div className="hidden lg:block lg:flex-1" aria-hidden="true" />
 				<ThemeToggle />
 				<a
 					href="https://github.com/oscarabcorona/hex-ui"

@@ -1,7 +1,8 @@
 import type { PropDef } from "../lib/registry";
 
 /**
- * Renders a component's prop interface as an API reference table.
+ * Renders a component's prop interface as an API reference table. Required
+ * props get a pill badge; optional props are unadorned.
  * @param props - Array of prop definitions from the registry
  */
 export function PropsTable({ props }: { props: PropDef[] }) {
@@ -24,10 +25,19 @@ export function PropsTable({ props }: { props: PropDef[] }) {
 					{props.map((prop) => (
 						<tr key={prop.name} className="border-b last:border-0">
 							<td className="px-4 py-3">
-								<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-									{prop.name}
-									{prop.required ? " *" : ""}
-								</code>
+								<div className="flex items-center gap-1.5">
+									<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+										{prop.name}
+									</code>
+									{prop.required ? (
+										<span
+											aria-label="required"
+											className="inline-flex items-center rounded border border-border/80 bg-background px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
+										>
+											required
+										</span>
+									) : null}
+								</div>
 							</td>
 							<td className="px-4 py-3">
 								<code className="text-xs text-muted-foreground">{formatType(prop)}</code>

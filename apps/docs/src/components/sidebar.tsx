@@ -4,16 +4,9 @@ import { motion, LayoutGroup } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "../lib/utils";
-import { componentsByCategory } from "../lib/registry";
+import { CATEGORY_LABELS, CATEGORY_ORDER, componentsByCategory } from "../lib/registry";
 
 const GETTING_STARTED = [{ title: "Introduction", href: "/docs/getting-started" }];
-
-const CATEGORY_LABELS: Record<string, string> = {
-	primitive: "Primitives",
-	component: "Components",
-	block: "Blocks",
-	hook: "Hooks",
-};
 
 /**
  * Docs sidebar navigation. Category groups derive from the registry so new
@@ -23,7 +16,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export function Sidebar({ className }: { className?: string }) {
 	const pathname = usePathname();
 	const groups = componentsByCategory();
-	const orderedCategories = ["primitive", "component", "block", "hook"].filter((c) => groups[c]);
+	const orderedCategories = CATEGORY_ORDER.filter((c) => groups[c]);
 
 	return (
 		<LayoutGroup id="sidebar-active">
@@ -57,9 +50,9 @@ function NavGroup({
 }) {
 	return (
 		<div>
-			<h2 className="mb-3 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+			<div className="mb-3 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
 				{title}
-			</h2>
+			</div>
 			<ul className="relative space-y-px border-l border-border/60">
 				{items.map((item) => {
 					const isActive = pathname === item.href;
@@ -68,6 +61,7 @@ function NavGroup({
 							{isActive && (
 								<motion.span
 									layoutId="active-indicator"
+									initial={false}
 									aria-hidden="true"
 									className="absolute -left-px top-0 bottom-0 w-px bg-foreground"
 									transition={{ type: "spring", stiffness: 500, damping: 40 }}

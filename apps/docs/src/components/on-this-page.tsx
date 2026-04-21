@@ -47,7 +47,7 @@ export function OnThisPage({ sections }: { sections: { id: string; title: string
 							<a
 								href={`#${section.id}`}
 								className={cn(
-									"block text-sm transition-colors duration-150",
+									"block text-sm transition-all duration-200 ease-out",
 									isActive
 										? "font-medium text-foreground"
 										: "text-muted-foreground hover:text-foreground",

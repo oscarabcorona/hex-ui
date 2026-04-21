@@ -1,11 +1,22 @@
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
+import { codeToHtml } from "shiki";
 import type { RegistryItem } from "../lib/registry";
 import { INSTALL_COMMAND_LABEL, installCommand, slugify, usageCode } from "../lib/registry";
 import { CodeBlock } from "./code-block";
 import { ComponentPreview } from "./component-preview";
+import { DocsBreadcrumb } from "./docs-breadcrumb";
+import { DocsFooter } from "./docs-footer";
 import { OnThisPage } from "./on-this-page";
 import { PropsTable } from "./props-table";
+
+async function highlight(code: string, lang: "tsx" | "ts" | "bash" = "tsx"): Promise<string> {
+	return codeToHtml(code, {
+		lang,
+		themes: { light: "github-light", dark: "github-dark" },
+		defaultColor: false,
+	});
+}
 
 /**
  * Render a full component documentation page from a registry item.
@@ -14,7 +25,7 @@ import { PropsTable } from "./props-table";
  * @param item - The full registry item for the component
  * @param Demo - The demo component to render in the live preview
  */
-export function ComponentPage({
+export async function ComponentPage({
 	item,
 	Demo,
 }: {
@@ -29,18 +40,37 @@ export function ComponentPage({
 		{ id: "ai-guidance", title: "AI Guidance" },
 	];
 
+	const previewCode = item.examples[0]?.code ?? "";
+	const previewHtml = previewCode ? await highlight(previewCode) : "";
+
 	return (
 		<div className="flex">
-			<article className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+			<main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+				<DocsBreadcrumb
+					trail={[
+						{ label: "Docs", href: "/docs" },
+						{ label: "Components", href: "/docs" },
+						{ label: item.displayName },
+					]}
+				/>
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold tracking-tight">{item.displayName}</h1>
 					<p className="mt-2 text-lg text-muted-foreground">{item.description}</p>
 				</div>
 
-				{Demo ? (
-					<ComponentPreview code={item.examples[0]?.code ?? ""}>
+				{Demo && previewCode ? (
+					<ComponentPreview code={previewCode} codeHtml={previewHtml}>
 						<Demo />
 					</ComponentPreview>
+				) : Demo ? (
+					<figure className="overflow-hidden rounded-lg border">
+						<figcaption className="border-b bg-muted/40 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+							Live example
+						</figcaption>
+						<div className="flex min-h-[200px] items-center justify-center p-8">
+							<Demo />
+						</div>
+					</figure>
 				) : null}
 
 				<Section id="installation" title="Installation">
@@ -65,7 +95,9 @@ export function ComponentPage({
 				<Section id="ai-guidance" title="AI Guidance">
 					<AIGuidance ai={item.ai} />
 				</Section>
-			</article>
+
+				<DocsFooter pathname={`/docs/components/${item.name}`} />
+			</main>
 			<OnThisPage sections={sections} />
 		</div>
 	);
@@ -115,7 +147,7 @@ function AIGuidance({ ai }: { ai: RegistryItem["ai"] }) {
 							<li key={name}>
 								<Link
 									href={`/docs/components/${name}`}
-									className="rounded-md border px-2 py-1 text-xs text-foreground transition-colors hover:bg-accent"
+									className="rounded-md border px-2 py-1 text-xs text-foreground transition-all duration-200 ease-out hover:bg-accent"
 								>
 									{name}
 								</Link>
