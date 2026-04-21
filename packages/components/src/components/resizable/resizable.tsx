@@ -17,7 +17,7 @@ function ResizablePanelGroup({
 	return (
 		<ResizablePrimitiveGroup
 			className={cn(
-				"flex h-full w-full data-[orientation=vertical]:flex-col",
+				"flex h-full w-full aria-[orientation=vertical]:flex-col",
 				className,
 			)}
 			{...props}
@@ -43,12 +43,12 @@ function ResizableHandle({ withHandle, className, ...props }: ResizableHandlePro
 	return (
 		<ResizablePrimitiveSeparator
 			className={cn(
-				"relative flex w-px items-center justify-center bg-border",
+				"relative flex w-px items-center justify-center bg-border transition-all duration-200 ease-out hover:bg-ring data-[separator=active]:bg-ring",
 				"after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2",
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-				"data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full",
-				"data-[orientation=horizontal]:after:left-0 data-[orientation=horizontal]:after:h-1 data-[orientation=horizontal]:after:w-full data-[orientation=horizontal]:after:-translate-y-1/2 data-[orientation=horizontal]:after:translate-x-0",
-				"[&[data-orientation=horizontal]>div]:rotate-90",
+				"aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full",
+				"aria-[orientation=horizontal]:after:left-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:-translate-y-1/2 aria-[orientation=horizontal]:after:translate-x-0",
+				"[&[aria-orientation=horizontal]>div]:rotate-90",
 				className,
 			)}
 			{...props}
