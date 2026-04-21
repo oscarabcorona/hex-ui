@@ -15,31 +15,30 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 /**
- * Sidebar navigation for the docs app.
- * Component groups are derived from the registry — no hand-maintained lists.
+ * Docs sidebar navigation. Category groups derive from the registry so new
+ * components show up automatically. Positioning (sticky, overflow, width) is
+ * handled by the parent DocsShell — this component is pure content.
  */
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
 	const pathname = usePathname();
 	const groups = componentsByCategory();
 	const orderedCategories = ["primitive", "component", "block", "hook"].filter((c) => groups[c]);
 
 	return (
-		<aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 overflow-y-auto border-r py-6 pr-4 md:block">
-			<nav className="space-y-6" aria-label="Docs sidebar">
-				<NavGroup title="Getting Started" items={GETTING_STARTED} pathname={pathname} />
-				{orderedCategories.map((category) => (
-					<NavGroup
-						key={category}
-						title={CATEGORY_LABELS[category] ?? category}
-						items={groups[category].map((item) => ({
-							title: item.displayName,
-							href: `/docs/components/${item.name}`,
-						}))}
-						pathname={pathname}
-					/>
-				))}
-			</nav>
-		</aside>
+		<nav className={cn("space-y-8", className)} aria-label="Docs sidebar">
+			<NavGroup title="Getting Started" items={GETTING_STARTED} pathname={pathname} />
+			{orderedCategories.map((category) => (
+				<NavGroup
+					key={category}
+					title={CATEGORY_LABELS[category] ?? category}
+					items={groups[category].map((item) => ({
+						title: item.displayName,
+						href: `/docs/components/${item.name}`,
+					}))}
+					pathname={pathname}
+				/>
+			))}
+		</nav>
 	);
 }
 
@@ -55,23 +54,34 @@ function NavGroup({
 }) {
 	return (
 		<div>
-			<h4 className="mb-2 px-3 text-sm font-semibold tracking-tight">{title}</h4>
-			<ul className="space-y-0.5">
-				{items.map((item) => (
-					<li key={item.href}>
-						<Link
-							href={item.href}
-							className={cn(
-								"block rounded-md px-3 py-1.5 text-sm transition-colors duration-150",
-								pathname === item.href
-									? "bg-accent font-medium text-accent-foreground"
-									: "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+			<h2 className="mb-3 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+				{title}
+			</h2>
+			<ul className="space-y-px border-l border-border/60">
+				{items.map((item) => {
+					const isActive = pathname === item.href;
+					return (
+						<li key={item.href} className="relative">
+							{isActive && (
+								<span
+									aria-hidden="true"
+									className="absolute -left-px top-0 bottom-0 w-px bg-foreground"
+								/>
 							)}
-						>
-							{item.title}
-						</Link>
-					</li>
-				))}
+							<Link
+								href={item.href}
+								className={cn(
+									"block py-1 pl-4 pr-3 text-sm transition-all duration-200 ease-out",
+									isActive
+										? "font-medium text-foreground"
+										: "text-muted-foreground hover:text-foreground",
+								)}
+							>
+								{item.title}
+							</Link>
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	);
