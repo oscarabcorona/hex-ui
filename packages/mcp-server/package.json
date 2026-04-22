@@ -1,7 +1,26 @@
 {
 	"name": "@hex-ui/mcp",
 	"version": "0.1.0",
-	"description": "MCP server for Hex UI — AI-native component distribution",
+	"description": "MCP server for Hex UI — AI-native component distribution. Ships 7 tools over the registry for Claude Code / Cursor / any MCP client.",
+	"keywords": [
+		"hex-ui",
+		"mcp",
+		"model-context-protocol",
+		"ai-native",
+		"claude-code",
+		"cursor"
+	],
+	"license": "MIT",
+	"author": "Hex UI",
+	"homepage": "https://hex-ui.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oscarabcorona/hex-ui.git",
+		"directory": "packages/mcp-server"
+	},
+	"bugs": {
+		"url": "https://github.com/oscarabcorona/hex-ui/issues"
+	},
 	"type": "module",
 	"main": "dist/index.js",
 	"bin": {
@@ -12,6 +31,15 @@
 			"import": "./dist/index.js"
 		}
 	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
 	"scripts": {
 		"build": "tsup",
 		"start": "node dist/index.js",
@@ -19,7 +47,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@hex-ui/registry": "workspace:*",
+		"@hex-ui/registry": "workspace:^",
 		"@modelcontextprotocol/sdk": "^1.12.0",
 		"zod": "^3.23.0"
 	},

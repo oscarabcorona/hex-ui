@@ -11,9 +11,13 @@
 		"lint": "eslint . && turbo lint",
 		"lint:fix": "eslint . --fix && turbo lint -- --fix",
 		"format": "prettier --write .",
-		"clean": "turbo clean"
+		"clean": "turbo clean",
+		"changeset": "changeset",
+		"version": "changeset version && pnpm install --lockfile-only",
+		"release": "changeset publish"
 	},
 	"devDependencies": {
+		"@changesets/cli": "^2.31.0",
 		"@eslint/js": "^10.0.1",
 		"eslint": "^10.2.0",
 		"eslint-config-prettier": "^10.1.8",

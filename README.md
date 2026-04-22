@@ -1,5 +1,10 @@
 # Hex UI
 
+[![CI](https://github.com/oscarabcorona/hex-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/oscarabcorona/hex-ui/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+> **Pre-release.** Hex UI is not yet published to npm. We're stabilizing the API before the first public cut — install paths below will go live alongside v0.1.0.
+
 **AI-native component library for LLMs and humans.**
 
 Hex UI is a component registry designed for AI coding assistants (Claude Code, Cursor, v0) via MCP, with a CLI for human developers. Built on Radix UI + Tailwind CSS with a refined modern aesthetic.
@@ -69,12 +74,9 @@ npx @hex-ui/cli add button input label
 
 ## Components
 
-### Primitives
-- Button — Multiple variants, sizes, loading state, asChild composition
-- Input — Smooth focus transitions, shadow effects
-- Label — Accessible label with Radix UI primitive
+**47 components** across primitives (Button, Input, Checkbox, Switch, Slider, …) and compounds (Combobox, DataTable, Command, Calendar, Date Picker, …). Every component ships with a machine-readable `.schema.ts` containing props, variants, AI hints (`whenToUse`, `whenNotToUse`, `commonMistakes`, `accessibilityNotes`), and a token budget.
 
-*More components coming: textarea, select, checkbox, radio-group, switch, slider, toggle, badge, separator, form, dialog, dropdown-menu, popover, tooltip, tabs, accordion, card, hero-section, nav-bar, footer, pricing-table.*
+Full catalog + live demos: **[hex-ui.dev/docs](https://hex-ui.dev/docs)**
 
 ## Development
 
@@ -104,4 +106,4 @@ Each component has two files:
 
 ## License
 
-MIT
+[MIT](LICENSE)

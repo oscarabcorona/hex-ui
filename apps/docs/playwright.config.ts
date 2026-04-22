@@ -18,13 +18,14 @@ export default defineConfig({
 		{ name: "chromium", use: { ...devices["Desktop Chrome"] } },
 	],
 	/*
-	 * CI runs against the prod build (`next build && next start`) to catch
-	 * prod-only regressions (different chunking, no HMR overlays, real SSR).
-	 * Local runs use `next dev` for fast HMR + `test:ui` iteration; set CI=1
-	 * to mirror CI locally.
+	 * CI runs against the prod server (`next start`) to catch prod-only
+	 * regressions (different chunking, no HMR overlays, real SSR). The build
+	 * is produced earlier in the CI workflow; running `pnpm build` here would
+	 * rebuild from scratch. For local `CI=1` runs, call `pnpm --filter docs build`
+	 * before `pnpm test`. Default local runs use `next dev` for fast iteration.
 	 */
 	webServer: {
-		command: process.env.CI ? "pnpm build && pnpm start" : "pnpm dev",
+		command: process.env.CI ? "pnpm start" : "pnpm dev",
 		url: "http://localhost:3000",
 		reuseExistingServer: !process.env.CI,
 		timeout: 180_000,

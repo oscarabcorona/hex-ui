@@ -1,10 +1,37 @@
 {
 	"name": "@hex-ui/cli",
 	"version": "0.1.0",
-	"description": "CLI for Hex UI component library",
+	"description": "CLI for Hex UI — copy components into your project with one command.",
+	"keywords": [
+		"hex-ui",
+		"cli",
+		"component-library",
+		"scaffolding",
+		"shadcn-alternative"
+	],
+	"license": "MIT",
+	"author": "Hex UI",
+	"homepage": "https://hex-ui.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oscarabcorona/hex-ui.git",
+		"directory": "packages/cli"
+	},
+	"bugs": {
+		"url": "https://github.com/oscarabcorona/hex-ui/issues"
+	},
 	"type": "module",
 	"bin": {
 		"hex": "dist/index.js"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
 	},
 	"scripts": {
 		"build": "tsup",
@@ -12,7 +39,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@hex-ui/registry": "workspace:*",
+		"@hex-ui/registry": "workspace:^",
 		"commander": "^12.1.0",
 		"zod": "^3.23.0"
 	},
