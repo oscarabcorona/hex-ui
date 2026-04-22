@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CodeBlock } from "../../../components/code-block";
 import { DocSection, InlineCode } from "../../../components/doc-section";
 import { DocsPage } from "../../../components/docs-page";
@@ -77,16 +78,49 @@ export default function McpPage() {
 					</li>
 					<li>
 						<strong>get_component</strong> — full registry item (props, variants, AI
-						hints, examples) for a slug
+						hints, examples, source) for a slug
 					</li>
 					<li>
-						<strong>list_components</strong> — paginated index grouped by category
+						<strong>get_component_schema</strong> — schema only, no source — for agents
+						reasoning about an already-installed component
 					</li>
 					<li>
-						<strong>install_component</strong> — copies the component source and its
-						internal deps into <InlineCode>src/components/ui/</InlineCode>
+						<strong>list_themes</strong> — available theme presets
+					</li>
+					<li>
+						<strong>get_theme</strong> — full token set for a theme (css / json /
+						tailwind)
+					</li>
+					<li>
+						<strong>scaffold_project</strong> — init + starter components in one call
+					</li>
+					<li>
+						<strong>customize_component</strong> — generate a themed variant
+					</li>
+					<li>
+						<strong>list_recipes</strong> — catalog of spec-driven blueprints (auth
+						form, settings page, …)
+					</li>
+					<li>
+						<strong>get_recipe</strong> — ordered install steps, union of peer deps,
+						post-install checklist
+					</li>
+					<li>
+						<strong>resolve_spec</strong> — deterministic brief → ranked component +
+						recipe shortlist
+					</li>
+					<li>
+						<strong>verify_checklist</strong> — cross-check installed components
+						against the registry&rsquo;s internal-dependency graph
 					</li>
 				</ul>
+				<p className="text-sm leading-6">
+					See{" "}
+					<Link className="underline underline-offset-2 hover:text-foreground" href="/docs/spec-driven">
+						Spec-driven development
+					</Link>{" "}
+					for how the last four compose.
+				</p>
 			</DocSection>
 
 			<DocSection id="prompts" title="Example prompts">

@@ -1,0 +1,229 @@
+{
+  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "slug": "data-table-view",
+  "title": "Data table view",
+  "summary": "Searchable, paginated data table with row actions menu, status badges, and empty state.",
+  "tags": [
+    "data-table",
+    "crud",
+    "list",
+    "admin",
+    "dashboard"
+  ],
+  "brief": "Build a list screen for a resource (users, invoices, etc.) with a search input, a paginated data table, a per-row dropdown of actions, and status badges in one of the columns.",
+  "steps": [
+    {
+      "component": "data-table",
+      "reason": "Sortable, paginated table primitive",
+      "role": "primary"
+    },
+    {
+      "component": "input",
+      "reason": "Top-of-page search box",
+      "role": "supporting"
+    },
+    {
+      "component": "dropdown-menu",
+      "reason": "Per-row actions (edit, archive, delete)",
+      "role": "supporting"
+    },
+    {
+      "component": "badge",
+      "reason": "Status cell rendering",
+      "role": "supporting"
+    },
+    {
+      "component": "pagination",
+      "reason": "Page navigation below the table",
+      "role": "supporting"
+    },
+    {
+      "component": "button",
+      "reason": "Primary action (New / Import)",
+      "role": "supporting"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "search-debounced",
+      "check": "Search input is debounced (200–300ms) before hitting server or filtering.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "destructive-requires-confirm",
+      "check": "Destructive row actions (delete) route through AlertDialog, not a bare click.",
+      "severity": "blocker",
+      "source": "author"
+    },
+    {
+      "id": "empty-state",
+      "check": "Empty result set renders a helpful empty state, not a blank table.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "data-table-forgetting-getcorerowmodel-table-renders-nothing",
+      "check": "[Data Table] Avoid: Forgetting getCoreRowModel() (table renders nothing)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "data-table-recreating-columns-array-on-every-render-breaks-",
+      "check": "[Data Table] Avoid: Recreating columns array on every render (breaks memoization — wrap in useMemo or define outside the component)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "data-table-using-accessorkey-with-nested-paths-without-acce",
+      "check": "[Data Table] Avoid: Using accessorKey with nested paths without accessorFn",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "data-table-not-adding-filter-sort-row-models-when-those-fea",
+      "check": "[Data Table] Avoid: Not adding filter/sort row models when those features are needed",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "data-table-a11y",
+      "check": "[Data Table] A11y: Uses semantic <table> via Hex UI Table primitives. Add aria-sort to sortable column headers. Announce filter/sort changes via aria-live for dynamic updates.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "input-missing-associated-label-element-for-accessibili",
+      "check": "[Input] Avoid: Missing associated Label element for accessibility",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-using-type-number-without-min-max-constraints",
+      "check": "[Input] Avoid: Using type='number' without min/max constraints",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-not-providing-placeholder-text-for-context",
+      "check": "[Input] Avoid: Not providing placeholder text for context",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-a11y",
+      "check": "[Input] A11y: Always pair with a Label using htmlFor/id. Consider aria-describedby for helper text or error messages.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "dropdown-menu-using-dropdownmenu-as-a-form-select-use-select-i",
+      "check": "[Dropdown Menu] Avoid: Using DropdownMenu as a form Select (use Select instead)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dropdown-menu-putting-interactive-elements-directly-in-the-tri",
+      "check": "[Dropdown Menu] Avoid: Putting interactive elements directly in the trigger without asChild",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dropdown-menu-too-many-items-without-grouping-use-dropdownmenu",
+      "check": "[Dropdown Menu] Avoid: Too many items without grouping (use DropdownMenuLabel + DropdownMenuSeparator)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dropdown-menu-forgetting-dropdownmenushortcut-for-keyboard-acc",
+      "check": "[Dropdown Menu] Avoid: Forgetting DropdownMenuShortcut for keyboard-accessible actions",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dropdown-menu-a11y",
+      "check": "[Dropdown Menu] A11y: Full keyboard navigation: arrow keys, Home, End, typeahead, Escape. Radix handles role='menu', role='menuitem', and aria-labelledby.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "badge-using-destructive-variant-for-non-error-states",
+      "check": "[Badge] Avoid: Using destructive variant for non-error states",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "badge-badge-text-too-long",
+      "check": "[Badge] Avoid: Badge text too long",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "badge-a11y",
+      "check": "[Badge] A11y: Purely decorative by default. Add role='status' for dynamic status badges.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "pagination-using-paginationlink-without-href-anchor-is-not-",
+      "check": "[Pagination] Avoid: Using PaginationLink without href (anchor is not keyboard-reachable)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "pagination-forgetting-isactive-on-the-current-page-no-visua",
+      "check": "[Pagination] Avoid: Forgetting isActive on the current page (no visual or aria-current feedback)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "pagination-showing-every-page-number-on-long-ranges-use-pag",
+      "check": "[Pagination] Avoid: Showing every page number on long ranges — use PaginationEllipsis to truncate",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "pagination-using-onclick-only-button-instead-of-paginationl",
+      "check": "[Pagination] Avoid: Using onClick-only <button> instead of PaginationLink — loses right-click-open-new-tab affordance; prefer href + Next.js Link when client-side routing is needed",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "pagination-a11y",
+      "check": "[Pagination] A11y: Root is role='navigation' aria-label='pagination'. Active link gets aria-current='page'. Previous/Next have aria-label. Ellipsis is decorative (aria-hidden) with a sr-only 'More pages' label.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "button-using-destructive-variant-for-non-destructive-ac",
+      "check": "[Button] Avoid: Using 'destructive' variant for non-destructive actions",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-nesting-interactive-elements-inside-aschild-butt",
+      "check": "[Button] Avoid: Nesting interactive elements inside asChild button",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-missing-aria-label-when-using-icon-only-size-ico",
+      "check": "[Button] Avoid: Missing aria-label when using icon-only size='icon' variant",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-using-onclick-for-navigation-instead-of-aschild-",
+      "check": "[Button] Avoid: Using onClick for navigation instead of asChild with a link",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-a11y",
+      "check": "[Button] A11y: Automatically handles focus ring, disabled state, and aria attributes. Icon-only buttons MUST have aria-label. Loading state automatically sets disabled.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    }
+  ],
+  "tokenBudget": 3000
+}

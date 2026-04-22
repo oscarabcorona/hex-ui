@@ -1,6 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { internalDepToSlug, SLUG_REGEX } from "@hex-ui/registry";
+
+export { internalDepToSlug, SLUG_REGEX };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,19 +31,18 @@ function findRegistryDir(): string {
 	throw new Error(`Could not find registry directory. Searched: ${candidates.join(", ")}`);
 }
 
-let _registryDir: string | null = null;
+let cachedRegistryDir: string | null = null;
 /**
  * Get the cached registry directory path, resolving it on first call.
+ * Shared by registry-loader and recipe-loader so both stay in sync.
  * @returns The absolute path to the registry directory
  */
-function getRegistryDir(): string {
-	if (!_registryDir) {
-		_registryDir = findRegistryDir();
+export function getRegistryDir(): string {
+	if (!cachedRegistryDir) {
+		cachedRegistryDir = findRegistryDir();
 	}
-	return _registryDir;
+	return cachedRegistryDir;
 }
-
-const SAFE_NAME = /^[a-z][a-z0-9-]*$/;
 
 export interface RegistryIndex {
 	name: string;
@@ -92,11 +94,11 @@ export function loadRegistry(): RegistryIndex {
 
 /**
  * Load a single registry item by name.
- * @param name - The component name (must match /^[a-z][a-z0-9-]*$/)
+ * @param name - The component name (must match `SLUG_REGEX`)
  * @returns The parsed registry item, or null if the name is invalid or not found
  */
 export function loadRegistryItem(name: string): RegistryItem | null {
-	if (!SAFE_NAME.test(name)) return null;
+	if (!SLUG_REGEX.test(name)) return null;
 
 	const dir = getRegistryDir();
 	const itemPath = path.join(dir, "items", `${name}.json`);
@@ -105,3 +107,4 @@ export function loadRegistryItem(name: string): RegistryItem | null {
 	const content = fs.readFileSync(itemPath, "utf-8");
 	return JSON.parse(content);
 }
+

@@ -1,0 +1,125 @@
+{
+  "$schema": "https://hex-ui.dev/schema/recipes.json",
+  "name": "hex-ui",
+  "version": "0.1.0",
+  "items": [
+    {
+      "slug": "auth-form",
+      "title": "Auth form",
+      "summary": "Login or signup form with validated fields, remember-me, submit button, and error alert.",
+      "tags": [
+        "auth",
+        "form",
+        "login",
+        "signup"
+      ],
+      "components": [
+        "form",
+        "label",
+        "input",
+        "checkbox",
+        "button",
+        "alert"
+      ],
+      "tokenBudget": 2400
+    },
+    {
+      "slug": "command-palette",
+      "title": "Command palette",
+      "summary": "Cmd-K quick-open palette with grouped actions, search, and keyboard-first navigation.",
+      "tags": [
+        "command",
+        "palette",
+        "cmdk",
+        "search",
+        "shortcuts"
+      ],
+      "components": [
+        "command",
+        "dialog",
+        "separator"
+      ],
+      "tokenBudget": 1600
+    },
+    {
+      "slug": "confirm-destructive",
+      "title": "Destructive confirm",
+      "summary": "Typed-name confirmation flow for irreversible actions (delete account, drop table).",
+      "tags": [
+        "dialog",
+        "confirmation",
+        "destructive",
+        "delete"
+      ],
+      "components": [
+        "alert-dialog",
+        "button",
+        "input",
+        "label"
+      ],
+      "tokenBudget": 1400
+    },
+    {
+      "slug": "data-table-view",
+      "title": "Data table view",
+      "summary": "Searchable, paginated data table with row actions menu, status badges, and empty state.",
+      "tags": [
+        "data-table",
+        "crud",
+        "list",
+        "admin",
+        "dashboard"
+      ],
+      "components": [
+        "data-table",
+        "input",
+        "dropdown-menu",
+        "badge",
+        "pagination",
+        "button"
+      ],
+      "tokenBudget": 3000
+    },
+    {
+      "slug": "pricing-table",
+      "title": "Pricing table",
+      "summary": "Three-tier pricing grid with a highlighted plan, feature list per tier, CTAs, and tooltips for advanced features.",
+      "tags": [
+        "pricing",
+        "marketing",
+        "saas",
+        "landing"
+      ],
+      "components": [
+        "card",
+        "badge",
+        "separator",
+        "tooltip",
+        "button"
+      ],
+      "tokenBudget": 1800
+    },
+    {
+      "slug": "settings-page",
+      "title": "Settings page",
+      "summary": "Multi-section settings screen with grouped cards, labeled form fields, toggles, and a save action per section.",
+      "tags": [
+        "settings",
+        "preferences",
+        "account",
+        "form"
+      ],
+      "components": [
+        "card",
+        "separator",
+        "form",
+        "label",
+        "input",
+        "select",
+        "switch",
+        "button"
+      ],
+      "tokenBudget": 3200
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "slug": "confirm-destructive",
+  "title": "Destructive confirm",
+  "summary": "Typed-name confirmation flow for irreversible actions (delete account, drop table).",
+  "tags": [
+    "dialog",
+    "confirmation",
+    "destructive",
+    "delete"
+  ],
+  "brief": "Guard an irreversible action (delete project, remove user) behind a confirmation dialog. The destructive button is disabled until the user types the resource name.",
+  "steps": [
+    {
+      "component": "alert-dialog",
+      "reason": "Modal that blocks other interaction until resolved",
+      "role": "primary"
+    },
+    {
+      "component": "button",
+      "reason": "Destructive-variant CTA to open the dialog",
+      "role": "primary"
+    },
+    {
+      "component": "input",
+      "reason": "Typed-confirmation field inside the dialog",
+      "role": "supporting"
+    },
+    {
+      "component": "label",
+      "reason": "Labels the confirmation input",
+      "role": "supporting"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "typed-confirm-guard",
+      "check": "Confirm button stays disabled until the input matches the resource name exactly.",
+      "severity": "blocker",
+      "source": "author"
+    },
+    {
+      "id": "destructive-variant",
+      "check": "Confirm button uses Button variant='destructive', not default.",
+      "severity": "blocker",
+      "source": "author"
+    },
+    {
+      "id": "cancel-is-default",
+      "check": "Cancel is the default/focus action, not Confirm.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "alert-dialog-using-dialog-when-alertdialog-is-semantically-re",
+      "check": "[Alert Dialog] Avoid: Using Dialog when AlertDialog is semantically required",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "alert-dialog-omitting-alertdialogcancel-user-must-have-an-esc",
+      "check": "[Alert Dialog] Avoid: Omitting AlertDialogCancel (user must have an escape hatch)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "alert-dialog-putting-more-than-one-alertdialogaction-the-patt",
+      "check": "[Alert Dialog] Avoid: Putting more than one AlertDialogAction (the pattern expects one destructive action)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "alert-dialog-making-the-action-button-non-destructive-styled",
+      "check": "[Alert Dialog] Avoid: Making the action button non-destructive styled",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "alert-dialog-a11y",
+      "check": "[Alert Dialog] A11y: Radix sets role='alertdialog', traps focus, focuses AlertDialogCancel by default, and closes on Escape. Clicks outside the dialog are prevented (user must choose Cancel or Action).",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "button-using-destructive-variant-for-non-destructive-ac",
+      "check": "[Button] Avoid: Using 'destructive' variant for non-destructive actions",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-nesting-interactive-elements-inside-aschild-butt",
+      "check": "[Button] Avoid: Nesting interactive elements inside asChild button",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-missing-aria-label-when-using-icon-only-size-ico",
+      "check": "[Button] Avoid: Missing aria-label when using icon-only size='icon' variant",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-using-onclick-for-navigation-instead-of-aschild-",
+      "check": "[Button] Avoid: Using onClick for navigation instead of asChild with a link",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-a11y",
+      "check": "[Button] A11y: Automatically handles focus ring, disabled state, and aria attributes. Icon-only buttons MUST have aria-label. Loading state automatically sets disabled.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "input-missing-associated-label-element-for-accessibili",
+      "check": "[Input] Avoid: Missing associated Label element for accessibility",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-using-type-number-without-min-max-constraints",
+      "check": "[Input] Avoid: Using type='number' without min/max constraints",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-not-providing-placeholder-text-for-context",
+      "check": "[Input] Avoid: Not providing placeholder text for context",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-a11y",
+      "check": "[Input] A11y: Always pair with a Label using htmlFor/id. Consider aria-describedby for helper text or error messages.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "label-forgetting-to-set-htmlfor-matching-the-input-s-i",
+      "check": "[Label] Avoid: Forgetting to set htmlFor matching the input's id",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-using-label-for-non-form-text-content",
+      "check": "[Label] Avoid: Using Label for non-form text content",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-nesting-interactive-elements-inside-label",
+      "check": "[Label] Avoid: Nesting interactive elements inside Label",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-a11y",
+      "check": "[Label] A11y: Clicking the label focuses the associated control. Automatically communicates the label to screen readers. Use htmlFor/id pairing, not nesting.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    }
+  ],
+  "tokenBudget": 1400
+}

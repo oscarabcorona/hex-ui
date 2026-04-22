@@ -1,0 +1,130 @@
+{
+  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "slug": "command-palette",
+  "title": "Command palette",
+  "summary": "Cmd-K quick-open palette with grouped actions, search, and keyboard-first navigation.",
+  "tags": [
+    "command",
+    "palette",
+    "cmdk",
+    "search",
+    "shortcuts"
+  ],
+  "brief": "Add a Cmd-K / Ctrl-K command palette that opens a dialog, offers a fuzzy-search input, and lists grouped actions (Navigate, Recent, Settings) with keyboard arrow navigation.",
+  "steps": [
+    {
+      "component": "command",
+      "reason": "Fuzzy search + grouped list primitive",
+      "role": "primary"
+    },
+    {
+      "component": "dialog",
+      "reason": "Modal shell the command lives inside",
+      "role": "primary"
+    },
+    {
+      "component": "separator",
+      "reason": "Visual divider between command groups",
+      "role": "supporting"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "keyboard-shortcut",
+      "check": "Global Cmd-K / Ctrl-K listener opens the dialog (and only inside client code).",
+      "severity": "blocker",
+      "source": "author"
+    },
+    {
+      "id": "close-on-select",
+      "check": "Dialog closes after a command is selected, before the action runs.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "empty-state",
+      "check": "Palette shows a friendly empty state when no commands match the query.",
+      "severity": "nit",
+      "source": "author"
+    },
+    {
+      "id": "command-forgetting-commandlist-items-won-t-be-scrollable",
+      "check": "[Command] Avoid: Forgetting CommandList — items won't be scrollable or grouped properly",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "command-giving-commanditem-non-unique-values-breaks-filt",
+      "check": "[Command] Avoid: Giving CommandItem non-unique values (breaks filtering and controlled state)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "command-overriding-commandinput-classname-to-remove-the-",
+      "check": "[Command] Avoid: Overriding CommandInput className to remove the border/padding — breaks the ⌘K icon layout",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "command-not-rendering-commandempty-the-list-looks-broken",
+      "check": "[Command] Avoid: Not rendering CommandEmpty — the list looks broken when a search has no matches",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "command-a11y",
+      "check": "[Command] A11y: cmdk wires role=listbox/option and aria-activedescendant. Use the `label` prop on Command for a screen-reader-only name when no visible heading exists.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "dialog-nesting-dialogs-inside-each-other",
+      "check": "[Dialog] Avoid: Nesting dialogs inside each other",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dialog-forgetting-dialogtitle-breaks-accessibility-scre",
+      "check": "[Dialog] Avoid: Forgetting DialogTitle (breaks accessibility — screen readers need it)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dialog-using-dialogdescription-for-long-form-content-ke",
+      "check": "[Dialog] Avoid: Using DialogDescription for long-form content (keep it short)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dialog-putting-too-many-primary-actions-in-dialogfooter",
+      "check": "[Dialog] Avoid: Putting too many primary actions in DialogFooter",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "dialog-a11y",
+      "check": "[Dialog] A11y: Radix traps focus, handles Escape to close, and wires aria-labelledby/describedby to DialogTitle/DialogDescription. Always include a DialogTitle.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "separator-using-as-spacing-instead-of-semantic-separation",
+      "check": "[Separator] Avoid: Using as spacing instead of semantic separation",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "separator-forgetting-orientation-vertical-needs-parent-hei",
+      "check": "[Separator] Avoid: Forgetting orientation='vertical' needs parent height",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "separator-a11y",
+      "check": "[Separator] A11y: Set decorative=false if the separator conveys semantic meaning. Radix handles role='separator'.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    }
+  ],
+  "tokenBudget": 1600
+}

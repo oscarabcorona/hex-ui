@@ -1,23 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
-
-/**
- * Locate the registry directory by searching known candidate paths.
- * @returns The absolute path to the registry directory, or null if not found
- */
-function findRegistryDir(): string | null {
-	const candidates = [
-		path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../registry"),
-		path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../registry"),
-		path.resolve(process.cwd(), "registry"),
-	];
-
-	for (const candidate of candidates) {
-		if (fs.existsSync(candidate)) return candidate;
-	}
-	return null;
-}
+import { internalDepToSlug, SLUG_REGEX } from "@hex-ui/registry";
+import { findRegistryDir } from "../lib/registry-dir.js";
 
 /**
  * Add one or more components from the registry into the current project.
@@ -37,10 +21,9 @@ export async function addComponents(
 	}
 
 	const cwd = process.cwd();
-	const SAFE_NAME = /^[a-z][a-z0-9-]*$/;
 
 	for (const name of components) {
-		if (!SAFE_NAME.test(name)) {
+		if (!SLUG_REGEX.test(name)) {
 			console.error(`Invalid component name: "${name}"`);
 			continue;
 		}
@@ -77,6 +60,26 @@ export async function addComponents(
 		if (deps?.npm?.length > 0) {
 			console.log(`\n  Dependencies: ${deps.npm.join(", ")}`);
 			console.log(`  Install: pnpm add ${deps.npm.join(" ")}`);
+		}
+
+		// Warn about internal component deps that the user has not also installed.
+		// hex add <slug> installs exactly one slug (not a transitive closure), so
+		// e.g. `hex add combobox` writes combobox.tsx whose imports reference
+		// `./command` and `./popover` that won't exist in the project yet. Rather
+		// than silently ship a broken file, point the user at the missing slugs.
+		const internalDeps: string[] = deps?.internal ?? [];
+		const missingInternalSlugs: string[] = [];
+		for (const dep of internalDeps) {
+			const depSlug = internalDepToSlug(dep);
+			if (!depSlug) continue;
+			const depPath = path.resolve(cwd, "components", "ui", `${depSlug}.tsx`);
+			if (!fs.existsSync(depPath)) missingInternalSlugs.push(depSlug);
+		}
+		if (missingInternalSlugs.length > 0) {
+			console.log(
+				`\n  Warning: ${name} imports ${missingInternalSlugs.length} internal component(s) that are not yet installed: ${missingInternalSlugs.join(", ")}`,
+			);
+			console.log(`  Install: hex add ${missingInternalSlugs.join(" ")}`);
 		}
 	}
 }

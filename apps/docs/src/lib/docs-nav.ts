@@ -13,6 +13,7 @@ export const GETTING_STARTED_NAV: readonly DocNavLink[] = [
 	{ title: "Installation", href: "/docs/installation" },
 	{ title: "Theming", href: "/docs/theming" },
 	{ title: "MCP Server", href: "/docs/mcp" },
+	{ title: "Spec-driven", href: "/docs/spec-driven" },
 	{ title: "FAQ", href: "/docs/faq" },
 ] as const;
 

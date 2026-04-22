@@ -1,7 +1,16 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { loadRegistry, loadRegistryItem } from "./tools/registry-loader.js";
+import { loadRecipe, loadRecipes } from "./tools/recipe-loader.js";
+import {
+	internalDepToSlug,
+	loadRegistry,
+	loadRegistryItem,
+	SLUG_REGEX,
+} from "./tools/registry-loader.js";
+import { resolveSpec } from "./tools/resolver.js";
 import {
 	generateGlobalsCss,
 	getTheme,
@@ -385,6 +394,254 @@ server.tool(
 				{
 					type: "text" as const,
 					text: JSON.stringify(result, null, 2),
+				},
+			],
+		};
+	},
+);
+
+// ─── Tool 8: list_recipes ───
+
+server.tool(
+	"list_recipes",
+	"List all Hex UI recipes — spec-driven blueprints that map a UI goal (auth form, settings page, pricing table) to an ordered checklist of components. Use this to discover recipes before calling get_recipe.",
+	{},
+	async () => {
+		const recipes = loadRecipes();
+		return {
+			content: [
+				{
+					type: "text" as const,
+					text: JSON.stringify(recipes.items, null, 2),
+				},
+			],
+		};
+	},
+);
+
+// ─── Tool 9: get_recipe ───
+
+server.tool(
+	"get_recipe",
+	"Get the full Hex UI recipe: ordered install steps, the union of npm peer dependencies across all components, a post-install checklist (author-written plus items derived from each component's commonMistakes / accessibilityNotes), and an optional JSX example. Use this after list_recipes or resolve_spec to execute a blueprint.",
+	{
+		slug: z.string().describe("Recipe slug (e.g. 'settings-page', 'auth-form')"),
+	},
+	async ({ slug }) => {
+		const recipe = loadRecipe(slug);
+		if (!recipe) {
+			return {
+				content: [
+					{
+						type: "text" as const,
+						text: `Recipe "${slug}" not found. Use list_recipes to discover available recipes.`,
+					},
+				],
+			};
+		}
+
+		const npmDeps = new Set<string>();
+		const peerDeps = new Set<string>();
+		const internalDeps = new Set<string>();
+		const missingComponents: string[] = [];
+		const recipeSlugs = new Set(recipe.steps.map((s) => s.component));
+
+		for (const step of recipe.steps) {
+			const item = loadRegistryItem(step.component);
+			if (!item) {
+				missingComponents.push(step.component);
+				continue;
+			}
+			for (const dep of item.dependencies?.npm ?? []) npmDeps.add(dep);
+			for (const dep of item.dependencies?.peer ?? []) peerDeps.add(dep);
+			for (const dep of item.dependencies?.internal ?? []) {
+				const depSlug = internalDepToSlug(dep);
+				if (depSlug && !recipeSlugs.has(depSlug)) internalDeps.add(depSlug);
+			}
+		}
+
+		const response = {
+			slug: recipe.slug,
+			title: recipe.title,
+			summary: recipe.summary,
+			brief: recipe.brief,
+			tags: recipe.tags,
+			steps: recipe.steps,
+			checklist: recipe.checklist,
+			example: recipe.example,
+			tokenBudget: recipe.tokenBudget,
+			install: {
+				componentCommand: `hex add ${recipe.steps.map((s) => s.component).join(" ")}`,
+				npmDependencies: Array.from(npmDeps).sort(),
+				peerDependencies: Array.from(peerDeps).sort(),
+				internalDependencies: Array.from(internalDeps).sort(),
+			},
+			warnings: missingComponents.length > 0
+				? [`Steps reference unknown components: ${missingComponents.join(", ")}`]
+				: [],
+		};
+
+		return {
+			content: [
+				{
+					type: "text" as const,
+					text: JSON.stringify(response, null, 2),
+				},
+			],
+		};
+	},
+);
+
+// ─── Tool 10: resolve_spec ───
+
+server.tool(
+	"resolve_spec",
+	"Resolve a freeform brief or spec.md fragment ('build me a settings page') into a ranked shortlist of Hex UI components and recipes. Deterministic keyword + tag matching — no LLM reasoning server-side. Use this as the first step when translating a plan document into a concrete build.",
+	{
+		brief: z
+			.string()
+			.min(3)
+			.describe("Freeform description of the UI to build, or a spec.md section"),
+		limit: z
+			.number()
+			.int()
+			.positive()
+			.max(20)
+			.optional()
+			.describe("Max number of component matches to return (default 8)"),
+	},
+	async ({ brief, limit }) => {
+		const result = resolveSpec(brief, { limit });
+		return {
+			content: [
+				{
+					type: "text" as const,
+					text: JSON.stringify(result, null, 2),
+				},
+			],
+		};
+	},
+);
+
+// ─── Tool 11: verify_checklist ───
+
+server.tool(
+	"verify_checklist",
+	"Cross-check an installed component list against the registry. Reports missing internal dependencies (e.g. combobox without popover + command) and, when a recipe slug is supplied, returns the recipe's checklist items for the agent to walk. When projectRoot is supplied, also reports which component files exist under <projectRoot>/components/ui/ (opt-in; projectRoot is canonicalized with realpath and each checked path is verified to stay under it).",
+	{
+		components: z
+			.array(z.string())
+			.min(1)
+			.describe("Component slugs the agent claims it has installed"),
+		recipe: z.string().optional().describe("Optional recipe slug for checklist lookup"),
+		projectRoot: z
+			.string()
+			.optional()
+			.describe("Absolute project root to scan for component files under components/ui/"),
+	},
+	async ({ components, recipe, projectRoot }) => {
+		const installed = new Set<string>();
+		const unknownComponents: string[] = [];
+		const missingInternalDeps: Array<{ component: string; missing: string[] }> = [];
+
+		for (const slug of components) {
+			if (!SLUG_REGEX.test(slug)) {
+				unknownComponents.push(slug);
+				continue;
+			}
+			const item = loadRegistryItem(slug);
+			if (!item) {
+				unknownComponents.push(slug);
+				continue;
+			}
+			installed.add(slug);
+		}
+
+		for (const slug of installed) {
+			const item = loadRegistryItem(slug);
+			if (!item) continue;
+			const deps = item.dependencies?.internal ?? [];
+			const missingSlugs: string[] = [];
+			for (const dep of deps) {
+				const depSlug = internalDepToSlug(dep);
+				if (!depSlug) continue;
+				if (!installed.has(depSlug)) missingSlugs.push(depSlug);
+			}
+			if (missingSlugs.length > 0) {
+				missingInternalDeps.push({ component: slug, missing: missingSlugs });
+			}
+		}
+
+		let checklist: unknown[] = [];
+		let resolvedRecipe: string | null = null;
+		let recipeError: "not-found" | null = null;
+		if (recipe) {
+			const r = loadRecipe(recipe);
+			if (!r) {
+				recipeError = "not-found";
+			} else {
+				resolvedRecipe = r.slug;
+				checklist = r.checklist;
+			}
+		}
+
+		// Files scan: only attempted when an absolute projectRoot is supplied.
+		// Canonicalize via realpath so a symlinked root is resolved to its real
+		// path before we build candidate paths. The realpath + startsWith pair
+		// defends against a caller passing a root that symlinks into someone
+		// else's tree — the candidate must literally live under the real root.
+		const filesPresent: string[] = [];
+		const filesMissing: string[] = [];
+		let filesError: string | null = null;
+		if (projectRoot) {
+			if (!path.isAbsolute(projectRoot)) {
+				filesError = "projectRoot must be absolute";
+			} else {
+				let resolvedRoot: string | null = null;
+				try {
+					resolvedRoot = fs.realpathSync(path.resolve(projectRoot));
+				} catch {
+					filesError = "projectRoot does not exist";
+				}
+				if (resolvedRoot) {
+					for (const slug of installed) {
+						const candidate = path.resolve(resolvedRoot, "components", "ui", `${slug}.tsx`);
+						if (!candidate.startsWith(`${resolvedRoot}${path.sep}`)) continue;
+						if (fs.existsSync(candidate)) {
+							filesPresent.push(path.relative(resolvedRoot, candidate));
+						} else {
+							filesMissing.push(path.relative(resolvedRoot, candidate));
+						}
+					}
+				}
+			}
+		}
+
+		const response = {
+			ok:
+				unknownComponents.length === 0 &&
+				missingInternalDeps.length === 0 &&
+				recipeError === null &&
+				filesError === null,
+			installed: Array.from(installed).sort(),
+			unknownComponents,
+			missingInternalDeps,
+			recipe: resolvedRecipe,
+			recipeError,
+			checklist,
+			files:
+				projectRoot === undefined
+					? null
+					: filesError
+						? { error: filesError }
+						: { present: filesPresent, missing: filesMissing },
+		};
+
+		return {
+			content: [
+				{
+					type: "text" as const,
+					text: JSON.stringify(response, null, 2),
 				},
 			],
 		};

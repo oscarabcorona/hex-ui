@@ -5,17 +5,18 @@
 
 > **Pre-release.** Hex UI is not yet published to npm. We're stabilizing the API before the first public cut — install paths below will go live alongside v0.1.0.
 
-**AI-native component library for LLMs and humans.**
+**The component layer for spec-driven UI development.**
 
-Hex UI is a component registry designed for AI coding assistants (Claude Code, Cursor, v0) via MCP, with a CLI for human developers. Built on Radix UI + Tailwind CSS with a refined modern aesthetic.
+Hex UI turns a brief (or a `spec.md` / `plan.md` section) into a ranked component checklist over MCP. No server, no runtime — just static JSON and 11 MCP tools over a catalog of 47 components.
 
 ## Why Hex UI?
 
 shadcn/ui is built for humans browsing docs. Hex UI is built for **AI agents** that need:
 
 - **Machine-readable component specs** — Zod schemas with props, variants, slots, and constraints
-- **AI hints** — whenToUse, whenNotToUse, commonMistakes, accessibility notes per component
-- **MCP server** — 7 tools for component discovery, installation, theming, and scaffolding
+- **AI hints** — `whenToUse`, `whenNotToUse`, `commonMistakes`, `accessibilityNotes` per component
+- **Recipes** — six spec-driven blueprints (auth form, settings page, pricing table, data table, confirm-destructive, command palette) with ordered install steps and post-install checklists
+- **MCP server** — 11 tools for component discovery, installation, theming, scaffolding, and spec resolution
 - **Token budgets** — each component declares its token cost for efficient LLM context usage
 
 ## Quick Start
@@ -65,6 +66,24 @@ npx @hex-ui/cli add button input label
 | `list_themes` | List available themes |
 | `scaffold_project` | Generate complete project setup |
 | `customize_component` | Apply CSS overrides to components |
+| `list_recipes` | Catalog of spec-driven blueprints |
+| `get_recipe` | Ordered install steps + post-install checklist |
+| `resolve_spec` | Deterministic brief → ranked component + recipe shortlist |
+| `verify_checklist` | Cross-check installed components against the internal-dep graph |
+
+See **[hex-ui.dev/docs/spec-driven](https://hex-ui.dev/docs/spec-driven)** for the full spec-driven workflow.
+
+## Spec-driven example
+
+```bash
+# 1. Discover recipes
+npx @hex-ui/cli recipe list
+
+# 2. Install every component in a recipe + print its checklist
+npx @hex-ui/cli recipe add settings-page
+```
+
+Or from an MCP client: ask *"Resolve this spec into hex-ui components: build a settings page with notifications toggle"* — `resolve_spec` returns the `settings-page` recipe and a ranked component shortlist.
 
 ## Themes
 

@@ -42,6 +42,8 @@ Add to `.cursor/mcp.json` at your project root:
 
 ## Tools exposed
 
+Components & themes:
+
 - `search_components(query)` — fuzzy search across name, description, tags, AI hints
 - `get_component(slug)` — full RegistryItem (props, variants, examples, AI metadata)
 - `get_component_schema(slug)` — props, variants, slots, AI hints without source
@@ -50,11 +52,19 @@ Add to `.cursor/mcp.json` at your project root:
 - `scaffold_project(components, theme)` — init + starter components in one call
 - `customize_component(slug, overrides)` — generate a themed variant
 
+Spec-driven build flow:
+
+- `list_recipes()` — catalog of spec-driven blueprints (auth form, settings page, pricing table, …)
+- `get_recipe(slug)` — ordered install steps, union of peer deps, post-install checklist
+- `resolve_spec(brief)` — deterministic brief → ranked component + recipe shortlist (no LLM call server-side)
+- `verify_checklist(components, recipe?)` — cross-check installed components against the internal-dependency graph and the recipe's checklist
+
 ## Prompts that "just work"
 
 - "Find a hex-ui component for a confirmation dialog and add it"
-- "Search hex-ui for a data table primitive"
-- "What hex-ui components should I use for a settings page?"
+- "Resolve this spec into hex-ui components: build a settings page with notifications toggle"
+- "Walk me through the hex-ui auth-form recipe and install it"
+- "Verify I have all the hex-ui internal deps for combobox"
 
 ## Docs
 
