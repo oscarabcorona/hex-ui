@@ -60,6 +60,7 @@ export default function FaqPage() {
 			title="FAQ"
 			description="Short answers to the questions people ask most."
 			sections={QUESTIONS.map((q) => ({ id: q.id, title: q.label }))}
+			editPath="apps/docs/src/app/docs/faq/page.tsx"
 		>
 			{QUESTIONS.map((q) => (
 				<DocSection key={q.id} id={q.id} title={q.q}>

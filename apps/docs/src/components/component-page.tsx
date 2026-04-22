@@ -3,7 +3,7 @@ import type { ComponentType, ReactNode } from "react";
 import { codeToHtml } from "shiki";
 import type { RegistryItem } from "../lib/registry";
 import { INSTALL_COMMAND_LABEL, installCommand, slugify, usageFallback } from "../lib/registry";
-import { DOCS_CONTENT_WRAPPER } from "../lib/ui-tokens";
+import { DOCS_CONTENT_WRAPPER, SHIKI_THEMES } from "../lib/ui-tokens";
 import { CodeBlock } from "./code-block";
 import { ComponentPreview } from "./component-preview";
 import { DocsBreadcrumb } from "./docs-breadcrumb";
@@ -15,7 +15,7 @@ import { PropsTable } from "./props-table";
 async function highlight(code: string, lang: "tsx" | "ts" | "bash" = "tsx"): Promise<string> {
 	return codeToHtml(code, {
 		lang,
-		themes: { light: "github-light", dark: "github-dark" },
+		themes: SHIKI_THEMES,
 		defaultColor: false,
 	});
 }
@@ -113,7 +113,10 @@ export async function ComponentPage({
 						<AIGuidance ai={item.ai} />
 					</Section>
 
-					<DocsFooter pathname={`/docs/components/${item.name}`} />
+					<DocsFooter
+						pathname={`/docs/components/${item.name}`}
+						editPath={`registry/items/${item.name}.json`}
+					/>
 				</div>
 			</main>
 			<OnThisPage sections={sections} />

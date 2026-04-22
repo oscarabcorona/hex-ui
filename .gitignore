@@ -9,6 +9,9 @@ dist/
 .idea/
 .playwright-mcp/
 .qa/
+test-results/
+playwright-report/
+.playwright/
 CLAUDE.md
 apps/**/CLAUDE.md
 *.png

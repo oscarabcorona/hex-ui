@@ -34,6 +34,7 @@ export default function InstallationPage() {
 			title="Installation"
 			description="How to add Hex UI components to your project in under a minute."
 			sections={SECTIONS}
+			editPath="apps/docs/src/app/docs/installation/page.tsx"
 		>
 			<DocSection id="requirements" title="Requirements">
 				<ul className="list-disc space-y-1 pl-6 text-sm text-muted-foreground">

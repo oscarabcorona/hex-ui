@@ -49,7 +49,12 @@ import { TooltipDemo } from "../app/demos/tooltip-demo";
 
 /**
  * Map of component slug → rendered demo component.
- * Used by the dynamic docs route to render live previews alongside schema metadata.
+ *
+ * Static imports are intentional: each docs route is statically generated via
+ * `generateStaticParams`, so Next already produces a per-route chunk that
+ * only pulls in the demo that route renders. Switching to `next/dynamic` in
+ * the Server Component path does NOT split further (per Next 16 lazy-loading
+ * docs) and adds an RSC Suspense wrapper around server demos for no gain.
  */
 export const demos: Record<string, ComponentType> = {
 	accordion: AccordionDemo,

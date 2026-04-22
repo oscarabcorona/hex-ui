@@ -32,6 +32,7 @@ export default function GettingStarted() {
 			title="Introduction"
 			description="Beautifully designed components with AI-native metadata. Accessible. Customizable. Open Source."
 			sections={SECTIONS}
+			editPath="apps/docs/src/app/docs/getting-started/page.tsx"
 		>
 			<p className="text-sm leading-6">
 				Hex UI is a component library designed for both{" "}
