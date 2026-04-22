@@ -1,6 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { SLUG_REGEX } from "@hex-ui/registry";
+
+export { SLUG_REGEX };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,19 +31,18 @@ function findRegistryDir(): string {
 	throw new Error(`Could not find registry directory. Searched: ${candidates.join(", ")}`);
 }
 
-let _registryDir: string | null = null;
+let cachedRegistryDir: string | null = null;
 /**
  * Get the cached registry directory path, resolving it on first call.
+ * Shared by registry-loader and recipe-loader so both stay in sync.
  * @returns The absolute path to the registry directory
  */
-function getRegistryDir(): string {
-	if (!_registryDir) {
-		_registryDir = findRegistryDir();
+export function getRegistryDir(): string {
+	if (!cachedRegistryDir) {
+		cachedRegistryDir = findRegistryDir();
 	}
-	return _registryDir;
+	return cachedRegistryDir;
 }
-
-const SAFE_NAME = /^[a-z][a-z0-9-]*$/;
 
 export interface RegistryIndex {
 	name: string;
@@ -92,11 +94,11 @@ export function loadRegistry(): RegistryIndex {
 
 /**
  * Load a single registry item by name.
- * @param name - The component name (must match /^[a-z][a-z0-9-]*$/)
+ * @param name - The component name (must match `SLUG_REGEX`)
  * @returns The parsed registry item, or null if the name is invalid or not found
  */
 export function loadRegistryItem(name: string): RegistryItem | null {
-	if (!SAFE_NAME.test(name)) return null;
+	if (!SLUG_REGEX.test(name)) return null;
 
 	const dir = getRegistryDir();
 	const itemPath = path.join(dir, "items", `${name}.json`);
@@ -104,4 +106,21 @@ export function loadRegistryItem(name: string): RegistryItem | null {
 
 	const content = fs.readFileSync(itemPath, "utf-8");
 	return JSON.parse(content);
+}
+
+/**
+ * Translate an internal dependency path ("components/command/command",
+ * "primitives/button/button") into its component slug. Returns null for
+ * non-component internal deps such as "lib/utils" so callers can skip
+ * them in dependency-completeness checks.
+ * @param dep - Internal dependency path as stored in registry items
+ * @returns The component slug, or null when the path doesn't name a component
+ */
+export function internalDepToSlug(dep: string): string | null {
+	const segments = dep.split("/");
+	if (segments.length !== 3) return null;
+	const [top] = segments;
+	if (top !== "components" && top !== "primitives" && top !== "blocks") return null;
+	const slug = segments[2];
+	return SLUG_REGEX.test(slug) ? slug : null;
 }

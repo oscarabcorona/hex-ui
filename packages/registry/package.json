@@ -31,6 +31,10 @@
 		"./schema": {
 			"import": "./dist/schema.js",
 			"types": "./dist/schema.d.ts"
+		},
+		"./recipe-schema": {
+			"import": "./dist/recipe-schema.js",
+			"types": "./dist/recipe-schema.d.ts"
 		}
 	},
 	"files": [

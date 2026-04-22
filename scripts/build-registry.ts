@@ -1,6 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+	componentSchemaDefinition,
+	recipeSchemaDefinition,
+	type ComponentSchemaDefinition,
+	type RecipeDefinition,
+} from "@hex-ui/registry";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -8,9 +14,12 @@ const COMPONENTS_SRC = path.join(ROOT, "packages/components/src");
 const REGISTRY_OUT = path.join(ROOT, "registry");
 const ITEMS_OUT = path.join(REGISTRY_OUT, "items");
 const LIB_DIR = path.join(COMPONENTS_SRC, "lib");
+const RECIPES_SRC = path.join(ROOT, "packages/registry/src/recipes");
+const RECIPES_OUT = path.join(REGISTRY_OUT, "recipes");
 
 // Ensure output dirs exist
 fs.mkdirSync(ITEMS_OUT, { recursive: true });
+fs.mkdirSync(RECIPES_OUT, { recursive: true });
 
 interface SchemaFile {
 	category: string;
@@ -53,22 +62,27 @@ function findSchemaFiles(): SchemaFile[] {
 }
 
 /**
- * Parse and extract the schema object literal from a `.schema.ts` file.
- * @param filePath - Absolute path to the schema file
- * @returns The parsed schema object, or null if extraction fails
+ * Extract the first exported object-literal const from a source file. The
+ * authoring convention is `export const <x>Schema = { ... }` for
+ * components and `export const <x>Recipe = { ... }` for recipes; this
+ * helper finds either and balances braces (respecting strings/templates)
+ * to slice out the literal. The returned object is typed as `unknown`;
+ * callers must validate it through a Zod schema before use so the regex
+ * can never silently accept an incidental same-suffixed sibling export.
+ * @param filePath - Absolute path to the source file
+ * @returns The parsed object as `unknown`, or null if extraction fails
  */
-function extractSchemaObject(filePath: string): Record<string, unknown> | null {
+function extractObjectLiteral(filePath: string): unknown {
 	const content = fs.readFileSync(filePath, "utf-8");
 
-	// Find the start of the exported schema object: `export const <name>Schema[...] = {`
-	const start = content.search(/export\s+const\s+\w+Schema[^=]*=\s*\{/);
+	// Require the suffix to be at a word boundary so `fooSchemaHelper = ...`
+	// won't match. `(?![a-zA-Z0-9_])` rejects any trailing identifier char.
+	const start = content.search(/export\s+const\s+\w+(?:Schema|Recipe)(?![a-zA-Z0-9_])[^=]*=\s*\{/);
 	if (start === -1) return null;
 
-	// Find the opening brace after the `=`
 	const braceOpen = content.indexOf("{", start);
 	if (braceOpen === -1) return null;
 
-	// Walk forward counting braces (ignoring those inside strings/template literals) to find the matching close brace
 	let depth = 0;
 	let inString: '"' | "'" | "`" | null = null;
 	let escapeNext = false;
@@ -104,9 +118,9 @@ function extractSchemaObject(filePath: string): Record<string, unknown> | null {
 	const objStr = content.slice(braceOpen, end + 1);
 	try {
 		const fn = new Function(`return (${objStr})`);
-		return fn() as Record<string, unknown>;
+		return fn();
 	} catch (err) {
-		console.warn(`  Warning: Could not parse schema from ${filePath}`, err);
+		console.warn(`  Warning: Could not parse object from ${filePath}`, err);
 		return null;
 	}
 }
@@ -160,30 +174,53 @@ interface RegistryIndexItem {
 
 const indexItems: RegistryIndexItem[] = [];
 
+/**
+ * Map of compiled components keyed by slug. Recipe compilation reads from
+ * this map to derive checklist items from each step's `ai.commonMistakes`
+ * and `ai.accessibilityNotes`, so recipes stay consistent with the live
+ * component metadata without the author copying any strings by hand.
+ */
+interface CompiledComponent {
+	name: string;
+	displayName: string;
+	commonMistakes: string[];
+	accessibilityNotes: string;
+}
+
+const componentsBySlug = new Map<string, CompiledComponent>();
+
 for (const sf of schemaFiles) {
 	console.log(`Processing: ${sf.name} (${sf.category})`);
 
-	const schema = extractSchemaObject(sf.schemaPath);
-	if (!schema) {
+	const raw = extractObjectLiteral(sf.schemaPath);
+	if (!raw) {
 		console.error(`  ERROR: Failed to parse schema for ${sf.name}`);
 		continue;
 	}
+
+	const parsed = componentSchemaDefinition.safeParse(raw);
+	if (!parsed.success) {
+		console.error(`  ERROR: Schema validation failed for ${sf.name}`);
+		console.error(`  ${parsed.error.message}`);
+		continue;
+	}
+	const schema: ComponentSchemaDefinition = parsed.data;
 
 	const componentSource = readComponentSource(sf.componentPath);
 
 	// Build the registry item
 	const registryItem = {
 		$schema: "https://hex-ui.dev/schema/registry-item.json",
-		name: schema.name as string,
-		displayName: schema.displayName as string,
-		description: schema.description as string,
-		category: schema.category as string,
-		subcategory: schema.subcategory as string | undefined,
+		name: schema.name,
+		displayName: schema.displayName,
+		description: schema.description,
+		category: schema.category,
+		subcategory: schema.subcategory,
 		version: "0.1.0",
 		framework: "react" as const,
-		props: schema.props ?? [],
-		variants: schema.variants ?? [],
-		slots: schema.slots ?? [],
+		props: schema.props,
+		variants: schema.variants,
+		slots: schema.slots,
 		files: [
 			{
 				path: `components/ui/${sf.name}.tsx`,
@@ -192,11 +229,11 @@ for (const sf of schemaFiles) {
 			},
 			...libFiles,
 		],
-		dependencies: schema.dependencies ?? { npm: [], internal: [], peer: [] },
-		tokensUsed: schema.tokensUsed ?? [],
-		examples: schema.examples ?? [],
-		ai: schema.ai ?? {},
-		tags: (schema.tags as string[]) ?? [],
+		dependencies: schema.dependencies,
+		tokensUsed: schema.tokensUsed,
+		examples: schema.examples,
+		ai: schema.ai,
+		tags: schema.tags,
 	};
 
 	// Write individual registry item
@@ -204,19 +241,22 @@ for (const sf of schemaFiles) {
 	fs.writeFileSync(itemPath, JSON.stringify(registryItem, null, 2));
 	console.log(`  → ${path.relative(ROOT, itemPath)}`);
 
-	// Add to index
-	const ai = schema.ai as Record<string, unknown> | undefined;
-	const deps = schema.dependencies as Record<string, unknown> | undefined;
-
 	indexItems.push({
-		name: schema.name as string,
-		displayName: schema.displayName as string,
-		description: schema.description as string,
-		category: schema.category as string,
-		subcategory: schema.subcategory as string | undefined,
-		tags: (schema.tags as string[]) ?? [],
-		internalDeps: (deps?.internal as string[]) ?? [],
-		tokenBudget: ai?.tokenBudget as number | undefined,
+		name: schema.name,
+		displayName: schema.displayName,
+		description: schema.description,
+		category: schema.category,
+		subcategory: schema.subcategory,
+		tags: schema.tags,
+		internalDeps: schema.dependencies.internal,
+		tokenBudget: schema.ai.tokenBudget,
+	});
+
+	componentsBySlug.set(schema.name, {
+		name: schema.name,
+		displayName: schema.displayName,
+		commonMistakes: schema.ai.commonMistakes,
+		accessibilityNotes: schema.ai.accessibilityNotes,
 	});
 }
 
@@ -235,3 +275,149 @@ fs.writeFileSync(indexPath, JSON.stringify(registryIndex, null, 2));
 
 console.log(`\n✓ Registry built: ${indexItems.length} components`);
 console.log(`  Index: ${path.relative(ROOT, indexPath)}`);
+
+// ─── Recipes ───
+
+interface RecipeIndexEntry {
+	slug: string;
+	title: string;
+	summary: string;
+	tags: string[];
+	components: string[];
+	tokenBudget?: number;
+}
+
+/**
+ * Slug-ify an arbitrary string into a stable checklist-item id. Lowercases,
+ * keeps alphanumerics, replaces everything else with a hyphen, collapses
+ * runs of hyphens, and trims to avoid id collisions when two derived
+ * mistakes happen to start identically.
+ * @param input - Text to convert into a slug
+ * @returns A lowercase hyphenated slug (always non-empty, trimmed to 48 chars)
+ */
+function slugify(input: string): string {
+	const raw = input
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "")
+		.slice(0, 48);
+	return raw.length > 0 ? raw : "item";
+}
+
+console.log("\nBuilding Hex UI recipes...\n");
+
+const recipeIndex: RecipeIndexEntry[] = [];
+
+if (fs.existsSync(RECIPES_SRC)) {
+	const recipeFiles = fs
+		.readdirSync(RECIPES_SRC)
+		.filter((f) => f.endsWith(".recipe.ts"))
+		.sort();
+
+	for (const file of recipeFiles) {
+		const fullPath = path.join(RECIPES_SRC, file);
+		const raw = extractObjectLiteral(fullPath);
+		if (!raw) {
+			console.error(`  ERROR: Failed to parse recipe ${file}`);
+			continue;
+		}
+
+		const parsed = recipeSchemaDefinition.safeParse(raw);
+		if (!parsed.success) {
+			console.error(`  ERROR: Recipe validation failed for ${file}`);
+			console.error(`  ${parsed.error.message}`);
+			continue;
+		}
+		const recipe: RecipeDefinition = parsed.data;
+
+		// Validate every step references an existing component
+		const unknownSteps = recipe.steps.filter((s) => !componentsBySlug.has(s.component));
+		if (unknownSteps.length > 0) {
+			console.error(
+				`  ERROR: Recipe "${recipe.slug}" references unknown components: ${unknownSteps
+					.map((s) => s.component)
+					.join(", ")}`,
+			);
+			continue;
+		}
+
+		// Derive checklist items from each step's component metadata
+		const usedIds = new Set(recipe.checklist.map((c) => c.id));
+		const derived: RecipeDefinition["checklist"] = [];
+
+		for (const step of recipe.steps) {
+			const comp = componentsBySlug.get(step.component);
+			if (!comp) continue;
+
+			for (const mistake of comp.commonMistakes) {
+				const id = `${step.component}-${slugify(mistake)}`;
+				if (usedIds.has(id)) continue;
+				usedIds.add(id);
+				derived.push({
+					id,
+					check: `[${comp.displayName}] Avoid: ${mistake}`,
+					severity: "warn",
+					source: "derived-mistake",
+				});
+			}
+
+			const a11y = comp.accessibilityNotes;
+			if (a11y.trim().length > 0) {
+				const id = `${step.component}-a11y`;
+				if (!usedIds.has(id)) {
+					usedIds.add(id);
+					derived.push({
+						id,
+						check: `[${comp.displayName}] A11y: ${a11y}`,
+						severity: "warn",
+						source: "derived-a11y",
+					});
+				}
+			}
+		}
+
+		const compiled = {
+			$schema: "https://hex-ui.dev/schema/recipe.json",
+			slug: recipe.slug,
+			title: recipe.title,
+			summary: recipe.summary,
+			tags: recipe.tags,
+			brief: recipe.brief,
+			steps: recipe.steps,
+			checklist: [...recipe.checklist, ...derived],
+			example: recipe.example,
+			tokenBudget: recipe.tokenBudget,
+		};
+
+		const outPath = path.join(RECIPES_OUT, `${recipe.slug}.json`);
+		fs.writeFileSync(outPath, JSON.stringify(compiled, null, 2));
+		console.log(`  → ${path.relative(ROOT, outPath)}`);
+
+		recipeIndex.push({
+			slug: recipe.slug,
+			title: recipe.title,
+			summary: recipe.summary,
+			tags: recipe.tags,
+			components: recipe.steps.map((s) => s.component),
+			tokenBudget: recipe.tokenBudget,
+		});
+	}
+}
+
+const recipesIndexPath = path.join(REGISTRY_OUT, "recipes.json");
+fs.writeFileSync(
+	recipesIndexPath,
+	JSON.stringify(
+		{
+			$schema: "https://hex-ui.dev/schema/recipes.json",
+			name: "hex-ui",
+			version: "0.1.0",
+			items: recipeIndex,
+		},
+		null,
+		2,
+	),
+);
+
+console.log(`\n✓ Recipes built: ${recipeIndex.length} recipes`);
+console.log(`  Index: ${path.relative(ROOT, recipesIndexPath)}`);

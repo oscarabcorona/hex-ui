@@ -1,0 +1,216 @@
+{
+  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "slug": "auth-form",
+  "title": "Auth form",
+  "summary": "Login or signup form with validated fields, remember-me, submit button, and error alert.",
+  "tags": [
+    "auth",
+    "form",
+    "login",
+    "signup"
+  ],
+  "brief": "Build a login page with email + password, a remember-me checkbox, a submit button, and error display.",
+  "steps": [
+    {
+      "component": "form",
+      "reason": "React Hook Form + zod integration wrapper",
+      "role": "primary"
+    },
+    {
+      "component": "label",
+      "reason": "Accessible labels for each field",
+      "role": "supporting"
+    },
+    {
+      "component": "input",
+      "reason": "Email and password fields",
+      "role": "supporting"
+    },
+    {
+      "component": "checkbox",
+      "reason": "Remember-me toggle",
+      "role": "supporting"
+    },
+    {
+      "component": "button",
+      "reason": "Submit CTA",
+      "role": "primary"
+    },
+    {
+      "component": "alert",
+      "reason": "Inline error surface for failed sign-in",
+      "role": "optional"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "password-input-type",
+      "check": "Password field sets type='password' and autoComplete='current-password'.",
+      "severity": "blocker",
+      "source": "author"
+    },
+    {
+      "id": "submit-pending-state",
+      "check": "Submit button uses loading prop while the request is in flight.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "form-forgetting-to-spread-field-into-the-form-control",
+      "check": "[Form] Avoid: Forgetting to spread {...field} into the form control (connects value/onChange)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-putting-formlabel-outside-formitem-loses-htmlfor",
+      "check": "[Form] Avoid: Putting FormLabel outside FormItem (loses htmlFor wiring)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-using-useform-without-a-resolver-when-zod-valida",
+      "check": "[Form] Avoid: Using useForm without a resolver when zod validation is desired",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-calling-form-handlesubmit-without-a-callback",
+      "check": "[Form] Avoid: Calling form.handleSubmit without a callback",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-a11y",
+      "check": "[Form] A11y: FormControl automatically wires id, aria-describedby, and aria-invalid. FormLabel uses htmlFor matching the control id. Errors are announced via FormMessage with matching aria-describedby.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "label-forgetting-to-set-htmlfor-matching-the-input-s-i",
+      "check": "[Label] Avoid: Forgetting to set htmlFor matching the input's id",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-using-label-for-non-form-text-content",
+      "check": "[Label] Avoid: Using Label for non-form text content",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-nesting-interactive-elements-inside-label",
+      "check": "[Label] Avoid: Nesting interactive elements inside Label",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-a11y",
+      "check": "[Label] A11y: Clicking the label focuses the associated control. Automatically communicates the label to screen readers. Use htmlFor/id pairing, not nesting.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "input-missing-associated-label-element-for-accessibili",
+      "check": "[Input] Avoid: Missing associated Label element for accessibility",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-using-type-number-without-min-max-constraints",
+      "check": "[Input] Avoid: Using type='number' without min/max constraints",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-not-providing-placeholder-text-for-context",
+      "check": "[Input] Avoid: Not providing placeholder text for context",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-a11y",
+      "check": "[Input] A11y: Always pair with a Label using htmlFor/id. Consider aria-describedby for helper text or error messages.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "checkbox-missing-label-pairing",
+      "check": "[Checkbox] Avoid: Missing Label pairing",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "checkbox-using-onchange-instead-of-oncheckedchange",
+      "check": "[Checkbox] Avoid: Using onChange instead of onCheckedChange",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "checkbox-forgetting-that-oncheckedchange-can-receive-inde",
+      "check": "[Checkbox] Avoid: Forgetting that onCheckedChange can receive 'indeterminate' as well as boolean",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "checkbox-a11y",
+      "check": "[Checkbox] A11y: Always pair with Label via htmlFor/id. Radix handles aria-checked automatically.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "button-using-destructive-variant-for-non-destructive-ac",
+      "check": "[Button] Avoid: Using 'destructive' variant for non-destructive actions",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-nesting-interactive-elements-inside-aschild-butt",
+      "check": "[Button] Avoid: Nesting interactive elements inside asChild button",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-missing-aria-label-when-using-icon-only-size-ico",
+      "check": "[Button] Avoid: Missing aria-label when using icon-only size='icon' variant",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-using-onclick-for-navigation-instead-of-aschild-",
+      "check": "[Button] Avoid: Using onClick for navigation instead of asChild with a link",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-a11y",
+      "check": "[Button] A11y: Automatically handles focus ring, disabled state, and aria attributes. Icon-only buttons MUST have aria-label. Loading state automatically sets disabled.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "alert-using-destructive-for-non-error-messages",
+      "check": "[Alert] Avoid: Using destructive for non-error messages",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "alert-missing-alerttitle-reduces-scannability",
+      "check": "[Alert] Avoid: Missing AlertTitle (reduces scannability)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "alert-stacking-multiple-alerts-on-the-same-page-instea",
+      "check": "[Alert] Avoid: Stacking multiple Alerts on the same page instead of grouping",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "alert-a11y",
+      "check": "[Alert] A11y: Root renders role='alert' so screen readers announce it. For non-urgent info banners consider role='status' or aria-live='polite' via className overrides.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    }
+  ],
+  "tokenBudget": 2400
+}

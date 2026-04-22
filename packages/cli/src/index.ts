@@ -32,4 +32,27 @@ program
 		await initProject(options);
 	});
 
+const recipe = program
+	.command("recipe")
+	.description("Work with Hex UI recipes (spec-driven blueprints: auth-form, settings-page, ...)");
+
+recipe
+	.command("list")
+	.description("List all available recipes")
+	.action(async () => {
+		const { listRecipes } = await import("./commands/recipe.js");
+		await listRecipes();
+	});
+
+recipe
+	.command("add")
+	.description("Install every component in a recipe, then print its checklist")
+	.argument("<slug>", "Recipe slug (e.g. auth-form, settings-page)")
+	.option("-y, --yes", "Skip confirmation prompts", false)
+	.option("-o, --overwrite", "Overwrite existing files", false)
+	.action(async (slug: string, options: { yes: boolean; overwrite: boolean }) => {
+		const { addRecipe } = await import("./commands/recipe.js");
+		await addRecipe(slug, options);
+	});
+
 program.parse();

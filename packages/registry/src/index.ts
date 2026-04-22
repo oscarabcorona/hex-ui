@@ -33,3 +33,22 @@ export type {
 	UsageExample,
 	Variant,
 } from "./schema.js";
+
+export {
+	recipeChecklistItemSchema,
+	recipeIndexItemSchema,
+	recipeIndexSchema,
+	recipeSchema,
+	recipeSchemaDefinition,
+	recipeStepSchema,
+	SLUG_REGEX,
+} from "./recipe-schema.js";
+
+export type {
+	Recipe,
+	RecipeChecklistItem,
+	RecipeDefinition,
+	RecipeIndex,
+	RecipeIndexItem,
+	RecipeStep,
+} from "./recipe-schema.js";

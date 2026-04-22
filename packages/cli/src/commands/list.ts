@@ -1,26 +1,5 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
-import { fileURLToPath } from "node:url";
-
-/**
- * Locate the registry index JSON file by searching known candidate paths.
- * @returns The absolute path to registry.json, or null if not found
- */
-function findRegistryIndex(): string | null {
-	const candidates = [
-		path.resolve(
-			path.dirname(fileURLToPath(import.meta.url)),
-			"../../../../registry/registry.json",
-		),
-		path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../registry/registry.json"),
-		path.resolve(process.cwd(), "registry/registry.json"),
-	];
-
-	for (const candidate of candidates) {
-		if (fs.existsSync(candidate)) return candidate;
-	}
-	return null;
-}
+import { findRegistryIndex } from "../lib/registry-dir.js";
 
 /**
  * Print all available components grouped by category to stdout.

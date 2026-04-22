@@ -90,11 +90,12 @@ function Hero({ componentCount }: { componentCount: number }) {
 				id="hero-title"
 				className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
 			>
-				Component library, built for AI agents and humans.
+				The component layer for spec-driven UI.
 			</h1>
 			<p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
 				Hex UI ships production-grade Radix + Tailwind components with machine-readable
-				schemas. Browse the catalog, copy the code, or install via the MCP server.
+				schemas and recipes. Hand your agent a brief — Hex UI resolves it to a ranked
+				component checklist over MCP, no server required.
 			</p>
 			<div className="mt-10 flex flex-wrap items-center justify-center gap-3">
 				<Link

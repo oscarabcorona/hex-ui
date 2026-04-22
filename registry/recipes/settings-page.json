@@ -1,0 +1,268 @@
+{
+  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "slug": "settings-page",
+  "title": "Settings page",
+  "summary": "Multi-section settings screen with grouped cards, labeled form fields, toggles, and a save action per section.",
+  "tags": [
+    "settings",
+    "preferences",
+    "account",
+    "form"
+  ],
+  "brief": "Build a settings page grouped into cards (profile, notifications, security) with text inputs, a select, and switches. Each section has its own save button.",
+  "steps": [
+    {
+      "component": "card",
+      "reason": "Visual grouping for each settings section",
+      "role": "primary"
+    },
+    {
+      "component": "separator",
+      "reason": "Divider between card header and body",
+      "role": "supporting"
+    },
+    {
+      "component": "form",
+      "reason": "Validation + accessibility for each section",
+      "role": "primary"
+    },
+    {
+      "component": "label",
+      "reason": "Field labels wired to inputs",
+      "role": "supporting"
+    },
+    {
+      "component": "input",
+      "reason": "Text fields (name, email, etc.)",
+      "role": "supporting"
+    },
+    {
+      "component": "select",
+      "reason": "Dropdown for enumerated options (timezone, language)",
+      "role": "supporting"
+    },
+    {
+      "component": "switch",
+      "reason": "On/off settings (notifications, dark mode)",
+      "role": "supporting"
+    },
+    {
+      "component": "button",
+      "reason": "Per-section save actions",
+      "role": "primary"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "per-section-dirty-state",
+      "check": "Save button is disabled until the section's form is dirty.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "switch-not-checkbox",
+      "check": "Binary settings use Switch, not Checkbox (Switch = immediate effect).",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "card-nesting-cards",
+      "check": "[Card] Avoid: Nesting cards",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "card-using-card-when-a-simple-div-with-border-would-s",
+      "check": "[Card] Avoid: Using Card when a simple div with border would suffice",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "card-forgetting-cardcontent-padding-when-placing-form",
+      "check": "[Card] Avoid: Forgetting CardContent padding when placing forms inside",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "card-a11y",
+      "check": "[Card] A11y: Card is a div by default. Add role='region' and aria-label for landmark cards. CardTitle renders h3 — ensure heading hierarchy.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "separator-using-as-spacing-instead-of-semantic-separation",
+      "check": "[Separator] Avoid: Using as spacing instead of semantic separation",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "separator-forgetting-orientation-vertical-needs-parent-hei",
+      "check": "[Separator] Avoid: Forgetting orientation='vertical' needs parent height",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "separator-a11y",
+      "check": "[Separator] A11y: Set decorative=false if the separator conveys semantic meaning. Radix handles role='separator'.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "form-forgetting-to-spread-field-into-the-form-control",
+      "check": "[Form] Avoid: Forgetting to spread {...field} into the form control (connects value/onChange)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-putting-formlabel-outside-formitem-loses-htmlfor",
+      "check": "[Form] Avoid: Putting FormLabel outside FormItem (loses htmlFor wiring)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-using-useform-without-a-resolver-when-zod-valida",
+      "check": "[Form] Avoid: Using useForm without a resolver when zod validation is desired",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-calling-form-handlesubmit-without-a-callback",
+      "check": "[Form] Avoid: Calling form.handleSubmit without a callback",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "form-a11y",
+      "check": "[Form] A11y: FormControl automatically wires id, aria-describedby, and aria-invalid. FormLabel uses htmlFor matching the control id. Errors are announced via FormMessage with matching aria-describedby.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "label-forgetting-to-set-htmlfor-matching-the-input-s-i",
+      "check": "[Label] Avoid: Forgetting to set htmlFor matching the input's id",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-using-label-for-non-form-text-content",
+      "check": "[Label] Avoid: Using Label for non-form text content",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-nesting-interactive-elements-inside-label",
+      "check": "[Label] Avoid: Nesting interactive elements inside Label",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "label-a11y",
+      "check": "[Label] A11y: Clicking the label focuses the associated control. Automatically communicates the label to screen readers. Use htmlFor/id pairing, not nesting.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "input-missing-associated-label-element-for-accessibili",
+      "check": "[Input] Avoid: Missing associated Label element for accessibility",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-using-type-number-without-min-max-constraints",
+      "check": "[Input] Avoid: Using type='number' without min/max constraints",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-not-providing-placeholder-text-for-context",
+      "check": "[Input] Avoid: Not providing placeholder text for context",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "input-a11y",
+      "check": "[Input] A11y: Always pair with a Label using htmlFor/id. Consider aria-describedby for helper text or error messages.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "select-missing-label-pairing",
+      "check": "[Select] Avoid: Missing Label pairing",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "select-forgetting-selectvalue-inside-selecttrigger",
+      "check": "[Select] Avoid: Forgetting SelectValue inside SelectTrigger",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "select-using-select-when-the-list-is-large-use-combobox",
+      "check": "[Select] Avoid: Using Select when the list is large (use Combobox)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "select-putting-non-selectitem-children-inside-selectcon",
+      "check": "[Select] Avoid: Putting non-SelectItem children inside SelectContent",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "select-a11y",
+      "check": "[Select] A11y: Full keyboard nav: arrow keys, Home, End, typeahead, Escape to close. Radix handles role='combobox' on trigger, role='listbox' on content, aria-selected on items.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "switch-using-for-form-fields-that-need-explicit-submit",
+      "check": "[Switch] Avoid: Using for form fields that need explicit submit",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "switch-missing-label",
+      "check": "[Switch] Avoid: Missing Label",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "switch-a11y",
+      "check": "[Switch] A11y: Always pair with Label. Radix handles role='switch' and aria-checked.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "button-using-destructive-variant-for-non-destructive-ac",
+      "check": "[Button] Avoid: Using 'destructive' variant for non-destructive actions",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-nesting-interactive-elements-inside-aschild-butt",
+      "check": "[Button] Avoid: Nesting interactive elements inside asChild button",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-missing-aria-label-when-using-icon-only-size-ico",
+      "check": "[Button] Avoid: Missing aria-label when using icon-only size='icon' variant",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-using-onclick-for-navigation-instead-of-aschild-",
+      "check": "[Button] Avoid: Using onClick for navigation instead of asChild with a link",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-a11y",
+      "check": "[Button] A11y: Automatically handles focus ring, disabled state, and aria attributes. Icon-only buttons MUST have aria-label. Loading state automatically sets disabled.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    }
+  ],
+  "tokenBudget": 3200
+}

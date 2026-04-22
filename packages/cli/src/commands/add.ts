@@ -1,23 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
-
-/**
- * Locate the registry directory by searching known candidate paths.
- * @returns The absolute path to the registry directory, or null if not found
- */
-function findRegistryDir(): string | null {
-	const candidates = [
-		path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../registry"),
-		path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../registry"),
-		path.resolve(process.cwd(), "registry"),
-	];
-
-	for (const candidate of candidates) {
-		if (fs.existsSync(candidate)) return candidate;
-	}
-	return null;
-}
+import { SLUG_REGEX } from "@hex-ui/registry";
+import { findRegistryDir } from "../lib/registry-dir.js";
 
 /**
  * Add one or more components from the registry into the current project.
@@ -37,10 +21,9 @@ export async function addComponents(
 	}
 
 	const cwd = process.cwd();
-	const SAFE_NAME = /^[a-z][a-z0-9-]*$/;
 
 	for (const name of components) {
-		if (!SAFE_NAME.test(name)) {
+		if (!SLUG_REGEX.test(name)) {
 			console.error(`Invalid component name: "${name}"`);
 			continue;
 		}

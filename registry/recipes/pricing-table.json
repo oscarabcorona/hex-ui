@@ -1,0 +1,175 @@
+{
+  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "slug": "pricing-table",
+  "title": "Pricing table",
+  "summary": "Three-tier pricing grid with a highlighted plan, feature list per tier, CTAs, and tooltips for advanced features.",
+  "tags": [
+    "pricing",
+    "marketing",
+    "saas",
+    "landing"
+  ],
+  "brief": "Build a marketing pricing section with three plans side-by-side. Highlight the middle (recommended) plan. Each plan has a title, price, a list of features, and a CTA button. Hovering a feature with an 'info' hint shows a tooltip.",
+  "steps": [
+    {
+      "component": "card",
+      "reason": "Container for each pricing tier",
+      "role": "primary"
+    },
+    {
+      "component": "badge",
+      "reason": "'Recommended' flag on the highlighted tier",
+      "role": "supporting"
+    },
+    {
+      "component": "separator",
+      "reason": "Divides header from feature list",
+      "role": "supporting"
+    },
+    {
+      "component": "tooltip",
+      "reason": "Progressive disclosure for nuanced feature descriptions",
+      "role": "optional"
+    },
+    {
+      "component": "button",
+      "reason": "Per-tier conversion CTA",
+      "role": "primary"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "recommended-visual-emphasis",
+      "check": "Recommended tier has visible emphasis (border or ring) plus the badge.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "cta-aria-label",
+      "check": "CTA button's aria-label names the plan (e.g. 'Choose Pro') when text is generic.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "card-nesting-cards",
+      "check": "[Card] Avoid: Nesting cards",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "card-using-card-when-a-simple-div-with-border-would-s",
+      "check": "[Card] Avoid: Using Card when a simple div with border would suffice",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "card-forgetting-cardcontent-padding-when-placing-form",
+      "check": "[Card] Avoid: Forgetting CardContent padding when placing forms inside",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "card-a11y",
+      "check": "[Card] A11y: Card is a div by default. Add role='region' and aria-label for landmark cards. CardTitle renders h3 — ensure heading hierarchy.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "badge-using-destructive-variant-for-non-error-states",
+      "check": "[Badge] Avoid: Using destructive variant for non-error states",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "badge-badge-text-too-long",
+      "check": "[Badge] Avoid: Badge text too long",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "badge-a11y",
+      "check": "[Badge] A11y: Purely decorative by default. Add role='status' for dynamic status badges.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "separator-using-as-spacing-instead-of-semantic-separation",
+      "check": "[Separator] Avoid: Using as spacing instead of semantic separation",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "separator-forgetting-orientation-vertical-needs-parent-hei",
+      "check": "[Separator] Avoid: Forgetting orientation='vertical' needs parent height",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "separator-a11y",
+      "check": "[Separator] A11y: Set decorative=false if the separator conveys semantic meaning. Radix handles role='separator'.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "tooltip-forgetting-tooltipprovider-at-the-app-root",
+      "check": "[Tooltip] Avoid: Forgetting TooltipProvider at the app root",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "tooltip-tooltip-content-too-long-keep-it-under-one-line",
+      "check": "[Tooltip] Avoid: Tooltip content too long (keep it under one line)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "tooltip-using-tooltip-as-the-only-label-for-icon-buttons",
+      "check": "[Tooltip] Avoid: Using Tooltip as the only label for icon buttons (still add aria-label)",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "tooltip-triggering-tooltips-on-non-interactive-elements",
+      "check": "[Tooltip] Avoid: Triggering tooltips on non-interactive elements",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "tooltip-a11y",
+      "check": "[Tooltip] A11y: Triggers on focus and hover. Radix sets role='tooltip' and aria-describedby. Still pair icon buttons with aria-label since tooltips don't announce on touch.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "button-using-destructive-variant-for-non-destructive-ac",
+      "check": "[Button] Avoid: Using 'destructive' variant for non-destructive actions",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-nesting-interactive-elements-inside-aschild-butt",
+      "check": "[Button] Avoid: Nesting interactive elements inside asChild button",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-missing-aria-label-when-using-icon-only-size-ico",
+      "check": "[Button] Avoid: Missing aria-label when using icon-only size='icon' variant",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-using-onclick-for-navigation-instead-of-aschild-",
+      "check": "[Button] Avoid: Using onClick for navigation instead of asChild with a link",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "button-a11y",
+      "check": "[Button] A11y: Automatically handles focus ring, disabled state, and aria attributes. Icon-only buttons MUST have aria-label. Loading state automatically sets disabled.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    }
+  ],
+  "tokenBudget": 1800
+}

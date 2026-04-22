@@ -35,6 +35,18 @@ hex add button input dialog
 
 Prints every component in the registry grouped by category.
 
+### `hex recipe list`
+
+Lists every available spec-driven recipe (auth form, settings page, pricing table, data table view, destructive confirm, command palette) with summary and component list.
+
+### `hex recipe add <slug>`
+
+Runs `hex add` for every component in the recipe in order, then prints the post-install checklist as plain markdown — paste it into a PR body or feed it to an agent.
+
+```bash
+hex recipe add settings-page
+```
+
 ## How it works
 
 The CLI reads the public registry JSON at build time, writes component source into your project, and reports the npm peer-deps you need to install (Radix primitives, `class-variance-authority`, etc.). You get full ownership of the code — future CLI upgrades never overwrite your edits unless you re-run `add`.
