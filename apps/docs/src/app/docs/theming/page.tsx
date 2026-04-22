@@ -62,6 +62,7 @@ export default function ThemingPage() {
 			title="Theming"
 			description="Hex UI ships with an HSL token palette that flips cleanly between light and dark. Every token is a CSS custom property you can override."
 			sections={SECTIONS}
+			editPath="apps/docs/src/app/docs/theming/page.tsx"
 		>
 			<DocSection id="tokens" title="Design tokens">
 				<p className="text-sm leading-6">

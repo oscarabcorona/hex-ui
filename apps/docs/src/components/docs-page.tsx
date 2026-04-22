@@ -17,6 +17,8 @@ interface DocsPageProps {
 	crumbs?: readonly Crumb[];
 	/** Ordered sections for the right-rail TOC. */
 	sections: readonly TocSection[];
+	/** Repo-relative source path for the "Edit on GitHub" link. */
+	editPath?: string;
 	children: ReactNode;
 }
 
@@ -25,7 +27,15 @@ interface DocsPageProps {
  * faq, intro). Handles breadcrumb, heading block, right-rail TOC, and prev/next
  * footer so each content page can focus on prose.
  */
-export function DocsPage({ pathname, title, description, crumbs, sections, children }: DocsPageProps) {
+export function DocsPage({
+	pathname,
+	title,
+	description,
+	crumbs,
+	sections,
+	editPath,
+	children,
+}: DocsPageProps) {
 	const trail: Crumb[] = [
 		{ label: "Docs", href: "/docs" },
 		...(crumbs ?? []),
@@ -46,7 +56,7 @@ export function DocsPage({ pathname, title, description, crumbs, sections, child
 
 					<div className="space-y-10">{children}</div>
 
-					<DocsFooter pathname={pathname} />
+					<DocsFooter pathname={pathname} editPath={editPath} />
 				</div>
 			</main>
 			<OnThisPage sections={sections} />

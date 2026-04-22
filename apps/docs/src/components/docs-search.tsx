@@ -3,6 +3,7 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { useDocsSearch } from "../lib/use-docs-search";
 import type { SearchResult } from "../lib/search";
+import { SearchHighlight } from "./search-highlight";
 
 /**
  * Global command palette. Pure presentation — all logic lives in
@@ -77,6 +78,7 @@ export function DocsSearch() {
 								<ResultRow
 									key={r.name}
 									result={r}
+									query={s.query}
 									highlighted={i === s.highlighted}
 									onHover={() => s.onResultHover(i)}
 									onPick={() => s.navigate(r)}
@@ -125,11 +127,13 @@ function EmptyStateSuggestions({
 /** One result row in the palette. */
 function ResultRow({
 	result,
+	query,
 	highlighted,
 	onHover,
 	onPick,
 }: {
 	result: SearchResult;
+	query: string;
 	highlighted: boolean;
 	onHover: () => void;
 	onPick: () => void;
@@ -145,13 +149,15 @@ function ResultRow({
 				}`}
 			>
 				<span className="flex w-full items-center justify-between gap-2 text-sm font-medium">
-					<span>{result.displayName}</span>
+					<span>
+						<SearchHighlight text={result.displayName} query={query} />
+					</span>
 					<span className="text-[10px] uppercase tracking-wide text-muted-foreground">
 						{result.category}
 					</span>
 				</span>
 				<span className="line-clamp-1 text-xs text-muted-foreground">
-					{result.description}
+					<SearchHighlight text={result.description} query={query} />
 				</span>
 			</button>
 		</li>

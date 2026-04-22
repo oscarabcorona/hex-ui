@@ -1,4 +1,5 @@
 import { codeToHtml } from "shiki";
+import { SHIKI_THEMES } from "../lib/ui-tokens";
 import { CodeBlockCopy } from "./code-block-copy";
 
 type SupportedLang = "bash" | "ts" | "tsx" | "json" | "css";
@@ -45,7 +46,7 @@ export async function CodeBlock({
 	const lang = resolveLang(label, language);
 	const html = await codeToHtml(code, {
 		lang,
-		themes: { light: "github-light", dark: "github-dark" },
+		themes: SHIKI_THEMES,
 		defaultColor: false,
 	});
 	const displayLabel = label ?? lang;

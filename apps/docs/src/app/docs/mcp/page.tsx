@@ -43,6 +43,7 @@ export default function McpPage() {
 			title="MCP Server"
 			description="The Hex UI MCP server exposes the component registry as structured tool calls. Install once and let your AI agent pick the right primitive."
 			sections={SECTIONS}
+			editPath="apps/docs/src/app/docs/mcp/page.tsx"
 		>
 			<DocSection id="why" title="Why MCP?">
 				<p className="text-sm leading-6">
