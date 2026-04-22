@@ -35,6 +35,7 @@ export type {
 } from "./schema.js";
 
 export {
+	internalDepToSlug,
 	recipeChecklistItemSchema,
 	recipeIndexItemSchema,
 	recipeIndexSchema,

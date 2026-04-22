@@ -95,7 +95,7 @@ function Hero({ componentCount }: { componentCount: number }) {
 			<p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
 				Hex UI ships production-grade Radix + Tailwind components with machine-readable
 				schemas and recipes. Hand your agent a brief — Hex UI resolves it to a ranked
-				component checklist over MCP, no server required.
+				component checklist over MCP, no runtime service required.
 			</p>
 			<div className="mt-10 flex flex-wrap items-center justify-center gap-3">
 				<Link

@@ -8,6 +8,24 @@ import { z } from "zod";
 export const SLUG_REGEX = /^[a-z][a-z0-9-]*$/;
 
 /**
+ * Translate an internal dependency path ("components/command/command",
+ * "primitives/button/button") into its component slug. Returns null for
+ * non-component internal deps such as "lib/utils" so callers can skip
+ * them in dependency-completeness checks. Shared across MCP server and
+ * CLI so both use the same translation.
+ * @param dep - Internal dependency path as stored in registry items
+ * @returns The component slug, or null when the path doesn't name a component
+ */
+export function internalDepToSlug(dep: string): string | null {
+	const segments = dep.split("/");
+	if (segments.length !== 3) return null;
+	const [top] = segments;
+	if (top !== "components" && top !== "primitives" && top !== "blocks") return null;
+	const slug = segments[2];
+	return SLUG_REGEX.test(slug) ? slug : null;
+}
+
+/**
  * One ordered step inside a recipe. Each step points at an existing component
  * slug in the registry; the resolver rejects recipes that reference unknown
  * slugs so a compiled recipe can never drift from the component catalog.

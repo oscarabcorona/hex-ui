@@ -88,13 +88,32 @@ function getComponentAi(name: string): ComponentAiMeta {
 }
 
 /**
+ * Split text into a Set of lowercase alphanumeric words. Used by the
+ * scoring functions so "and" can't substring-match "command" and "board"
+ * can't substring-match "keyboard". Same tokenization rules as `tokenize`
+ * — only the dedup shape differs (Set vs ordered array).
+ * @param text - Arbitrary text to split
+ * @returns Set of lowercase words (each length >= 1)
+ */
+function wordSet(text: string): Set<string> {
+	return new Set(
+		text
+			.toLowerCase()
+			.split(/[^a-z0-9]+/)
+			.filter((w) => w.length > 0),
+	);
+}
+
+/**
  * Score a single registry index item against the brief's tokens.
  * Weighting favors structural signals (name, tags) over prose (description)
  * because an agent's brief almost always contains the component's tag
  * vocabulary ("form", "dialog") before it contains prose phrasing. Each
  * token contributes at most one match reason (the highest-weight hit),
  * so a component with "form" in name + tags + description still scores +10
- * for that token, not +14.
+ * for that token, not +14. Matches are word-boundary only — `name` is
+ * compared token-equal, every other field is tokenized into a word set —
+ * so short tokens like "and" cannot substring-match "command".
  * @param item - Registry index entry to score
  * @param tokens - Brief tokens produced by `tokenize`
  * @returns Aggregate score and a list of per-token match reasons
@@ -107,8 +126,9 @@ function scoreComponent(item: RegistryIndexItemLike, tokens: string[]): {
 	let score = 0;
 
 	const name = item.name.toLowerCase();
-	const display = item.displayName.toLowerCase();
-	const description = item.description.toLowerCase();
+	const nameWords = wordSet(item.name);
+	const displayWords = wordSet(item.displayName);
+	const descriptionWords = wordSet(item.description);
 	const tagSet = new Set(item.tags.map((t) => t.toLowerCase()));
 
 	for (const token of tokens) {
@@ -117,9 +137,9 @@ function scoreComponent(item: RegistryIndexItemLike, tokens: string[]): {
 			reasons.push(`name === "${token}"`);
 			continue;
 		}
-		if (name.includes(token)) {
+		if (nameWords.has(token)) {
 			score += 6;
-			reasons.push(`name contains "${token}"`);
+			reasons.push(`name contains word "${token}"`);
 			continue;
 		}
 		if (tagSet.has(token)) {
@@ -127,14 +147,14 @@ function scoreComponent(item: RegistryIndexItemLike, tokens: string[]): {
 			reasons.push(`tag matches "${token}"`);
 			continue;
 		}
-		if (display.includes(token)) {
+		if (displayWords.has(token)) {
 			score += 3;
-			reasons.push(`displayName contains "${token}"`);
+			reasons.push(`displayName contains word "${token}"`);
 			continue;
 		}
-		if (description.includes(token)) {
+		if (descriptionWords.has(token)) {
 			score += 1;
-			reasons.push(`description mentions "${token}"`);
+			reasons.push(`description mentions word "${token}"`);
 		}
 	}
 
@@ -142,11 +162,12 @@ function scoreComponent(item: RegistryIndexItemLike, tokens: string[]): {
 }
 
 /**
- * Score a recipe index entry against the brief's tokens. Recipe matches
- * use the same tokenization but weight slug + title + tags higher than
- * summary, and include a bonus when the recipe's authored `brief`
- * contains the same tokens (the `brief` acts as a regression test fixture
- * paired with the recipe).
+ * Score a recipe index entry against the brief's tokens. Uses the same
+ * word-boundary matching as `scoreComponent` — recipe slugs like
+ * "command-palette" are tokenized to {"command", "palette"}, so "and"
+ * from a brief cannot substring-match "command". Weighting favors slug +
+ * tags over title + summary because tags and slugs are deliberate
+ * vocabulary.
  * @param recipe - Recipe index entry to score
  * @param tokens - Brief tokens produced by `tokenize`
  * @returns Aggregate score and a list of per-token match reasons
@@ -161,15 +182,15 @@ function scoreRecipe(
 	const reasons: string[] = [];
 	let score = 0;
 
-	const slug = recipe.slug.toLowerCase();
-	const title = recipe.title.toLowerCase();
-	const summary = recipe.summary.toLowerCase();
+	const slugWords = wordSet(recipe.slug);
+	const titleWords = wordSet(recipe.title);
+	const summaryWords = wordSet(recipe.summary);
 	const tagSet = new Set(recipe.tags.map((t) => t.toLowerCase()));
 
 	for (const token of tokens) {
-		if (slug.includes(token)) {
+		if (slugWords.has(token)) {
 			score += 8;
-			reasons.push(`recipe slug contains "${token}"`);
+			reasons.push(`recipe slug contains word "${token}"`);
 			continue;
 		}
 		if (tagSet.has(token)) {
@@ -177,14 +198,14 @@ function scoreRecipe(
 			reasons.push(`recipe tag matches "${token}"`);
 			continue;
 		}
-		if (title.includes(token)) {
+		if (titleWords.has(token)) {
 			score += 4;
-			reasons.push(`recipe title contains "${token}"`);
+			reasons.push(`recipe title contains word "${token}"`);
 			continue;
 		}
-		if (summary.includes(token)) {
+		if (summaryWords.has(token)) {
 			score += 2;
-			reasons.push(`recipe summary mentions "${token}"`);
+			reasons.push(`recipe summary mentions word "${token}"`);
 		}
 	}
 

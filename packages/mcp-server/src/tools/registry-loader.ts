@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { SLUG_REGEX } from "@hex-ui/registry";
+import { internalDepToSlug, SLUG_REGEX } from "@hex-ui/registry";
 
-export { SLUG_REGEX };
+export { internalDepToSlug, SLUG_REGEX };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -108,19 +108,3 @@ export function loadRegistryItem(name: string): RegistryItem | null {
 	return JSON.parse(content);
 }
 
-/**
- * Translate an internal dependency path ("components/command/command",
- * "primitives/button/button") into its component slug. Returns null for
- * non-component internal deps such as "lib/utils" so callers can skip
- * them in dependency-completeness checks.
- * @param dep - Internal dependency path as stored in registry items
- * @returns The component slug, or null when the path doesn't name a component
- */
-export function internalDepToSlug(dep: string): string | null {
-	const segments = dep.split("/");
-	if (segments.length !== 3) return null;
-	const [top] = segments;
-	if (top !== "components" && top !== "primitives" && top !== "blocks") return null;
-	const slug = segments[2];
-	return SLUG_REGEX.test(slug) ? slug : null;
-}

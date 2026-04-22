@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { SLUG_REGEX } from "@hex-ui/registry";
+import { internalDepToSlug, SLUG_REGEX } from "@hex-ui/registry";
 import { findRegistryDir } from "../lib/registry-dir.js";
 
 /**
@@ -60,6 +60,26 @@ export async function addComponents(
 		if (deps?.npm?.length > 0) {
 			console.log(`\n  Dependencies: ${deps.npm.join(", ")}`);
 			console.log(`  Install: pnpm add ${deps.npm.join(" ")}`);
+		}
+
+		// Warn about internal component deps that the user has not also installed.
+		// hex add <slug> installs exactly one slug (not a transitive closure), so
+		// e.g. `hex add combobox` writes combobox.tsx whose imports reference
+		// `./command` and `./popover` that won't exist in the project yet. Rather
+		// than silently ship a broken file, point the user at the missing slugs.
+		const internalDeps: string[] = deps?.internal ?? [];
+		const missingInternalSlugs: string[] = [];
+		for (const dep of internalDeps) {
+			const depSlug = internalDepToSlug(dep);
+			if (!depSlug) continue;
+			const depPath = path.resolve(cwd, "components", "ui", `${depSlug}.tsx`);
+			if (!fs.existsSync(depPath)) missingInternalSlugs.push(depSlug);
+		}
+		if (missingInternalSlugs.length > 0) {
+			console.log(
+				`\n  Warning: ${name} imports ${missingInternalSlugs.length} internal component(s) that are not yet installed: ${missingInternalSlugs.join(", ")}`,
+			);
+			console.log(`  Install: hex add ${missingInternalSlugs.join(" ")}`);
 		}
 	}
 }
