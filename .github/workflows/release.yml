@@ -1,0 +1,66 @@
+name: Release
+
+# Disabled until the API stabilizes. Manual `workflow_dispatch` is the only
+# trigger for now — re-enable the `push` block below and seed a changeset
+# via `pnpm changeset` when we're ready to cut the first public release.
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Provenance requires an OIDC token; we also need to write to the repo for
+    # the "Version Packages" PR and read the git history.
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Build registry
+        run: pnpm run build:registry
+
+      # When there are pending changesets: opens / updates a "Version Packages" PR.
+      # When that PR merges (no changesets left): runs `pnpm release` which calls
+      # `changeset publish`, which publishes to npm with --provenance.
+      - name: Create release PR or publish
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+          version: pnpm version
+          commit: "chore(release): version packages"
+          title: "chore(release): version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

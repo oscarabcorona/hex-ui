@@ -1,7 +1,28 @@
 {
 	"name": "@hex-ui/components",
 	"version": "0.1.0",
-	"description": "Component source code for Hex UI",
+	"description": "AI-native React components for Hex UI — Radix UI + Tailwind CSS with machine-readable schemas.",
+	"keywords": [
+		"react",
+		"components",
+		"radix-ui",
+		"tailwind",
+		"mcp",
+		"ai-native",
+		"component-library",
+		"hex-ui"
+	],
+	"license": "MIT",
+	"author": "Hex UI",
+	"homepage": "https://hex-ui.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oscarabcorona/hex-ui.git",
+		"directory": "packages/components"
+	},
+	"bugs": {
+		"url": "https://github.com/oscarabcorona/hex-ui/issues"
+	},
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -11,12 +32,21 @@
 			"types": "./dist/index.d.ts"
 		}
 	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
 	"scripts": {
 		"build": "tsup",
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@hex-ui/registry": "workspace:*",
+		"@hex-ui/registry": "workspace:^",
 		"@radix-ui/react-accordion": "^1.2.12",
 		"@radix-ui/react-alert-dialog": "^1.1.15",
 		"@radix-ui/react-aspect-ratio": "^1.1.8",

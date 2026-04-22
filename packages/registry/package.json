@@ -1,7 +1,25 @@
 {
 	"name": "@hex-ui/registry",
 	"version": "0.1.0",
-	"description": "Zod schemas and types for the Hex UI component registry",
+	"description": "Zod schemas and types for the Hex UI component registry — shared between @hex-ui/components, cli, and mcp.",
+	"keywords": [
+		"hex-ui",
+		"registry",
+		"zod",
+		"schema",
+		"component-metadata"
+	],
+	"license": "MIT",
+	"author": "Hex UI",
+	"homepage": "https://hex-ui.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oscarabcorona/hex-ui.git",
+		"directory": "packages/registry"
+	},
+	"bugs": {
+		"url": "https://github.com/oscarabcorona/hex-ui/issues"
+	},
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -14,6 +32,15 @@
 			"import": "./dist/schema.js",
 			"types": "./dist/schema.d.ts"
 		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
 	},
 	"scripts": {
 		"build": "tsup",

@@ -1,7 +1,26 @@
 {
 	"name": "@hex-ui/tokens",
 	"version": "0.1.0",
-	"description": "Design token engine for Hex UI",
+	"description": "Design token engine for Hex UI — HSL tokens + typography scale shared between components and themes.",
+	"keywords": [
+		"hex-ui",
+		"tokens",
+		"design-tokens",
+		"tailwind",
+		"hsl",
+		"theme"
+	],
+	"license": "MIT",
+	"author": "Hex UI",
+	"homepage": "https://hex-ui.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oscarabcorona/hex-ui.git",
+		"directory": "packages/tokens"
+	},
+	"bugs": {
+		"url": "https://github.com/oscarabcorona/hex-ui/issues"
+	},
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -11,12 +30,21 @@
 			"types": "./dist/index.d.ts"
 		}
 	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
 	"scripts": {
 		"build": "tsup",
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@hex-ui/registry": "workspace:*",
+		"@hex-ui/registry": "workspace:^",
 		"zod": "^3.23.0"
 	},
 	"devDependencies": {
