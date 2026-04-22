@@ -70,6 +70,7 @@ export default function RootLayout({
 			lang="en"
 			className={`${geistSans.variable} ${geistMono.variable} scroll-smooth antialiased`}
 			style={{ colorScheme: "light dark" }}
+			data-scroll-behavior="smooth"
 			suppressHydrationWarning
 		>
 			<body className="min-h-screen bg-background font-sans">
