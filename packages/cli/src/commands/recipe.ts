@@ -99,7 +99,9 @@ export async function addRecipe(
 	console.log(`  ${recipe.summary}\n`);
 
 	const slugs = recipe.steps.map((s) => s.component);
-	await addComponents(slugs, options);
+	// Recipes are blueprints that list top-level components; pass deps: true so
+	// transitive internal deps (e.g. combobox → command + popover) install too.
+	await addComponents(slugs, { ...options, deps: true });
 
 	if (recipe.checklist.length > 0) {
 		console.log("\nPost-install checklist:");

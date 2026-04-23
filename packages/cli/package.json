@@ -26,6 +26,7 @@
 	},
 	"files": [
 		"dist",
+		"skills",
 		"README.md",
 		"LICENSE"
 	],
@@ -34,9 +35,10 @@
 		"provenance": true
 	},
 	"scripts": {
+		"prebuild": "rm -rf skills && cp -R ../../skills ./skills",
 		"build": "tsup",
 		"dev": "tsx src/index.ts",
-		"clean": "rm -rf dist"
+		"clean": "rm -rf dist skills"
 	},
 	"dependencies": {
 		"@hex-ui/registry": "workspace:^",

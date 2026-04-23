@@ -18,10 +18,16 @@ program
 	.argument("<components...>", "Component names to add")
 	.option("-y, --yes", "Skip confirmation prompts", false)
 	.option("-o, --overwrite", "Overwrite existing files", false)
-	.action(async (components: string[], options: { yes: boolean; overwrite: boolean }) => {
-		const { addComponents } = await import("./commands/add.js");
-		await addComponents(components, options);
-	});
+	.option("--no-deps", "Don't install internal component dependencies recursively")
+	.action(
+		async (
+			components: string[],
+			options: { yes: boolean; overwrite: boolean; deps: boolean },
+		) => {
+			const { addComponents } = await import("./commands/add.js");
+			await addComponents(components, options);
+		},
+	);
 
 program
 	.command("init")
@@ -53,6 +59,20 @@ recipe
 	.action(async (slug: string, options: { yes: boolean; overwrite: boolean }) => {
 		const { addRecipe } = await import("./commands/recipe.js");
 		await addRecipe(slug, options);
+	});
+
+const skills = program
+	.command("skills")
+	.description("Manage Hex UI agent skills (SKILL.md packs for Claude Code)");
+
+skills
+	.command("install")
+	.description("Copy Hex UI skills into .claude/skills/ (or a custom --target)")
+	.option("-t, --target <path>", "Target directory (default: .claude/skills/)")
+	.option("-o, --overwrite", "Replace existing skill directories", false)
+	.action(async (options: { target?: string; overwrite: boolean }) => {
+		const { installSkills } = await import("./commands/skills.js");
+		await installSkills(options);
 	});
 
 program.parse();

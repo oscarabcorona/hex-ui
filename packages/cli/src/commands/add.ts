@@ -3,83 +3,151 @@ import * as path from "node:path";
 import { internalDepToSlug, SLUG_REGEX } from "@hex-ui/registry";
 import { findRegistryDir } from "../lib/registry-dir.js";
 
+export interface AddOptions {
+	yes: boolean;
+	overwrite: boolean;
+	/** When true (default), also install internal component dependencies recursively. */
+	deps: boolean;
+}
+
+interface Context {
+	registryDir: string;
+	cwd: string;
+	options: AddOptions;
+	/** Slugs already processed in this invocation — prevents duplicate writes and infinite loops on future cyclic data. */
+	visited: Set<string>;
+}
+
+/**
+ * Copy a single registry item's files into the project. Writes are path-safe
+ * (no escape from cwd) and skip existing files unless `--overwrite`. Returns
+ * the slugs of internal component deps the item imports — the caller uses
+ * this to walk the dependency graph.
+ * @param name - Component slug to install
+ * @param ctx - Shared registry/cwd/options/visited context
+ * @returns Array of internal-dep slugs this item pulled in, or null on failure
+ */
+function installOne(name: string, ctx: Context): string[] | null {
+	if (!SLUG_REGEX.test(name)) {
+		console.error(`Invalid component name: "${name}"`);
+		return null;
+	}
+	if (ctx.visited.has(name)) return [];
+	ctx.visited.add(name);
+
+	const itemPath = path.join(ctx.registryDir, "items", `${name}.json`);
+	if (!fs.existsSync(itemPath)) {
+		console.error(`Component "${name}" not found.`);
+		return null;
+	}
+
+	const item = JSON.parse(fs.readFileSync(itemPath, "utf-8"));
+	console.log(`\nAdding ${item.displayName}...`);
+
+	const cwdPrefix = ctx.cwd.endsWith(path.sep) ? ctx.cwd : ctx.cwd + path.sep;
+	for (const file of item.files) {
+		const targetPath = path.resolve(ctx.cwd, file.path);
+		// Path-traversal guard: require the resolved target to live strictly under
+		// cwd. A bare `startsWith(ctx.cwd)` would accept "/Users/project-evil/x" as
+		// if it lived under "/Users/project" because the prefix matches without a
+		// separator. Appending the separator (or allowing equality) blocks that.
+		if (targetPath !== ctx.cwd && !targetPath.startsWith(cwdPrefix)) {
+			console.error(`  Skip: ${file.path} (path escapes project directory)`);
+			continue;
+		}
+		const targetDir = path.dirname(targetPath);
+
+		if (fs.existsSync(targetPath) && !ctx.options.overwrite) {
+			console.log(`  Skip: ${file.path} (already exists, use --overwrite)`);
+			continue;
+		}
+
+		fs.mkdirSync(targetDir, { recursive: true });
+		fs.writeFileSync(targetPath, file.content);
+		console.log(`  Write: ${file.path}`);
+	}
+
+	const deps = item.dependencies ?? {};
+	if (deps.npm?.length > 0) {
+		console.log(`\n  Dependencies: ${deps.npm.join(", ")}`);
+		console.log(`  Install: pnpm add ${deps.npm.join(" ")}`);
+	}
+
+	// Return every component slug this item depends on, regardless of whether
+	// it's already on disk. The caller (queue loop) uses `visited` +
+	// skip-if-exists to avoid redundant work; decoupling the dep list from disk
+	// state means `--no-deps` warnings stay accurate across re-runs and also
+	// matches what `verify_checklist` reports.
+	const internalSlugs: string[] = [];
+	for (const dep of (deps.internal ?? []) as string[]) {
+		const depSlug = internalDepToSlug(dep);
+		if (!depSlug) continue;
+		internalSlugs.push(depSlug);
+	}
+
+	return internalSlugs;
+}
+
 /**
  * Add one or more components from the registry into the current project.
+ * By default, also installs internal component dependencies recursively —
+ * e.g. `hex add combobox` pulls in `command` and `popover` too. Pass
+ * `deps: false` to skip transitive install (the CLI surfaces this as the
+ * `--no-deps` flag).
  * @param components - Array of component names to add
  * @param options - Configuration flags for the add operation
  * @param options.yes - Skip confirmation prompts
  * @param options.overwrite - Overwrite existing files instead of skipping
+ * @param options.deps - Install internal component dependencies recursively (default true)
  */
-export async function addComponents(
-	components: string[],
-	options: { yes: boolean; overwrite: boolean },
-) {
+export async function addComponents(components: string[], options: AddOptions): Promise<void> {
 	const registryDir = findRegistryDir();
 	if (!registryDir) {
 		console.error("Could not find registry.");
 		process.exit(1);
 	}
 
-	const cwd = process.cwd();
+	const ctx: Context = {
+		registryDir,
+		cwd: process.cwd(),
+		options,
+		visited: new Set(),
+	};
 
-	for (const name of components) {
-		if (!SLUG_REGEX.test(name)) {
-			console.error(`Invalid component name: "${name}"`);
-			continue;
-		}
+	const queue: string[] = [...components];
+	const pendingDeps: string[] = [];
 
-		const itemPath = path.join(registryDir, "items", `${name}.json`);
-		if (!fs.existsSync(itemPath)) {
-			console.error(`Component "${name}" not found.`);
-			continue;
-		}
+	while (queue.length > 0) {
+		const name = queue.shift();
+		if (!name) continue;
 
-		const item = JSON.parse(fs.readFileSync(itemPath, "utf-8"));
-		console.log(`\nAdding ${item.displayName}...`);
+		const internalDeps = installOne(name, ctx);
+		if (internalDeps === null) continue;
 
-		for (const file of item.files) {
-			const targetPath = path.resolve(cwd, file.path);
-			if (!targetPath.startsWith(cwd)) {
-				console.error(`  Skip: ${file.path} (path escapes project directory)`);
-				continue;
+		if (options.deps) {
+			// Transitive install: queue missing internal deps for the same pass.
+			for (const dep of internalDeps) {
+				if (!ctx.visited.has(dep)) queue.push(dep);
 			}
-			const targetDir = path.dirname(targetPath);
-
-			if (fs.existsSync(targetPath) && !options.overwrite) {
-				console.log(`  Skip: ${file.path} (already exists, use --overwrite)`);
-				continue;
-			}
-
-			fs.mkdirSync(targetDir, { recursive: true });
-			fs.writeFileSync(targetPath, file.content);
-			console.log(`  Write: ${file.path}`);
+		} else {
+			pendingDeps.push(...internalDeps);
 		}
+	}
 
-		// Show dependencies
-		const deps = item.dependencies;
-		if (deps?.npm?.length > 0) {
-			console.log(`\n  Dependencies: ${deps.npm.join(", ")}`);
-			console.log(`  Install: pnpm add ${deps.npm.join(" ")}`);
-		}
-
-		// Warn about internal component deps that the user has not also installed.
-		// hex add <slug> installs exactly one slug (not a transitive closure), so
-		// e.g. `hex add combobox` writes combobox.tsx whose imports reference
-		// `./command` and `./popover` that won't exist in the project yet. Rather
-		// than silently ship a broken file, point the user at the missing slugs.
-		const internalDeps: string[] = deps?.internal ?? [];
-		const missingInternalSlugs: string[] = [];
-		for (const dep of internalDeps) {
-			const depSlug = internalDepToSlug(dep);
-			if (!depSlug) continue;
-			const depPath = path.resolve(cwd, "components", "ui", `${depSlug}.tsx`);
-			if (!fs.existsSync(depPath)) missingInternalSlugs.push(depSlug);
-		}
-		if (missingInternalSlugs.length > 0) {
+	if (!options.deps && pendingDeps.length > 0) {
+		// Disk-aware filter at warning time: the user only wants to know about
+		// deps that aren't already present in their project. installOne returned
+		// the full registry list; now we narrow to actually-missing slugs.
+		const missingOnDisk = Array.from(new Set(pendingDeps)).filter((slug) => {
+			const p = path.resolve(ctx.cwd, "components", "ui", `${slug}.tsx`);
+			return !fs.existsSync(p);
+		});
+		if (missingOnDisk.length > 0) {
 			console.log(
-				`\n  Warning: ${name} imports ${missingInternalSlugs.length} internal component(s) that are not yet installed: ${missingInternalSlugs.join(", ")}`,
+				`\n  Warning: ${missingOnDisk.length} internal component(s) are not yet installed: ${missingOnDisk.join(", ")}`,
 			);
-			console.log(`  Install: hex add ${missingInternalSlugs.join(" ")}`);
+			console.log(`  Install: hex add ${missingOnDisk.join(" ")}`);
+			console.log(`  (or re-run without --no-deps to install them automatically)`);
 		}
 	}
 }

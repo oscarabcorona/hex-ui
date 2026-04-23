@@ -1,12 +1,16 @@
 /**
  * Resolver regression assertions. Runs as a standalone node script via
- * `pnpm -F @hex-ui/mcp test:resolver`. Lightweight — no test runner
+ * `pnpm -F \@hex-ui/mcp test:resolver`. Lightweight — no test runner
  * dependency — because the resolver is a pure function and a broken
  * scoring rule should fail loudly in a single file.
  *
  * Add a new case by appending to `CASES`. Each case fixes the expected
  * ranking for a brief; any future scoring change must either re-justify
  * the brief or update the case deliberately.
+ *
+ * All output (success AND failure) writes to stderr. Exit code is the
+ * machine-readable contract: 0 = pass, 1 = fail. Stdout is left empty
+ * so piping this into another command stays clean.
  */
 import { resolveSpec } from "./resolver.js";
 
@@ -85,4 +89,4 @@ if (failures.length > 0) {
 	process.exit(1);
 }
 
-console.log(`resolver: ${CASES.length} cases passed`);
+console.error(`resolver: ${CASES.length} cases passed`);

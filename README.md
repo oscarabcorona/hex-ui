@@ -85,6 +85,16 @@ npx @hex-ui/cli recipe add settings-page
 
 Or from an MCP client: ask *"Resolve this spec into hex-ui components: build a settings page with notifications toggle"* — `resolve_spec` returns the `settings-page` recipe and a ranked component shortlist.
 
+## Skills (for Claude Code)
+
+Hex UI ships eight prose context packs in `SKILL.md` format — overview, MCP tools decision tree, recipes workflow, theming, CLI, a11y, anti-patterns, registry authoring. Install in one command:
+
+```bash
+npx @hex-ui/cli skills install
+```
+
+This copies the skills into `.claude/skills/` so any agent working in your repo loads them via trigger keywords on demand. See **[hex-ui.dev/docs/skills](https://hex-ui.dev/docs/skills)**.
+
 ## Themes
 
 - **Default** — Refined, neutral. Professional and versatile.

@@ -47,6 +47,24 @@ Runs `hex add` for every component in the recipe in order, then prints the post-
 hex recipe add settings-page
 ```
 
+### `hex skills install`
+
+Copies the eight bundled Hex UI skills into `.claude/skills/` (or a custom `--target`). Skills are SKILL.md prose packs that Claude Code loads on demand via trigger keywords.
+
+```bash
+hex skills install                         # default target: .claude/skills/
+hex skills install --target ./my-skills    # custom location
+hex skills install --overwrite             # replace existing skill dirs
+```
+
+### `hex add <slug>` — transitive deps
+
+By default, `hex add <slug>` installs the slug plus every internal component it depends on (e.g. `hex add combobox` also installs `command`, `popover`, and their dependencies). Pass `--no-deps` to install only the named slug:
+
+```bash
+hex add combobox --no-deps   # writes combobox.tsx only; prints missing deps
+```
+
 ## How it works
 
 The CLI reads the public registry JSON at build time, writes component source into your project, and reports the npm peer-deps you need to install (Radix primitives, `class-variance-authority`, etc.). You get full ownership of the code — future CLI upgrades never overwrite your edits unless you re-run `add`.
