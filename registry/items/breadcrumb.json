@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "breadcrumb",
   "displayName": "Breadcrumb",
   "description": "A path trail showing the user's location within a hierarchy, with links back to ancestors and a non-interactive current page.",

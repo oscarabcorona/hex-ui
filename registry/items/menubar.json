@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "menubar",
   "displayName": "Menubar",
   "description": "Desktop-app style menu bar (File / Edit / View). Horizontal menu strip with nested dropdowns.",

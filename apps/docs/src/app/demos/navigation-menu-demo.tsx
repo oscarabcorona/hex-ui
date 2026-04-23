@@ -47,7 +47,7 @@ export function NavigationMenuDemo() {
 				<NavigationMenuItem>
 					<NavigationMenuLink
 						className={navigationMenuTriggerStyle()}
-						href="https://github.com/oscarabcorona/hex-ui"
+						href="https://github.com/oscarabcorona/hex-core"
 					>
 						GitHub
 					</NavigationMenuLink>

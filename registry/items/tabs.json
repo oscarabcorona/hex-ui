@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "tabs",
   "displayName": "Tabs",
   "description": "A tabbed interface with accessible keyboard navigation. Built on Radix UI Tabs.",

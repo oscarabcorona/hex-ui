@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "accordion",
   "displayName": "Accordion",
   "description": "A vertically stacked set of collapsible content sections. Built on Radix UI Accordion.",

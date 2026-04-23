@@ -1,5 +1,5 @@
 /** External URLs used across the docs surface. Single source of truth. */
-export const GITHUB_URL = "https://github.com/oscarabcorona/hex-ui";
+export const GITHUB_URL = "https://github.com/oscarabcorona/hex-core";
 
 /** Base URL for "Edit this page" deep links into the GitHub web editor. */
 export const GITHUB_EDIT_BASE = `${GITHUB_URL}/edit/main`;

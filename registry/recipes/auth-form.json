@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "$schema": "https://hex-core.dev/schema/recipe.json",
   "slug": "auth-form",
   "title": "Auth form",
   "summary": "Login or signup form with validated fields, remember-me, submit button, and error alert.",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "dialog",
   "displayName": "Dialog",
   "description": "A modal dialog that interrupts the user with important content. Built on Radix UI with focus trap, escape handling, and scroll lock.",

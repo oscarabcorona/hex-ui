@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "popover",
   "displayName": "Popover",
   "description": "Floating content anchored to a trigger element. Non-modal by default — clicks outside dismiss it. Use for inline forms, info, or quick actions.",

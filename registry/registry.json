@@ -1,9 +1,9 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry.json",
+  "$schema": "https://hex-core.dev/schema/registry.json",
   "name": "hex-ui",
   "version": "0.1.0",
   "description": "Hex UI — AI-native component library for LLMs and humans",
-  "homepage": "https://hex-ui.dev",
+  "homepage": "https://hex-core.dev",
   "items": [
     {
       "name": "aspect-ratio",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "resizable",
   "displayName": "Resizable",
   "description": "Draggable split panes built on react-resizable-panels v4. Horizontal or vertical, with keyboard-accessible handles and persistable layout.",

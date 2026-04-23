@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "sonner",
   "displayName": "Sonner (Toast)",
   "description": "Ephemeral toast notifications via Sonner. Render <Toaster /> once at app root, then call toast() anywhere.",

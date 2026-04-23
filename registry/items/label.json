@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "label",
   "displayName": "Label",
   "description": "An accessible label component built on Radix UI Label primitive. Associates with form controls via htmlFor.",

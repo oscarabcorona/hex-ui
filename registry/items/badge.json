@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "badge",
   "displayName": "Badge",
   "description": "A small status indicator with multiple style variants. Used for tags, statuses, and categorization.",

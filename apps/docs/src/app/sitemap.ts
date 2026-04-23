@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { listComponents } from "../lib/registry";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hex-ui.dev";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hex-core.dev";
 
 /** Pinned once per build so crawlers see a stable `lastModified` per deploy. */
 const BUILD_TIME = new Date();

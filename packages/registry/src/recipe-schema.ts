@@ -74,7 +74,7 @@ export type RecipeDefinition = z.infer<typeof recipeSchemaDefinition>;
 
 /** Compiled recipe emitted to `registry/recipes/<slug>.json`. */
 export const recipeSchema = z.object({
-	$schema: z.string().default("https://hex-ui.dev/schema/recipe.json"),
+	$schema: z.string().default("https://hex-core.dev/schema/recipe.json"),
 	slug: z.string().regex(SLUG_REGEX),
 	title: z.string(),
 	summary: z.string(),
@@ -101,7 +101,7 @@ export const recipeIndexItemSchema = z.object({
 export type RecipeIndexItem = z.infer<typeof recipeIndexItemSchema>;
 
 export const recipeIndexSchema = z.object({
-	$schema: z.string().default("https://hex-ui.dev/schema/recipes.json"),
+	$schema: z.string().default("https://hex-core.dev/schema/recipes.json"),
 	name: z.string(),
 	version: z.string(),
 	items: z.array(recipeIndexItemSchema),

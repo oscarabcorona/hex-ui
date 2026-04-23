@@ -1,6 +1,6 @@
 {
 	"name": "@hex-core/cli",
-	"version": "0.1.0",
+	"version": "0.0.0",
 	"description": "CLI for Hex UI — copy components into your project with one command.",
 	"keywords": [
 		"hex-ui",
@@ -11,14 +11,14 @@
 	],
 	"license": "MIT",
 	"author": "Hex UI",
-	"homepage": "https://hex-ui.dev",
+	"homepage": "https://hex-core.dev",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/oscarabcorona/hex-ui.git",
+		"url": "git+https://github.com/oscarabcorona/hex-core.git",
 		"directory": "packages/cli"
 	},
 	"bugs": {
-		"url": "https://github.com/oscarabcorona/hex-ui/issues"
+		"url": "https://github.com/oscarabcorona/hex-core/issues"
 	},
 	"type": "module",
 	"bin": {

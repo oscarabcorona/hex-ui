@@ -1,6 +1,6 @@
 {
 	"name": "@hex-core/mcp",
-	"version": "0.1.0",
+	"version": "0.0.0",
 	"description": "MCP server for Hex UI — AI-native component distribution. Ships 11 tools over the registry for Claude Code / Cursor / any MCP client.",
 	"keywords": [
 		"hex-ui",
@@ -12,14 +12,14 @@
 	],
 	"license": "MIT",
 	"author": "Hex UI",
-	"homepage": "https://hex-ui.dev",
+	"homepage": "https://hex-core.dev",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/oscarabcorona/hex-ui.git",
+		"url": "git+https://github.com/oscarabcorona/hex-core.git",
 		"directory": "packages/mcp-server"
 	},
 	"bugs": {
-		"url": "https://github.com/oscarabcorona/hex-ui/issues"
+		"url": "https://github.com/oscarabcorona/hex-core/issues"
 	},
 	"type": "module",
 	"main": "dist/index.js",

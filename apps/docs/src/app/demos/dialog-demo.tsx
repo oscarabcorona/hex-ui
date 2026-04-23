@@ -15,7 +15,7 @@ import {
 	Label,
 } from "../../components/ui";
 
-const SHARE_LINK = "https://hex-ui.dev/share/abc123";
+const SHARE_LINK = "https://hex-core.dev/share/abc123";
 
 /**
  * Dialog patterns: edit-profile form and a share-link pattern with a

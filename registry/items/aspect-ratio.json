@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "aspect-ratio",
   "displayName": "Aspect Ratio",
   "description": "Constrain children to a specific width-to-height ratio (e.g. 16/9 for video, 1/1 for square).",

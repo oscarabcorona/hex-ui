@@ -112,7 +112,7 @@ export function SidebarDemo() {
 							</Avatar>
 							<div className="grid text-xs leading-tight">
 								<span className="font-medium">Oscar Corona</span>
-								<span className="text-muted-foreground">oscar@hex-ui.dev</span>
+								<span className="text-muted-foreground">oscar@hex-core.dev</span>
 							</div>
 						</div>
 					</SidebarFooter>

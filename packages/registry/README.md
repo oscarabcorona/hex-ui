@@ -28,7 +28,7 @@ Most users of Hex UI never touch this package directly. If you're building a cus
 
 ## Docs
 
-[hex-ui.dev](https://hex-ui.dev)
+[hex-core.dev](https://hex-core.dev)
 
 ## License
 

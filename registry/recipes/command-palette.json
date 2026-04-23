@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "$schema": "https://hex-core.dev/schema/recipe.json",
   "slug": "command-palette",
   "title": "Command palette",
   "summary": "Cmd-K quick-open palette with grouped actions, search, and keyboard-first navigation.",

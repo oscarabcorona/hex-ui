@@ -1,6 +1,6 @@
 # Hex UI
 
-[![CI](https://github.com/oscarabcorona/hex-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/oscarabcorona/hex-ui/actions/workflows/ci.yml)
+[![CI](https://github.com/oscarabcorona/hex-core/actions/workflows/ci.yml/badge.svg)](https://github.com/oscarabcorona/hex-core/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 > **Pre-release.** Hex UI is not yet published to npm. We're stabilizing the API before the first public cut — install paths below will go live alongside v0.1.0.
@@ -71,7 +71,7 @@ npx @hex-core/cli add button input label
 | `resolve_spec` | Deterministic brief → ranked component + recipe shortlist |
 | `verify_checklist` | Cross-check installed components against the internal-dep graph |
 
-See **[hex-ui.dev/docs/spec-driven](https://hex-ui.dev/docs/spec-driven)** for the full spec-driven workflow.
+See **[hex-core.dev/docs/spec-driven](https://hex-core.dev/docs/spec-driven)** for the full spec-driven workflow.
 
 ## Spec-driven example
 
@@ -93,7 +93,7 @@ Hex UI ships eight prose context packs in `SKILL.md` format — overview, MCP to
 npx @hex-core/cli skills install
 ```
 
-This copies the skills into `.claude/skills/` so any agent working in your repo loads them via trigger keywords on demand. See **[hex-ui.dev/docs/skills](https://hex-ui.dev/docs/skills)**.
+This copies the skills into `.claude/skills/` so any agent working in your repo loads them via trigger keywords on demand. See **[hex-core.dev/docs/skills](https://hex-core.dev/docs/skills)**.
 
 ## Themes
 
@@ -105,7 +105,7 @@ This copies the skills into `.claude/skills/` so any agent working in your repo 
 
 **47 components** across primitives (Button, Input, Checkbox, Switch, Slider, …) and compounds (Combobox, DataTable, Command, Calendar, Date Picker, …). Every component ships with a machine-readable `.schema.ts` containing props, variants, AI hints (`whenToUse`, `whenNotToUse`, `commonMistakes`, `accessibilityNotes`), and a token budget.
 
-Full catalog + live demos: **[hex-ui.dev/docs](https://hex-ui.dev/docs)**
+Full catalog + live demos: **[hex-core.dev/docs](https://hex-core.dev/docs)**
 
 ## Development
 

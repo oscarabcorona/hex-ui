@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "radio-group",
   "displayName": "Radio Group",
   "description": "A set of mutually exclusive radio options. Built on Radix UI RadioGroup with roving focus and arrow-key navigation.",

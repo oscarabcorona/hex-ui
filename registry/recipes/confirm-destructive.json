@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "$schema": "https://hex-core.dev/schema/recipe.json",
   "slug": "confirm-destructive",
   "title": "Destructive confirm",
   "summary": "Typed-name confirmation flow for irreversible actions (delete account, drop table).",

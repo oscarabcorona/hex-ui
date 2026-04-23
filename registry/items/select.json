@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "select",
   "displayName": "Select",
   "description": "An accessible dropdown select for choosing one option from a list. Built on Radix UI Select with full keyboard navigation, typeahead, and RTL support.",

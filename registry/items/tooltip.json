@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "tooltip",
   "displayName": "Tooltip",
   "description": "A small floating label that reveals on hover or focus. Wrap your app in TooltipProvider, then use Tooltip/TooltipTrigger/TooltipContent per tooltip.",

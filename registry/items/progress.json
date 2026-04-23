@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "progress",
   "displayName": "Progress",
   "description": "A horizontal progress bar showing completion from 0 to 100%. Built on Radix UI Progress.",

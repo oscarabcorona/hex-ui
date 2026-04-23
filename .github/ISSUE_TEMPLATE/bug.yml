@@ -12,7 +12,7 @@ body:
         - "@hex-core/mcp"
         - "@hex-core/tokens"
         - "@hex-core/registry"
-        - Docs site (hex-ui.dev)
+        - Docs site (hex-core.dev)
         - Unsure
     validations:
       required: true

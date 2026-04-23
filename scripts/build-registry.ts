@@ -210,7 +210,7 @@ for (const sf of schemaFiles) {
 
 	// Build the registry item
 	const registryItem = {
-		$schema: "https://hex-ui.dev/schema/registry-item.json",
+		$schema: "https://hex-core.dev/schema/registry-item.json",
 		name: schema.name,
 		displayName: schema.displayName,
 		description: schema.description,
@@ -262,11 +262,11 @@ for (const sf of schemaFiles) {
 
 // Write registry index
 const registryIndex = {
-	$schema: "https://hex-ui.dev/schema/registry.json",
+	$schema: "https://hex-core.dev/schema/registry.json",
 	name: "hex-ui",
 	version: "0.1.0",
 	description: "Hex UI — AI-native component library for LLMs and humans",
-	homepage: "https://hex-ui.dev",
+	homepage: "https://hex-core.dev",
 	items: indexItems,
 };
 
@@ -377,7 +377,7 @@ if (fs.existsSync(RECIPES_SRC)) {
 		}
 
 		const compiled = {
-			$schema: "https://hex-ui.dev/schema/recipe.json",
+			$schema: "https://hex-core.dev/schema/recipe.json",
 			slug: recipe.slug,
 			title: recipe.title,
 			summary: recipe.summary,
@@ -409,7 +409,7 @@ fs.writeFileSync(
 	recipesIndexPath,
 	JSON.stringify(
 		{
-			$schema: "https://hex-ui.dev/schema/recipes.json",
+			$schema: "https://hex-core.dev/schema/recipes.json",
 			name: "hex-ui",
 			version: "0.1.0",
 			items: recipeIndex,

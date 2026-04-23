@@ -39,4 +39,4 @@ Hex UI is an AI-native React component library. Think shadcn/ui with machine-rea
 - Building a UI from a brief? Load `hex-ui-recipes-workflow`.
 - Deciding which MCP tool to call? Load `hex-ui-mcp-tools`.
 - Theming? Load `hex-ui-theming`.
-- Full catalog: https://hex-ui.dev/docs
+- Full catalog: https://hex-core.dev/docs

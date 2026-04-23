@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "dropdown-menu",
   "displayName": "Dropdown Menu",
   "description": "A menu of actions displayed to the user when a trigger is activated. Supports items, checkboxes, radio groups, sub-menus, and keyboard shortcuts.",

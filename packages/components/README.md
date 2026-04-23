@@ -43,7 +43,7 @@ export default function Page() {
 
 ## Docs
 
-Full component catalog, demos, theming, and MCP integration: [hex-ui.dev](https://hex-ui.dev)
+Full component catalog, demos, theming, and MCP integration: [hex-core.dev](https://hex-core.dev)
 
 ## License
 

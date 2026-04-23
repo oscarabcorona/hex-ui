@@ -109,7 +109,7 @@ export type Category = z.infer<typeof categoryEnum>;
 // ─── Registry Item (the core schema) ───
 
 export const registryItemSchema = z.object({
-	$schema: z.string().default("https://hex-ui.dev/schema/registry-item.json"),
+	$schema: z.string().default("https://hex-core.dev/schema/registry-item.json"),
 	name: z.string().regex(/^[a-z][a-z0-9-]*$/),
 	displayName: z.string(),
 	description: z.string(),
@@ -171,7 +171,7 @@ export const registryIndexItemSchema = z.object({
 export type RegistryIndexItem = z.infer<typeof registryIndexItemSchema>;
 
 export const registryIndexSchema = z.object({
-	$schema: z.string().default("https://hex-ui.dev/schema/registry.json"),
+	$schema: z.string().default("https://hex-core.dev/schema/registry.json"),
 	name: z.string(),
 	version: z.string(),
 	description: z.string(),

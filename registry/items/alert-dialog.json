@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "alert-dialog",
   "displayName": "Alert Dialog",
   "description": "A modal dialog for destructive confirmations. The user must explicitly accept or cancel — there is no close button. Built on Radix UI AlertDialog.",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "textarea",
   "displayName": "Textarea",
   "description": "A styled multi-line text input with smooth focus transitions and shadow effects.",

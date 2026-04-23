@@ -74,11 +74,11 @@ The MCP server returns structured data. For prose reasoning context (when to pic
 npx @hex-core/cli skills install
 ```
 
-Skills complement the MCP — one gives Claude Code trigger-keyword-based docs, the other gives it typed tool calls. See [hex-ui.dev/docs/skills](https://hex-ui.dev/docs/skills).
+Skills complement the MCP — one gives Claude Code trigger-keyword-based docs, the other gives it typed tool calls. See [hex-core.dev/docs/skills](https://hex-core.dev/docs/skills).
 
 ## Docs
 
-[hex-ui.dev/docs/mcp](https://hex-ui.dev/docs/mcp)
+[hex-core.dev/docs/mcp](https://hex-core.dev/docs/mcp)
 
 ## License
 

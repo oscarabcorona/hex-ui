@@ -71,7 +71,7 @@ The CLI reads the public registry JSON at build time, writes component source in
 
 ## Docs
 
-[hex-ui.dev/docs/installation](https://hex-ui.dev/docs/installation)
+[hex-core.dev/docs/installation](https://hex-core.dev/docs/installation)
 
 ## License
 
