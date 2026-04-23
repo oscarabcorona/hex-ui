@@ -22,7 +22,7 @@ pnpm --filter docs test       # Playwright e2e (8 tests across 3 specs)
 - **SOLID + DRY** — single source of truth. If you write the same list twice, extract it.
 - **Types** — no `as Type` casts, no `as unknown as`, no `any`, no index signatures just to satisfy a generic. Use `unknown` + runtime narrowing or typed wrappers at library boundaries.
 - **Headless** — logic lives in hooks; components stay pure and prop-driven. Keep `"use client"` at leaves.
-- **Dogfood** — if the docs app needs a primitive we already ship in `@hex-ui/components`, import it from the library.
+- **Dogfood** — if the docs app needs a primitive we already ship in `@hex-core/components`, import it from the library.
 - **Canonical transitions** — `transition-all duration-200 ease-out` for interactive surfaces. Focus ring: `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`.
 
 ## Adding a component
@@ -33,7 +33,7 @@ pnpm --filter docs test       # Playwright e2e (8 tests across 3 specs)
 2. Add a demo at `apps/docs/src/app/demos/<slug>-demo.tsx` and register it in `apps/docs/src/lib/demos.tsx`.
 3. Run `pnpm run build:registry` — the registry JSON regenerates from your schema.
 4. Run `pnpm build && pnpm --filter docs dev` and check `/docs/components/<slug>`.
-5. Add a changeset: `pnpm changeset`. Pick the affected packages (usually `@hex-ui/components`) and bump type.
+5. Add a changeset: `pnpm changeset`. Pick the affected packages (usually `@hex-core/components`) and bump type.
 
 ## Submitting a PR
 

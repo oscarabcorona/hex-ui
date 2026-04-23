@@ -7,7 +7,7 @@ const MCP_SETTINGS = `// .claude/settings.json
   "mcpServers": {
     "hex-ui": {
       "command": "npx",
-      "args": ["@hex-ui/mcp"]
+      "args": ["@hex-core/mcp"]
     }
   }
 }`;

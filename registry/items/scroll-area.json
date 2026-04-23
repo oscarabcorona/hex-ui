@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "scroll-area",
   "displayName": "Scroll Area",
   "description": "A scrollable region with custom-styled scrollbars that match the design system. Content must be explicitly sized.",

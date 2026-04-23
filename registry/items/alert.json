@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "alert",
   "displayName": "Alert",
   "description": "An inline notification banner for important messages. Supports default and destructive variants with optional leading icon.",

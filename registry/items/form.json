@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "form",
   "displayName": "Form",
   "description": "A form primitive built on react-hook-form + zod. Provides Form/FormField/FormItem/FormLabel/FormControl/FormDescription/FormMessage with automatic aria wiring and error display.",

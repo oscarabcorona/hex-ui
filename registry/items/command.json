@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "command",
   "displayName": "Command",
   "description": "Composable command menu built on cmdk — search input + filtered list with keyboard navigation. Use as an inline palette or, wrapped in CommandDialog, as a ⌘K-style launcher.",

@@ -1,4 +1,4 @@
-import type { Theme } from "@hex-ui/registry";
+import type { Theme } from "@hex-core/registry";
 
 interface TokenLike {
 	value: string;

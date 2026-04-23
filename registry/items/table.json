@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "table",
   "displayName": "Table",
   "description": "Styled HTML table primitives (Table / TableHeader / TableBody / TableRow / TableHead / TableCell / TableCaption / TableFooter). Low-level building blocks — use DataTable for sorting/filtering/pagination.",

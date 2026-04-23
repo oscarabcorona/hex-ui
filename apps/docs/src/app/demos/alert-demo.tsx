@@ -20,7 +20,7 @@ export function AlertDemo() {
 				<AlertTitle>Heads up!</AlertTitle>
 				<AlertDescription>
 					You can add components to your app via the CLI with{" "}
-					<code className="rounded bg-muted px-1">pnpm dlx @hex-ui/cli add</code>.
+					<code className="rounded bg-muted px-1">pnpm dlx @hex-core/cli add</code>.
 				</AlertDescription>
 			</Alert>
 			<Alert variant="destructive">

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "date-picker",
   "displayName": "Date Picker",
   "description": "Date input composed from Popover + Calendar. Shows the selected date formatted via date-fns, opens a calendar grid on click.",

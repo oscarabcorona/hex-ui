@@ -1,14 +1,14 @@
-# @hex-ui/tokens
+# @hex-core/tokens
 
 Design token engine for Hex UI — HSL color tokens + typography scale + shadow/radius tokens shared between components and themes.
 
 ## Install
 
 ```bash
-pnpm add @hex-ui/tokens
+pnpm add @hex-core/tokens
 ```
 
-Or, more commonly, copy the CSS block from the [Theming guide](https://hex-ui.dev/docs/theming) directly into your app's `globals.css`.
+Or, more commonly, copy the CSS block from the [Theming guide](https://hex-core.dev/docs/theming) directly into your app's `globals.css`.
 
 ## Contents
 
@@ -20,11 +20,11 @@ Or, more commonly, copy the CSS block from the [Theming guide](https://hex-ui.de
 
 ## Overriding
 
-Every token is a CSS custom property. Override on `:root` or inside `.dark` for per-theme overrides. See the [Theming guide](https://hex-ui.dev/docs/theming) for examples (accent hue swap, custom palette, typography scale).
+Every token is a CSS custom property. Override on `:root` or inside `.dark` for per-theme overrides. See the [Theming guide](https://hex-core.dev/docs/theming) for examples (accent hue swap, custom palette, typography scale).
 
 ## Docs
 
-[hex-ui.dev/docs/theming](https://hex-ui.dev/docs/theming)
+[hex-core.dev/docs/theming](https://hex-core.dev/docs/theming)
 
 ## License
 

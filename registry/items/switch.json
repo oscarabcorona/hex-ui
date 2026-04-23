@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "switch",
   "displayName": "Switch",
   "description": "An accessible toggle switch for instant on/off settings. Built on Radix UI.",

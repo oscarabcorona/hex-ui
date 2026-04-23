@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "input-otp",
   "displayName": "Input OTP",
   "description": "One-time-password / verification-code entry built on the input-otp library. Renders N character slots with active/caret state and auto-advance on type.",

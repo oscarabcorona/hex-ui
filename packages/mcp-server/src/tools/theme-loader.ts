@@ -1,5 +1,5 @@
 // Re-export theme functionality for the MCP server
-// We inline the theme data to avoid runtime dependency on @hex-ui/tokens
+// We inline the theme data to avoid runtime dependency on @hex-core/tokens
 
 interface TokenEntry {
 	value: string;

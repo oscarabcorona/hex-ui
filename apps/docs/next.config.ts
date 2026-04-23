@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-	transpilePackages: ["@hex-ui/components", "@hex-ui/registry", "@hex-ui/tokens"],
+	transpilePackages: ["@hex-core/components", "@hex-core/registry", "@hex-core/tokens"],
 };
 
 export default nextConfig;

@@ -21,7 +21,7 @@ test.describe("component page", () => {
 		await expect(editLink).toBeVisible();
 		const href = await editLink.getAttribute("href");
 		expect(href).toContain(
-			"github.com/oscarabcorona/hex-ui/edit/main/registry/items/button.json",
+			"github.com/oscarabcorona/hex-core/edit/main/registry/items/button.json",
 		);
 	});
 });

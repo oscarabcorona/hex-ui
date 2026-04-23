@@ -7,12 +7,12 @@ body:
     attributes:
       label: Which package is affected?
       options:
-        - "@hex-ui/components"
-        - "@hex-ui/cli"
-        - "@hex-ui/mcp"
-        - "@hex-ui/tokens"
-        - "@hex-ui/registry"
-        - Docs site (hex-ui.dev)
+        - "@hex-core/components"
+        - "@hex-core/cli"
+        - "@hex-core/mcp"
+        - "@hex-core/tokens"
+        - "@hex-core/registry"
+        - Docs site (hex-core.dev)
         - Unsure
     validations:
       required: true
@@ -21,7 +21,7 @@ body:
     id: version
     attributes:
       label: Package version
-      description: Output of `pnpm ls @hex-ui/<package>` or `npm ls @hex-ui/<package>`.
+      description: Output of `pnpm ls @hex-core/<package>` or `npm ls @hex-core/<package>`.
       placeholder: "0.2.0"
     validations:
       required: true

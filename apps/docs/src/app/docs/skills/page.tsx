@@ -17,10 +17,10 @@ const SECTIONS = [
 ];
 
 const INSTALL_CMD = `# One command, per project
-npx @hex-ui/cli skills install
+npx @hex-core/cli skills install
 
 # Or point at a custom target
-npx @hex-ui/cli skills install --target ./my-skills`;
+npx @hex-core/cli skills install --target ./my-skills`;
 
 const SKILLS = [
 	{
@@ -126,11 +126,11 @@ export default function SkillsPage() {
 					Full source at{" "}
 					<a
 						className="underline underline-offset-2 hover:text-foreground"
-						href="https://github.com/oscarabcorona/hex-ui/tree/main/skills"
+						href="https://github.com/oscarabcorona/hex-core/tree/main/skills"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						github.com/oscarabcorona/hex-ui/tree/main/skills
+						github.com/oscarabcorona/hex-core/tree/main/skills
 					</a>
 					.
 				</p>

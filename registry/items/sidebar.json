@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "sidebar",
   "displayName": "Sidebar",
   "description": "App-shell sidebar with collapsible width, context-driven open state, and composable Header/Content/Footer/Item parts. Provider-based so any descendant can toggle it.",

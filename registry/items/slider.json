@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "slider",
   "displayName": "Slider",
   "description": "A range input with draggable thumbs. Supports single value, ranges (two thumbs), custom steps, and full keyboard control.",

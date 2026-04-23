@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "input",
   "displayName": "Input",
   "description": "A styled text input with smooth focus transitions, shadow effects, and full HTML input compatibility.",

@@ -1,4 +1,4 @@
-# @hex-ui/components
+# @hex-core/components
 
 AI-native React components — Radix UI + Tailwind CSS + CVA, with machine-readable schemas for every component.
 
@@ -7,17 +7,17 @@ AI-native React components — Radix UI + Tailwind CSS + CVA, with machine-reada
 You typically don't install this package directly. Use the CLI to copy components into your project:
 
 ```bash
-pnpm dlx @hex-ui/cli add button
+pnpm dlx @hex-core/cli add button
 ```
 
 If you want to import the built components directly:
 
 ```bash
-pnpm add @hex-ui/components
+pnpm add @hex-core/components
 ```
 
 ```tsx
-import { Button } from "@hex-ui/components";
+import { Button } from "@hex-core/components";
 
 export default function Page() {
   return <Button>Click me</Button>;
@@ -43,7 +43,7 @@ export default function Page() {
 
 ## Docs
 
-Full component catalog, demos, theming, and MCP integration: [hex-ui.dev](https://hex-ui.dev)
+Full component catalog, demos, theming, and MCP integration: [hex-core.dev](https://hex-core.dev)
 
 ## License
 

@@ -1,19 +1,19 @@
-# @hex-ui/registry
+# @hex-core/registry
 
 Zod schemas + TypeScript types for the Hex UI component registry.
 
-This package is the **shared contract** between `@hex-ui/components`, `@hex-ui/cli`, and `@hex-ui/mcp`. It doesn't ship runtime UI — it's schemas describing what a component is (props, variants, examples, AI hints).
+This package is the **shared contract** between `@hex-core/components`, `@hex-core/cli`, and `@hex-core/mcp`. It doesn't ship runtime UI — it's schemas describing what a component is (props, variants, examples, AI hints).
 
 ## Install
 
 ```bash
-pnpm add @hex-ui/registry
+pnpm add @hex-core/registry
 ```
 
 ## Usage
 
 ```ts
-import { RegistryItemSchema, type RegistryItem } from "@hex-ui/registry/schema";
+import { RegistryItemSchema, type RegistryItem } from "@hex-core/registry/schema";
 
 const result = RegistryItemSchema.safeParse(json);
 if (result.success) {
@@ -28,7 +28,7 @@ Most users of Hex UI never touch this package directly. If you're building a cus
 
 ## Docs
 
-[hex-ui.dev](https://hex-ui.dev)
+[hex-core.dev](https://hex-core.dev)
 
 ## License
 

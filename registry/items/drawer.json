@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "drawer",
   "displayName": "Drawer",
   "description": "Bottom-sheet drawer built on vaul. Mobile-native feel: drag-to-dismiss, snap points, body-scale-on-open. Use for quick mobile actions, filters, pickers.",

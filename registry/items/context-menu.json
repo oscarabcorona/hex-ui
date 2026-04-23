@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "context-menu",
   "displayName": "Context Menu",
   "description": "Right-click (or long-press on touch) menu anchored to the trigger region. Same item vocabulary as DropdownMenu.",

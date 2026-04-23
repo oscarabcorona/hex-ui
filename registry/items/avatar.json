@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "avatar",
   "displayName": "Avatar",
   "description": "A user profile image with a fallback (usually initials) rendered when the image is missing or fails to load. Built on Radix UI Avatar — AvatarFallback accepts a delayMs prop to avoid flashing during fast loads.",

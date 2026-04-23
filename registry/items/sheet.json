@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "sheet",
   "displayName": "Sheet",
   "description": "Side drawer built on Radix Dialog with a directional slide animation. Use for navigation, filters, quick edit, or any off-canvas panel.",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "combobox",
   "displayName": "Combobox",
   "description": "Searchable single-select input. Composes Popover + Command (cmdk) + a styled trigger. Pass a list of { value, label } options.",

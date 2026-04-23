@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "$schema": "https://hex-core.dev/schema/recipe.json",
   "slug": "settings-page",
   "title": "Settings page",
   "summary": "Multi-section settings screen with grouped cards, labeled form fields, toggles, and a save action per section.",

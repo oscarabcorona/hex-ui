@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "separator",
   "displayName": "Separator",
   "description": "A visual divider between content sections with horizontal or vertical orientation.",

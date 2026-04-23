@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "collapsible",
   "displayName": "Collapsible",
   "description": "A single section that can be expanded or collapsed. For multiple independent sections use Accordion with type='multiple'.",

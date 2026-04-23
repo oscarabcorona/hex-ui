@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "toggle",
   "displayName": "Toggle",
   "description": "A two-state button that stays pressed when toggled on. Used for formatting toolbars (bold/italic) or option toggles.",

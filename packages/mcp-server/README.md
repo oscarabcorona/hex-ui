@@ -1,4 +1,4 @@
-# @hex-ui/mcp
+# @hex-core/mcp
 
 MCP server for Hex UI. Gives any MCP-capable AI agent (Claude Code, Cursor, Continue, …) structured access to the component registry — no prose scraping, no copy-paste.
 
@@ -7,7 +7,7 @@ MCP server for Hex UI. Gives any MCP-capable AI agent (Claude Code, Cursor, Cont
 Zero install — just run via npx:
 
 ```bash
-npx @hex-ui/mcp
+npx @hex-core/mcp
 ```
 
 ## Wire into Claude Code
@@ -19,7 +19,7 @@ Add to your `.claude/settings.json` (project or `~/.claude/` global):
   "mcpServers": {
     "hex-ui": {
       "command": "npx",
-      "args": ["@hex-ui/mcp"]
+      "args": ["@hex-core/mcp"]
     }
   }
 }
@@ -34,7 +34,7 @@ Add to `.cursor/mcp.json` at your project root:
   "mcpServers": {
     "hex-ui": {
       "command": "npx",
-      "args": ["@hex-ui/mcp"]
+      "args": ["@hex-core/mcp"]
     }
   }
 }
@@ -71,14 +71,14 @@ Spec-driven build flow:
 The MCP server returns structured data. For prose reasoning context (when to pick recipe X, how themes compose, React 19 anti-patterns), install the Hex UI skills pack:
 
 ```bash
-npx @hex-ui/cli skills install
+npx @hex-core/cli skills install
 ```
 
-Skills complement the MCP — one gives Claude Code trigger-keyword-based docs, the other gives it typed tool calls. See [hex-ui.dev/docs/skills](https://hex-ui.dev/docs/skills).
+Skills complement the MCP — one gives Claude Code trigger-keyword-based docs, the other gives it typed tool calls. See [hex-core.dev/docs/skills](https://hex-core.dev/docs/skills).
 
 ## Docs
 
-[hex-ui.dev/docs/mcp](https://hex-ui.dev/docs/mcp)
+[hex-core.dev/docs/mcp](https://hex-core.dev/docs/mcp)
 
 ## License
 

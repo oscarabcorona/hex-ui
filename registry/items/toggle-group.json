@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "toggle-group",
   "displayName": "Toggle Group",
   "description": "A set of toggles where one or multiple can be pressed. Inherits Toggle's variant/size via context. Useful for alignment/formatting toolbars.",

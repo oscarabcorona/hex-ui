@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "calendar",
   "displayName": "Calendar",
   "description": "Date grid built on react-day-picker v9. Supports single, multiple, and range selection modes. Keyboard navigable and localizable.",

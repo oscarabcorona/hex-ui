@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/recipe.json",
+  "$schema": "https://hex-core.dev/schema/recipe.json",
   "slug": "data-table-view",
   "title": "Data table view",
   "summary": "Searchable, paginated data table with row actions menu, status badges, and empty state.",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/registry-item.json",
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "hover-card",
   "displayName": "Hover Card",
   "description": "Rich floating content revealed on hover or focus. Use when Tooltip is too small and Popover requires a click.",

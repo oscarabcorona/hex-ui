@@ -16,7 +16,7 @@ export async function initProject(options: { theme: string }) {
 	}
 
 	const config = {
-		$schema: "https://hex-ui.dev/schema/config.json",
+		$schema: "https://hex-core.dev/schema/config.json",
 		framework: "react",
 		styling: "tailwind",
 		typescript: true,

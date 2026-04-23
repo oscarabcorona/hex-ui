@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hex-ui.dev";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hex-core.dev";
 const siteTitle = "Hex UI — AI-Native Component Library";
 const componentCount = listComponents().length;
 const siteDescription = `Component library designed for LLMs and humans. MCP-first distribution, Radix UI + Tailwind CSS, ${componentCount} polished primitives and compounds.`;

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://hex-ui.dev/schema/recipes.json",
+  "$schema": "https://hex-core.dev/schema/recipes.json",
   "name": "hex-ui",
   "version": "0.1.0",
   "items": [

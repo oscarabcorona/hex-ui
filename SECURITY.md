@@ -2,11 +2,11 @@
 
 ## Reporting a vulnerability
 
-If you find a security issue in any Hex UI package, please **do not open a public issue**. Instead, open a [GitHub Security Advisory](https://github.com/oscarabcorona/hex-ui/security/advisories/new) on this repo. We'll respond via the advisory thread within 72 hours.
+If you find a security issue in any Hex UI package, please **do not open a public issue**. Instead, open a [GitHub Security Advisory](https://github.com/oscarabcorona/hex-core/security/advisories/new) on this repo. We'll respond via the advisory thread within 72 hours.
 
 Please include:
 
-- Which package (`@hex-ui/components`, `@hex-ui/cli`, `@hex-ui/mcp`, etc.)
+- Which package (`@hex-core/components`, `@hex-core/cli`, `@hex-core/mcp`, etc.)
 - A minimal reproduction
 - Impact assessment (who's affected, what access / data the exploit exposes)
 - Your preferred disclosure timeline
@@ -16,7 +16,7 @@ Please include:
 - Remote code execution via the CLI (`hex add`, `hex init`)
 - MCP server tool-call escalation (path traversal, arbitrary file read/write)
 - Supply-chain issues in our published npm packages
-- XSS in the docs site (`hex-ui.dev`)
+- XSS in the docs site (`hex-core.dev`)
 
 ## What we consider out of scope
 
