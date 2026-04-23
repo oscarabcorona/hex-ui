@@ -47,7 +47,7 @@ export default function InstallationPage() {
 
 			<DocSection id="cli" title="CLI install">
 				<p className="text-sm leading-6">
-					The <InlineCode>@hex-ui/cli</InlineCode> package copies a component and its
+					The <InlineCode>@hex-core/cli</InlineCode> package copies a component and its
 					dependencies into your project. No npm runtime dependency is added.
 				</p>
 				<CodeBlock label={INSTALL_COMMAND_LABEL} code={installCommand("button")} />

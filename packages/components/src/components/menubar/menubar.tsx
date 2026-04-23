@@ -21,7 +21,7 @@ Menubar.displayName = "Menubar";
 // The explicit `as typeof ...Primitive.X` casts below are load-bearing: without them,
 // tsup's dts build fails with TS2742 "The inferred type of X cannot be named without a
 // reference to @radix-ui/react-context" on direct re-exports of Radix primitives. Do not
-// remove without verifying `pnpm --filter @hex-ui/components build` still succeeds.
+// remove without verifying `pnpm --filter @hex-core/components build` still succeeds.
 
 /** A top-level menu in the bar (e.g. "File"). */
 const MenubarMenu = MenubarPrimitive.Menu as typeof MenubarPrimitive.Menu;

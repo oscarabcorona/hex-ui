@@ -6,7 +6,7 @@ import {
 	recipeSchemaDefinition,
 	type ComponentSchemaDefinition,
 	type RecipeDefinition,
-} from "@hex-ui/registry";
+} from "@hex-core/registry";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");

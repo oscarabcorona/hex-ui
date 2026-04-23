@@ -1,5 +1,5 @@
 {
-	"name": "@hex-ui/cli",
+	"name": "@hex-core/cli",
 	"version": "0.1.0",
 	"description": "CLI for Hex UI — copy components into your project with one command.",
 	"keywords": [
@@ -41,7 +41,7 @@
 		"clean": "rm -rf dist skills"
 	},
 	"dependencies": {
-		"@hex-ui/registry": "workspace:^",
+		"@hex-core/registry": "workspace:^",
 		"commander": "^12.1.0",
 		"zod": "^3.23.0"
 	},

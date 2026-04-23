@@ -6,7 +6,7 @@
 			"outputs": ["dist/**"]
 		},
 		"build:registry": {
-			"dependsOn": ["@hex-ui/components#build", "@hex-ui/tokens#build", "@hex-ui/registry#build"],
+			"dependsOn": ["@hex-core/components#build", "@hex-core/tokens#build", "@hex-core/registry#build"],
 			"outputs": ["registry/**"]
 		},
 		"validate": {

@@ -1,11 +1,11 @@
 ---
 name: hex-ui-cli
-description: Using the hex CLI. Load when the user runs or asks about hex init, hex add, hex list, hex recipe, hex skills, pnpm dlx @hex-ui/cli, or npx @hex-ui/cli.
+description: Using the hex CLI. Load when the user runs or asks about hex init, hex add, hex list, hex recipe, hex skills, pnpm dlx @hex-core/cli, or npx @hex-core/cli.
 ---
 
 # Hex UI — CLI
 
-The `hex` binary is provided by `@hex-ui/cli`. Install via `pnpm dlx @hex-ui/cli <cmd>` or `pnpm add -g @hex-ui/cli`.
+The `hex` binary is provided by `@hex-core/cli`. Install via `pnpm dlx @hex-core/cli <cmd>` or `pnpm add -g @hex-core/cli`.
 
 ## Commands
 
@@ -43,20 +43,20 @@ Copies the 8 skills that ship with hex-ui into `<cwd>/.claude/skills/` by defaul
 
 **Fresh project setup:**
 ```bash
-pnpm dlx @hex-ui/cli init
-pnpm dlx @hex-ui/cli add button input label
-pnpm dlx @hex-ui/cli skills install  # once per repo, for agent tooling
+pnpm dlx @hex-core/cli init
+pnpm dlx @hex-core/cli add button input label
+pnpm dlx @hex-core/cli skills install  # once per repo, for agent tooling
 ```
 
 **Build a feature via recipe:**
 ```bash
-pnpm dlx @hex-ui/cli recipe add settings-page
+pnpm dlx @hex-core/cli recipe add settings-page
 # → installs 8 components + prints ~30-item checklist
 ```
 
 **Dry-run review (no transitive install):**
 ```bash
-pnpm dlx @hex-ui/cli add combobox --no-deps
+pnpm dlx @hex-core/cli add combobox --no-deps
 # → writes only combobox.tsx + warning about missing command/popover
 ```
 

@@ -1,4 +1,4 @@
-# @hex-ui/cli
+# @hex-core/cli
 
 Copy Hex UI components into your project with one command. No runtime dependency on the library — you own the source.
 
@@ -7,13 +7,13 @@ Copy Hex UI components into your project with one command. No runtime dependency
 No install required:
 
 ```bash
-pnpm dlx @hex-ui/cli add button
+pnpm dlx @hex-core/cli add button
 ```
 
 Or install globally:
 
 ```bash
-pnpm add -g @hex-ui/cli
+pnpm add -g @hex-core/cli
 hex add button
 ```
 

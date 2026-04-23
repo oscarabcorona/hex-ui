@@ -30,7 +30,7 @@ Add to your Claude Code settings (`.claude/settings.json`):
   "mcpServers": {
     "hex-ui": {
       "command": "npx",
-      "args": ["@hex-ui/mcp"]
+      "args": ["@hex-core/mcp"]
     }
   }
 }
@@ -41,19 +41,19 @@ Then ask Claude: *"Search hex-ui for a button component and add it to my project
 ### For Humans (CLI)
 
 ```bash
-npx @hex-ui/cli init
-npx @hex-ui/cli add button input label
+npx @hex-core/cli init
+npx @hex-core/cli add button input label
 ```
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
-| `@hex-ui/registry` | Zod schemas and types for the component registry |
-| `@hex-ui/tokens` | Design token engine with 3 themes |
-| `@hex-ui/components` | Component source code (React + Tailwind) |
-| `@hex-ui/mcp` | MCP server for AI-native distribution |
-| `@hex-ui/cli` | CLI for human developers |
+| `@hex-core/registry` | Zod schemas and types for the component registry |
+| `@hex-core/tokens` | Design token engine with 3 themes |
+| `@hex-core/components` | Component source code (React + Tailwind) |
+| `@hex-core/mcp` | MCP server for AI-native distribution |
+| `@hex-core/cli` | CLI for human developers |
 
 ## MCP Tools
 
@@ -77,10 +77,10 @@ See **[hex-ui.dev/docs/spec-driven](https://hex-ui.dev/docs/spec-driven)** for t
 
 ```bash
 # 1. Discover recipes
-npx @hex-ui/cli recipe list
+npx @hex-core/cli recipe list
 
 # 2. Install every component in a recipe + print its checklist
-npx @hex-ui/cli recipe add settings-page
+npx @hex-core/cli recipe add settings-page
 ```
 
 Or from an MCP client: ask *"Resolve this spec into hex-ui components: build a settings page with notifications toggle"* — `resolve_spec` returns the `settings-page` recipe and a ranked component shortlist.
@@ -90,7 +90,7 @@ Or from an MCP client: ask *"Resolve this spec into hex-ui components: build a s
 Hex UI ships eight prose context packs in `SKILL.md` format — overview, MCP tools decision tree, recipes workflow, theming, CLI, a11y, anti-patterns, registry authoring. Install in one command:
 
 ```bash
-npx @hex-ui/cli skills install
+npx @hex-core/cli skills install
 ```
 
 This copies the skills into `.claude/skills/` so any agent working in your repo loads them via trigger keywords on demand. See **[hex-ui.dev/docs/skills](https://hex-ui.dev/docs/skills)**.

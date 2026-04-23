@@ -13,7 +13,7 @@ const CLAUDE_CONFIG = `// .claude/settings.json
   "mcpServers": {
     "hex-ui": {
       "command": "npx",
-      "args": ["@hex-ui/mcp"]
+      "args": ["@hex-core/mcp"]
     }
   }
 }`;
@@ -23,7 +23,7 @@ const CURSOR_CONFIG = `// .cursor/mcp.json
   "mcpServers": {
     "hex-ui": {
       "command": "npx",
-      "args": ["@hex-ui/mcp"]
+      "args": ["@hex-core/mcp"]
     }
   }
 }`;

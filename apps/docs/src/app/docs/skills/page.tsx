@@ -17,10 +17,10 @@ const SECTIONS = [
 ];
 
 const INSTALL_CMD = `# One command, per project
-npx @hex-ui/cli skills install
+npx @hex-core/cli skills install
 
 # Or point at a custom target
-npx @hex-ui/cli skills install --target ./my-skills`;
+npx @hex-core/cli skills install --target ./my-skills`;
 
 const SKILLS = [
 	{

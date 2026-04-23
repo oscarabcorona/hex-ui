@@ -1,11 +1,11 @@
-# @hex-ui/tokens
+# @hex-core/tokens
 
 Design token engine for Hex UI — HSL color tokens + typography scale + shadow/radius tokens shared between components and themes.
 
 ## Install
 
 ```bash
-pnpm add @hex-ui/tokens
+pnpm add @hex-core/tokens
 ```
 
 Or, more commonly, copy the CSS block from the [Theming guide](https://hex-ui.dev/docs/theming) directly into your app's `globals.css`.

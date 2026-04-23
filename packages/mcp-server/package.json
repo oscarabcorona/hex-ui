@@ -1,5 +1,5 @@
 {
-	"name": "@hex-ui/mcp",
+	"name": "@hex-core/mcp",
 	"version": "0.1.0",
 	"description": "MCP server for Hex UI — AI-native component distribution. Ships 11 tools over the registry for Claude Code / Cursor / any MCP client.",
 	"keywords": [
@@ -48,7 +48,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@hex-ui/registry": "workspace:^",
+		"@hex-core/registry": "workspace:^",
 		"@modelcontextprotocol/sdk": "^1.12.0",
 		"zod": "^3.23.0"
 	},

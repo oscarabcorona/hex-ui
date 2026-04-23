@@ -102,7 +102,7 @@ export function componentsByCategory(): Partial<Record<string, RegistryIndexItem
  * @returns The pnpm dlx install command
  */
 export function installCommand(slug: string): string {
-	return `pnpm dlx @hex-ui/cli add ${slug}`;
+	return `pnpm dlx @hex-core/cli add ${slug}`;
 }
 
 /** Label for the install command's package manager (e.g. shown as a code-block header). */

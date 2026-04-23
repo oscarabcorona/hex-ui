@@ -8,7 +8,7 @@ export { defaultTheme } from "./themes/default.js";
 export { midnightTheme } from "./themes/midnight.js";
 export { emberTheme } from "./themes/ember.js";
 
-import type { Theme } from "@hex-ui/registry";
+import type { Theme } from "@hex-core/registry";
 import { defaultTheme } from "./themes/default.js";
 import { emberTheme } from "./themes/ember.js";
 import { midnightTheme } from "./themes/midnight.js";

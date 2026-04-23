@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { SLUG_REGEX } from "@hex-ui/registry";
+import { SLUG_REGEX } from "@hex-core/registry";
 import { findRegistryDir } from "../lib/registry-dir.js";
 import { addComponents } from "./add.js";
 

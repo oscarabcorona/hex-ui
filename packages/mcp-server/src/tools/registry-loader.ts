@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { internalDepToSlug, SLUG_REGEX } from "@hex-ui/registry";
+import { internalDepToSlug, SLUG_REGEX } from "@hex-core/registry";
 
 export { internalDepToSlug, SLUG_REGEX };
 

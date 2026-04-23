@@ -1,6 +1,6 @@
 ---
 name: hex-ui-theming
-description: How to theme hex-ui components. Load when the user asks about colors, dark mode, brand palette, CSS variables, design tokens, theme customization, @hex-ui/tokens, or theme overrides.
+description: How to theme hex-ui components. Load when the user asks about colors, dark mode, brand palette, CSS variables, design tokens, theme customization, @hex-core/tokens, or theme overrides.
 ---
 
 # Hex UI — Theming
@@ -55,7 +55,7 @@ Returns the component JSON with a `cssVariables` key the agent can inject into s
 
 ## Adding a new theme
 
-Option A — fork a theme in `@hex-ui/tokens/src/themes/` and export it alongside the existing three. The MCP `get_theme` walks `listThemes()` so anything exported shows up automatically.
+Option A — fork a theme in `@hex-core/tokens/src/themes/` and export it alongside the existing three. The MCP `get_theme` walks `listThemes()` so anything exported shows up automatically.
 
 Option B — user-side: define your own `:root { --primary: ...; }` in `globals.css`. Hex UI doesn't care where the variables come from — it just consumes them.
 

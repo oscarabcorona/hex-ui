@@ -18,7 +18,7 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.2.0(jiti@2.6.1))
-      '@hex-ui/registry':
+      '@hex-core/registry':
         specifier: workspace:^
         version: link:packages/registry
       eslint:
@@ -51,10 +51,10 @@ importers:
       '@headlessui/react':
         specifier: ^2.2.10
         version: 2.2.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@hex-ui/components':
+      '@hex-core/components':
         specifier: workspace:^
         version: link:../../packages/components
-      '@hex-ui/registry':
+      '@hex-core/registry':
         specifier: workspace:^
         version: link:../../packages/registry
       '@hookform/resolvers':
@@ -178,7 +178,7 @@ importers:
 
   packages/cli:
     dependencies:
-      '@hex-ui/registry':
+      '@hex-core/registry':
         specifier: workspace:^
         version: link:../registry
       commander:
@@ -203,7 +203,7 @@ importers:
 
   packages/components:
     dependencies:
-      '@hex-ui/registry':
+      '@hex-core/registry':
         specifier: workspace:^
         version: link:../registry
       '@radix-ui/react-accordion':
@@ -342,7 +342,7 @@ importers:
 
   packages/mcp-server:
     dependencies:
-      '@hex-ui/registry':
+      '@hex-core/registry':
         specifier: workspace:^
         version: link:../registry
       '@modelcontextprotocol/sdk':
@@ -380,7 +380,7 @@ importers:
 
   packages/tokens:
     dependencies:
-      '@hex-ui/registry':
+      '@hex-core/registry':
         specifier: workspace:^
         version: link:../registry
       zod:

@@ -6,7 +6,7 @@ If you find a security issue in any Hex UI package, please **do not open a publi
 
 Please include:
 
-- Which package (`@hex-ui/components`, `@hex-ui/cli`, `@hex-ui/mcp`, etc.)
+- Which package (`@hex-core/components`, `@hex-core/cli`, `@hex-core/mcp`, etc.)
 - A minimal reproduction
 - Impact assessment (who's affected, what access / data the exploit exposes)
 - Your preferred disclosure timeline

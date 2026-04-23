@@ -1,4 +1,4 @@
-import type { ComponentSchemaDefinition } from "@hex-ui/registry";
+import type { ComponentSchemaDefinition } from "@hex-core/registry";
 
 export const contextMenuSchema: ComponentSchemaDefinition = {
 	name: "context-menu",

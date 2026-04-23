@@ -1,4 +1,4 @@
-import type { ComponentSchemaDefinition } from "@hex-ui/registry";
+import type { ComponentSchemaDefinition } from "@hex-core/registry";
 
 export const labelSchema: ComponentSchemaDefinition = {
 	name: "label",

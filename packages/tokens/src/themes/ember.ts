@@ -1,4 +1,4 @@
-import type { Theme } from "@hex-ui/registry";
+import type { Theme } from "@hex-core/registry";
 
 export const emberTheme: Theme = {
 	name: "ember",

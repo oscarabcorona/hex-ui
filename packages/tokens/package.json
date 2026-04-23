@@ -1,5 +1,5 @@
 {
-	"name": "@hex-ui/tokens",
+	"name": "@hex-core/tokens",
 	"version": "0.1.0",
 	"description": "Design token engine for Hex UI — HSL tokens + typography scale shared between components and themes.",
 	"keywords": [
@@ -44,7 +44,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@hex-ui/registry": "workspace:^",
+		"@hex-core/registry": "workspace:^",
 		"zod": "^3.23.0"
 	},
 	"devDependencies": {

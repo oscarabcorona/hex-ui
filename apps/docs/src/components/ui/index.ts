@@ -1,7 +1,7 @@
 /**
  * Single source of truth for UI components in the docs app.
  * All demos and pages import from here — no duplication of component code.
- * This re-exports from @hex-ui/components so docs stay in sync with the real library.
+ * This re-exports from @hex-core/components so docs stay in sync with the real library.
  */
 export {
 	Button,
@@ -228,4 +228,4 @@ export {
 	SidebarItem,
 	useSidebar,
 	cn,
-} from "@hex-ui/components";
+} from "@hex-core/components";
