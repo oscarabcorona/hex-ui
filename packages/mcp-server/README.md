@@ -66,6 +66,16 @@ Spec-driven build flow:
 - "Walk me through the hex-ui auth-form recipe and install it"
 - "Verify I have all the hex-ui internal deps for combobox"
 
+## Pair with skills
+
+The MCP server returns structured data. For prose reasoning context (when to pick recipe X, how themes compose, React 19 anti-patterns), install the Hex UI skills pack:
+
+```bash
+npx @hex-ui/cli skills install
+```
+
+Skills complement the MCP — one gives Claude Code trigger-keyword-based docs, the other gives it typed tool calls. See [hex-ui.dev/docs/skills](https://hex-ui.dev/docs/skills).
+
 ## Docs
 
 [hex-ui.dev/docs/mcp](https://hex-ui.dev/docs/mcp)
