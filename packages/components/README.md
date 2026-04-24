@@ -1,5 +1,9 @@
 # @hex-core/components
 
+[![npm](https://img.shields.io/npm/v/@hex-core/components.svg)](https://www.npmjs.com/package/@hex-core/components)
+[![downloads](https://img.shields.io/npm/dm/@hex-core/components.svg)](https://www.npmjs.com/package/@hex-core/components)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/oscarabcorona/hex-core/blob/main/LICENSE)
+
 AI-native React components — Radix UI + Tailwind CSS + CVA, with machine-readable schemas for every component.
 
 ## Install

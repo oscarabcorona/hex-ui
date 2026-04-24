@@ -1,5 +1,9 @@
 # @hex-core/mcp
 
+[![npm](https://img.shields.io/npm/v/@hex-core/mcp.svg)](https://www.npmjs.com/package/@hex-core/mcp)
+[![downloads](https://img.shields.io/npm/dm/@hex-core/mcp.svg)](https://www.npmjs.com/package/@hex-core/mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/oscarabcorona/hex-core/blob/main/LICENSE)
+
 MCP server for Hex UI. Gives any MCP-capable AI agent (Claude Code, Cursor, Continue, …) structured access to the component registry — no prose scraping, no copy-paste.
 
 ## Install

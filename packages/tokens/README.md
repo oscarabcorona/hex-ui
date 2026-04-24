@@ -1,5 +1,9 @@
 # @hex-core/tokens
 
+[![npm](https://img.shields.io/npm/v/@hex-core/tokens.svg)](https://www.npmjs.com/package/@hex-core/tokens)
+[![downloads](https://img.shields.io/npm/dm/@hex-core/tokens.svg)](https://www.npmjs.com/package/@hex-core/tokens)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/oscarabcorona/hex-core/blob/main/LICENSE)
+
 Design token engine for Hex UI — HSL color tokens + typography scale + shadow/radius tokens shared between components and themes.
 
 ## Install
