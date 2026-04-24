@@ -1,5 +1,9 @@
 # @hex-core/registry
 
+[![npm](https://img.shields.io/npm/v/@hex-core/registry.svg)](https://www.npmjs.com/package/@hex-core/registry)
+[![downloads](https://img.shields.io/npm/dm/@hex-core/registry.svg)](https://www.npmjs.com/package/@hex-core/registry)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/oscarabcorona/hex-core/blob/main/LICENSE)
+
 Zod schemas + TypeScript types for the Hex UI component registry.
 
 This package is the **shared contract** between `@hex-core/components`, `@hex-core/cli`, and `@hex-core/mcp`. It doesn't ship runtime UI — it's schemas describing what a component is (props, variants, examples, AI hints).

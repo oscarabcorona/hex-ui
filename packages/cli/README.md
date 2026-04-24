@@ -1,5 +1,9 @@
 # @hex-core/cli
 
+[![npm](https://img.shields.io/npm/v/@hex-core/cli.svg)](https://www.npmjs.com/package/@hex-core/cli)
+[![downloads](https://img.shields.io/npm/dm/@hex-core/cli.svg)](https://www.npmjs.com/package/@hex-core/cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/oscarabcorona/hex-core/blob/main/LICENSE)
+
 Copy Hex UI components into your project with one command. No runtime dependency on the library — you own the source.
 
 ## Install & run

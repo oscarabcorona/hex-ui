@@ -1,9 +1,9 @@
 # Hex UI
 
 [![CI](https://github.com/oscarabcorona/hex-core/actions/workflows/ci.yml/badge.svg)](https://github.com/oscarabcorona/hex-core/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@hex-core/components.svg?label=%40hex-core%2Fcomponents)](https://www.npmjs.com/package/@hex-core/components)
+[![downloads](https://img.shields.io/npm/dm/@hex-core/components.svg)](https://www.npmjs.com/package/@hex-core/components)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-
-> **Pre-release.** Hex UI is not yet published to npm. We're stabilizing the API before the first public cut — install paths below will go live alongside v0.1.0.
 
 **The component layer for spec-driven UI development.**
 
