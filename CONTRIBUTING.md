@@ -34,12 +34,29 @@ pnpm --filter docs test       # Playwright e2e (8 tests across 3 specs)
 3. Run `pnpm run build:registry` — the registry JSON regenerates from your schema.
 4. Run `pnpm build && pnpm --filter docs dev` and check `/docs/components/<slug>`.
 5. Add a changeset: `pnpm changeset`. Pick the affected packages (usually `@hex-core/components`) and bump type.
+6. Add a unit test alongside the component: `packages/components/src/**/<slug>.test.tsx`. Use [`button.test.tsx`](packages/components/src/primitives/button/button.test.tsx) as a template.
+
+## Tests
+
+Hex Core uses **[Vitest](https://vitest.dev/)** for unit tests + **[Playwright](https://playwright.dev/)** for docs e2e.
+
+- `pnpm test` — run everything (vitest across packages + playwright in apps/docs) via turbo
+- `pnpm --filter @hex-core/components test` — component unit tests only
+- `pnpm --filter @hex-core/registry test` — schema-drift guard (parses every `registry/**/*.json` through Zod)
+- `pnpm --filter docs test` — e2e browser tests only
+
+Templates:
+
+- **Component unit test:** [`packages/components/src/primitives/button/button.test.tsx`](packages/components/src/primitives/button/button.test.tsx) — render, variant switching, keyboard a11y, ref forwarding, asChild composition.
+- **Schema validation:** [`packages/registry/test/validate-registry.test.ts`](packages/registry/test/validate-registry.test.ts) — walks every JSON and enforces the registry contract.
+
+Every new component should land with a unit test. Every schema change should keep the validation suite green.
 
 ## Submitting a PR
 
 - Branch name: `feat/<scope>`, `fix/<scope>`, `chore/<scope>`.
 - One logical change per commit. Imperative mood, ≤ 65 chars subject, explain why not what.
-- `pnpm run lint`, `pnpm build`, `pnpm --filter docs test` must pass.
+- `pnpm run lint`, `pnpm build`, `pnpm test` must pass.
 - PR description follows the template.
 
 ## Code of conduct
