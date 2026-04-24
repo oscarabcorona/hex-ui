@@ -89,7 +89,7 @@
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
 		"tsup": "^8.3.0",
-		"typescript": "^5.9.3"
+		"typescript": "^6.0.3"
 	},
 	"peerDependencies": {
 		"@tanstack/react-table": "^8.0.0 || ^9.0.0",

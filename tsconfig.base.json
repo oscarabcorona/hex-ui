@@ -14,7 +14,8 @@
 		"declaration": true,
 		"declarationMap": true,
 		"sourceMap": true,
-		"outDir": "dist"
+		"outDir": "dist",
+		"ignoreDeprecations": "6.0"
 	},
 	"exclude": ["node_modules", "dist"]
 }
