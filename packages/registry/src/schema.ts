@@ -207,15 +207,15 @@ export const tokenValueSchema = z.object({
 export type TokenValue = z.infer<typeof tokenValueSchema>;
 
 export const tokenGroupSchema: z.ZodType<Record<string, TokenValue | Record<string, unknown>>> =
-	z.lazy(() => z.record(z.union([tokenValueSchema, z.record(z.unknown())])));
+	z.lazy(() => z.record(z.string(), z.union([tokenValueSchema, z.record(z.string(), z.unknown())])));
 
 export const themeSchema = z.object({
 	name: z.string(),
 	displayName: z.string(),
 	description: z.string(),
 	tokens: z.object({
-		light: z.record(z.unknown()),
-		dark: z.record(z.unknown()),
+		light: z.record(z.string(), z.unknown()),
+		dark: z.record(z.string(), z.unknown()),
 	}),
 });
 
