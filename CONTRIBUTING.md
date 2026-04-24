@@ -44,7 +44,7 @@ pnpm --filter docs test       # Playwright e2e (8 tests across 3 specs)
 
 ## Code of conduct
 
-Be respectful. No personal attacks, no harassment. Maintainers reserve the right to close PRs or ban users who don't comply.
+This project adopts the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating you agree to abide by it. Report violations to oabc4004@gmail.com.
 
 ## License
 
