@@ -1,0 +1,85 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      types:
+        patterns:
+          - "@types/*"
+      radix:
+        patterns:
+          - "@radix-ui/*"
+      eslint:
+        patterns:
+          - "eslint*"
+          - "@eslint/*"
+          - "typescript-eslint"
+
+  - package-ecosystem: npm
+    directory: /apps/docs
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore(docs)
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /packages/components
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore(components)
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /packages/cli
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore(cli)
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /packages/mcp-server
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore(mcp)
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /packages/registry
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore(registry)
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /packages/tokens
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore(tokens)
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore(ci)
