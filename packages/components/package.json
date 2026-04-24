@@ -13,7 +13,7 @@
 		"hex-ui"
 	],
 	"license": "MIT",
-	"author": "Hex UI",
+	"author": "Oscar Corona <oabc4004@gmail.com>",
 	"homepage": "https://hex-core.dev",
 	"repository": {
 		"type": "git",
@@ -38,8 +38,7 @@
 		"LICENSE"
 	],
 	"publishConfig": {
-		"access": "public",
-		"provenance": true
+		"access": "public"
 	},
 	"scripts": {
 		"build": "tsup",
