@@ -57,7 +57,7 @@ jobs:
         if: steps.pw-cache.outputs.cache-hit != 'true'
         run: pnpm --filter docs exec playwright install --with-deps chromium
 
-      - name: E2E tests
-        run: pnpm --filter docs test
+      - name: Unit + E2E tests
+        run: pnpm test
         env:
           CI: "1"

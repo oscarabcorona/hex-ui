@@ -13,7 +13,15 @@
 			"dependsOn": ["build:registry"]
 		},
 		"test": {
-			"dependsOn": ["build"]
+			"dependsOn": ["build"],
+			"inputs": [
+				"src/**",
+				"test/**",
+				"vitest.config.ts",
+				"vitest.setup.ts",
+				"package.json"
+			],
+			"outputs": []
 		},
 		"clean": {
 			"cache": false
