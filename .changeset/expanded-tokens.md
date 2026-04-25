@@ -1,22 +1,45 @@
 ---
 "@hex-core/tokens": minor
 "@hex-core/components": minor
+"@hex-core/registry": minor
+"@hex-core/cli": minor
 ---
 
-Expand token surface beyond color + radius.
+Theme B substrate — full custom-tokens surface across the OS.
 
-`@hex-core/tokens` now ships spacing scale (`--space-1` through `--space-16`), gap
-presets (`--gap-sm/md/lg`), control heights (`--control-height-sm/md/lg`),
-typography scale (`--text-xs` through `--text-3xl`), and motion duration tokens
-(`--duration-fast/normal/slow`). Shared across the 3 theme presets via
-`themes/shared.ts`.
+**`@hex-core/tokens`** now ships beyond color + radius:
+- Spacing scale (`--space-1` through `--space-16`)
+- Gap presets (`--gap-sm/md/lg`)
+- Control heights (`--control-height-sm/md/lg`)
+- Typography scale (`--text-xs` through `--text-3xl`)
+- Motion duration tokens (`--duration-fast/normal/slow`)
 
-`themeToTailwindConfig` now emits `spacing`, `fontSize`, `transitionDuration`,
-and `height` maps in addition to `colors` and `borderRadius`, so consumers can
-wire the whole token set into Tailwind's `theme.extend`.
+Shared across the 3 theme presets via `themes/shared.ts`. `themeToTailwindConfig`
+now emits `spacing`, `fontSize`, `transitionDuration`, and `height` maps in
+addition to `colors` and `borderRadius`, so consumers wire the whole token set
+into Tailwind's `theme.extend` in one call.
 
-`@hex-core/components` — Button and Card are migrated to read these tokens via
-CSS-variable references (with defaults that match prior Tailwind values, so
-consumers without a theme loaded see no visual change). This is the first step
-of a piecewise migration across all 47 components so overriding
-`--space-*` / `--control-height-*` in `globals.css` reflows the entire library.
+**`@hex-core/components`** — all 47 components migrated to read tokens via
+CSS-variable references. Fallbacks match prior Tailwind defaults, so consumers
+without a theme loaded see zero visual change. Override `--space-6` (etc.) in
+your `globals.css` and every component reflows.
+
+**`@hex-core/registry`** — adds `tokenSetSchema`, `strictTokenSetSchema`,
+`strictThemeSchema`, plus `REQUIRED_COLOR_TOKENS` and `REQUIRED_RADIUS_TOKENS`
+constants. Strict variants validate that a theme defines the 19 color tokens +
+radius needed for components to render correctly. Existing `themeSchema` stays
+loose for runtime parsing.
+
+**`@hex-core/cli`** — adds `hex theme init` and `hex theme edit`:
+
+```bash
+# scaffold globals.css from a preset (full token block, light + dark)
+pnpm dlx @hex-core/cli theme init --name midnight --out app/globals.css
+
+# override one or more tokens, scoped or both
+pnpm dlx @hex-core/cli theme edit \
+  --file app/globals.css \
+  --token "primary=240 50% 50%"
+```
+
+114 unit tests cover the new surface (was 65 before).
