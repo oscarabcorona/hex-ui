@@ -36,7 +36,7 @@ NavigationMenuList.displayName = "NavigationMenuList";
 const NavigationMenuItem = NavigationMenuPrimitive.Item;
 
 const navigationMenuTriggerStyle = cva(
-	"group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50",
+	"group inline-flex h-[var(--control-height-md,2.5rem)] w-max items-center justify-center rounded-md bg-background px-[var(--space-4,1rem)] py-[var(--space-2,0.5rem)] text-sm font-medium transition-all duration-[var(--duration-normal,200ms)] ease-out hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50",
 );
 
 /** The clickable trigger that opens a nav-menu content panel. */
@@ -58,7 +58,7 @@ const NavigationMenuTrigger = React.forwardRef<
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
-			className="relative top-[1px] ml-1 h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180"
+			className="relative top-[1px] ml-[var(--space-1,0.25rem)] h-3 w-3 transition duration-[var(--duration-normal,200ms)] group-data-[state=open]:rotate-180"
 			aria-hidden="true"
 		>
 			<polyline points="6 9 12 15 18 9" />

@@ -53,7 +53,7 @@ const DrawerContent = React.forwardRef<
 			)}
 			{...props}
 		>
-			<div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" aria-hidden="true" />
+			<div className="mx-auto mt-[var(--space-4,1rem)] h-2 w-[100px] rounded-full bg-muted" aria-hidden="true" />
 			{children}
 		</DrawerPrimitive.Content>
 	</DrawerPortal>
@@ -67,7 +67,7 @@ DrawerContent.displayName = "DrawerContent";
 function DrawerHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
 	return (
 		<div
-			className={cn("grid gap-1.5 p-4 text-center sm:text-left", className)}
+			className={cn("grid gap-1.5 p-[var(--space-4,1rem)] text-center sm:text-left", className)}
 			{...props}
 		/>
 	);
@@ -78,7 +78,7 @@ function DrawerHeader({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
  * @returns A div that stacks buttons vertically with consistent gutters.
  */
 function DrawerFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-	return <div className={cn("mt-auto flex flex-col gap-2 p-4", className)} {...props} />;
+	return <div className={cn("mt-auto flex flex-col gap-[var(--gap-sm,0.5rem)] p-[var(--space-4,1rem)]", className)} {...props} />;
 }
 
 /** Accessible drawer title; vaul wires it to aria-labelledby automatically. */

@@ -17,10 +17,22 @@ import { recipeSchema, registryIndexSchema, registryItemSchema } from "../src/in
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const REGISTRY_ROOT = join(HERE, "../../../registry");
 
+/**
+ * Read a JSON file from disk and parse it.
+ *
+ * @param path - Absolute or cwd-relative path to a `.json` file.
+ * @returns The parsed JSON value cast to `T`.
+ */
 function readJson<T = unknown>(path: string): T {
 	return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
+/**
+ * List every `.json` file in a directory.
+ *
+ * @param dir - Directory to scan (non-recursive).
+ * @returns An array of absolute paths to `.json` files in `dir`.
+ */
 function listJson(dir: string): string[] {
 	return readdirSync(dir)
 		.filter((f) => f.endsWith(".json"))

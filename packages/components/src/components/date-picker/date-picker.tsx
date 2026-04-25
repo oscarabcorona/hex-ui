@@ -46,7 +46,7 @@ function DatePicker({
 					disabled={disabled}
 					aria-label={ariaLabel ?? placeholder}
 					className={cn(
-						"inline-flex h-10 w-[240px] items-center justify-start gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm font-normal transition-all duration-200 ease-out",
+						"inline-flex h-[var(--control-height-md,2.5rem)] w-[240px] items-center justify-start gap-[var(--gap-sm,0.5rem)] rounded-md border border-input bg-background px-[var(--space-3,0.75rem)] py-[var(--space-2,0.5rem)] text-left text-sm font-normal transition-all duration-[var(--duration-normal,200ms)] ease-out",
 						"hover:bg-accent hover:text-accent-foreground",
 						"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 						"disabled:pointer-events-none disabled:opacity-50",

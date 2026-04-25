@@ -5,8 +5,10 @@ import { cn } from "../../lib/utils.js";
 
 const buttonVariants = cva(
 	[
-		"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium",
-		"transition-all duration-200 ease-out",
+		// Tokens consumed (fall back to Tailwind defaults when no theme is loaded):
+		// --gap-sm, --duration-normal, --control-height-{sm,md,lg}, --space-{2,3,4,8}
+		"inline-flex items-center justify-center gap-[var(--gap-sm,0.5rem)] whitespace-nowrap rounded-md text-sm font-medium",
+		"transition-all duration-[var(--duration-normal,200ms)] ease-out",
 		"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 		"disabled:pointer-events-none disabled:opacity-50",
 		"active:scale-[0.98]",
@@ -39,10 +41,11 @@ const buttonVariants = cva(
 				link: "text-primary underline-offset-4 hover:underline",
 			},
 			size: {
-				default: "h-10 px-4 py-2",
-				sm: "h-9 rounded-md px-3",
-				lg: "h-11 rounded-md px-8 text-base",
-				icon: "h-10 w-10",
+				default:
+					"h-[var(--control-height-md,2.5rem)] px-[var(--space-4,1rem)] py-[var(--space-2,0.5rem)]",
+				sm: "h-[var(--control-height-sm,2.25rem)] rounded-md px-[var(--space-3,0.75rem)]",
+				lg: "h-[var(--control-height-lg,2.75rem)] rounded-md px-[var(--space-8,2rem)] text-base",
+				icon: "h-[var(--control-height-md,2.5rem)] w-[var(--control-height-md,2.5rem)]",
 			},
 		},
 		defaultVariants: {

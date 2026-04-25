@@ -1,4 +1,5 @@
 import type { Theme } from "@hex-core/registry";
+import { sharedTokens } from "./shared.js";
 
 export const defaultTheme: Theme = {
 	name: "default",
@@ -27,6 +28,7 @@ export const defaultTheme: Theme = {
 			input: { value: "240 5.9% 90%", type: "color" },
 			ring: { value: "240 5.9% 10%", type: "color" },
 			radius: { value: "0.625rem", type: "radius" },
+			...sharedTokens,
 		},
 		dark: {
 			background: { value: "240 10% 3.9%", type: "color" },
@@ -49,6 +51,7 @@ export const defaultTheme: Theme = {
 			input: { value: "240 3.7% 15.9%", type: "color" },
 			ring: { value: "240 4.9% 83.9%", type: "color" },
 			radius: { value: "0.625rem", type: "radius" },
+			...sharedTokens,
 		},
 	},
 };

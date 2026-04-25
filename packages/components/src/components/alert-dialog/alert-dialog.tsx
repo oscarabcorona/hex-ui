@@ -39,9 +39,9 @@ const AlertDialogContent = React.forwardRef<
 		<AlertDialogPrimitive.Content
 			ref={ref}
 			className={cn(
-				"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
-				"border bg-background p-6 shadow-lg rounded-lg",
-				"duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
+				"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-[var(--gap-md,1rem)]",
+				"border bg-background p-[var(--space-6,1.5rem)] shadow-lg rounded-lg",
+				"duration-[var(--duration-normal,200ms)] data-[state=open]:animate-in data-[state=closed]:animate-out",
 				"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
 				"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
 				className,
@@ -115,9 +115,9 @@ const AlertDialogAction = React.forwardRef<
 	<AlertDialogPrimitive.Action
 		ref={ref}
 		className={cn(
-			"inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium",
+			"inline-flex h-[var(--control-height-md,2.5rem)] items-center justify-center rounded-md px-[var(--space-4,1rem)] py-[var(--space-2,0.5rem)] text-sm font-medium",
 			"bg-destructive text-destructive-foreground shadow-sm",
-			"transition-all duration-200 ease-out",
+			"transition-all duration-[var(--duration-normal,200ms)] ease-out",
 			"hover:bg-destructive/90 hover:shadow-md",
 			"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 			"disabled:pointer-events-none disabled:opacity-50",
@@ -137,12 +137,12 @@ const AlertDialogCancel = React.forwardRef<
 	<AlertDialogPrimitive.Cancel
 		ref={ref}
 		className={cn(
-			"inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium",
+			"inline-flex h-[var(--control-height-md,2.5rem)] items-center justify-center rounded-md px-[var(--space-4,1rem)] py-[var(--space-2,0.5rem)] text-sm font-medium",
 			"border border-input bg-background shadow-sm",
-			"transition-all duration-200 ease-out",
+			"transition-all duration-[var(--duration-normal,200ms)] ease-out",
 			"hover:bg-accent hover:text-accent-foreground hover:shadow-md",
 			"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-			"mt-2 sm:mt-0",
+			"mt-[var(--space-2,0.5rem)] sm:mt-0",
 			"active:scale-[0.98]",
 			className,
 		)}

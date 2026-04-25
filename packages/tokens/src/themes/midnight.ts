@@ -1,4 +1,5 @@
 import type { Theme } from "@hex-core/registry";
+import { sharedTokens } from "./shared.js";
 
 export const midnightTheme: Theme = {
 	name: "midnight",
@@ -27,6 +28,7 @@ export const midnightTheme: Theme = {
 			input: { value: "220 13% 88%", type: "color" },
 			ring: { value: "226 70% 55%", type: "color" },
 			radius: { value: "0.5rem", type: "radius" },
+			...sharedTokens,
 		},
 		dark: {
 			background: { value: "224 71% 4%", type: "color" },
@@ -49,6 +51,7 @@ export const midnightTheme: Theme = {
 			input: { value: "224 20% 14%", type: "color" },
 			ring: { value: "226 70% 55%", type: "color" },
 			radius: { value: "0.5rem", type: "radius" },
+			...sharedTokens,
 		},
 	},
 };

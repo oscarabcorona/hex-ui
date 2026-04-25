@@ -78,11 +78,16 @@ export function themeToFlatJson(
 /**
  * Transforms a theme into Tailwind CSS config extension.
  * @param theme - The theme to transform
- * @returns An object with `colors` and `borderRadius` maps suitable for Tailwind's `theme.extend`
+ * @returns An object with maps for colors, borderRadius, spacing, fontSize,
+ * transitionDuration, and height — suitable for Tailwind's `theme.extend`.
  */
 export function themeToTailwindConfig(theme: Theme): Record<string, Record<string, string>> {
 	const colors: Record<string, string> = {};
 	const borderRadius: Record<string, string> = {};
+	const spacing: Record<string, string> = {};
+	const fontSize: Record<string, string> = {};
+	const transitionDuration: Record<string, string> = {};
+	const height: Record<string, string> = {};
 
 	for (const [key, token] of Object.entries(theme.tokens.light)) {
 		const type = extractType(token);
@@ -92,10 +97,21 @@ export function themeToTailwindConfig(theme: Theme): Record<string, Record<strin
 			colors[key] = `hsl(var(--${key}))`;
 		} else if (type === "radius") {
 			borderRadius[key] = `var(--${key})`;
+		} else if (type === "spacing") {
+			// Strip "space-" / "gap-" prefix for cleaner Tailwind usage (e.g. `p-4` vs `p-space-4`).
+			const stripped = key.replace(/^(space-|gap-)/, "");
+			spacing[stripped] = `var(--${key})`;
+		} else if (type === "dimension") {
+			// control-height-md → height.control-md
+			height[key.replace(/^control-/, "")] = `var(--${key})`;
+		} else if (type === "font") {
+			fontSize[key.replace(/^text-/, "")] = `var(--${key})`;
+		} else if (type === "duration") {
+			transitionDuration[key.replace(/^duration-/, "")] = `var(--${key})`;
 		}
 	}
 
-	return { colors, borderRadius };
+	return { colors, borderRadius, spacing, fontSize, transitionDuration, height };
 }
 
 /**

@@ -37,10 +37,12 @@
 		"prebuild": "rm -rf skills && cp -R ../../skills ./skills",
 		"build": "tsup",
 		"dev": "tsx src/index.ts",
-		"clean": "rm -rf dist skills"
+		"clean": "rm -rf dist skills",
+		"test": "vitest run"
 	},
 	"dependencies": {
 		"@hex-core/registry": "workspace:^",
+		"@hex-core/tokens": "workspace:^",
 		"commander": "^14.0.3",
 		"zod": "^4.3.6"
 	},

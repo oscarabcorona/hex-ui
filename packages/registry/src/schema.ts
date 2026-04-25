@@ -209,17 +209,89 @@ export type TokenValue = z.infer<typeof tokenValueSchema>;
 export const tokenGroupSchema: z.ZodType<Record<string, TokenValue | Record<string, unknown>>> =
 	z.lazy(() => z.record(z.string(), z.union([tokenValueSchema, z.record(z.string(), z.unknown())])));
 
+/**
+ * A flat dictionary of token name → typed value. Used for both the `light`
+ * and `dark` halves of a Theme. Open-ended on keys (consumers add new tokens
+ * freely) but strict on values: every entry must declare a `type` that maps
+ * to {@link tokenTypeEnum} — color, spacing, dimension, font, radius, etc.
+ *
+ * This is the contract Hex Studio + downstream theme packs validate against.
+ */
+export const tokenSetSchema = z.record(z.string(), tokenValueSchema);
+export type TokenSet = z.infer<typeof tokenSetSchema>;
+
+/** Required color tokens any Hex Core theme must define so the 47 components render correctly. */
+export const REQUIRED_COLOR_TOKENS = [
+	"background",
+	"foreground",
+	"card",
+	"card-foreground",
+	"popover",
+	"popover-foreground",
+	"primary",
+	"primary-foreground",
+	"secondary",
+	"secondary-foreground",
+	"muted",
+	"muted-foreground",
+	"accent",
+	"accent-foreground",
+	"destructive",
+	"destructive-foreground",
+	"border",
+	"input",
+	"ring",
+] as const;
+
+/** Required radius token (single — drives `--radius` and Tailwind's borderRadius). */
+export const REQUIRED_RADIUS_TOKENS = ["radius"] as const;
+
+/**
+ * A `tokenSetSchema` refined to also enforce that the required color +
+ * radius tokens are present. Use this for **theme validation** (init / edit
+ * flows, Studio export) where missing tokens would visibly break components.
+ *
+ * Open-ended on additional tokens (spacing, gap, control-height, typography,
+ * motion, shadows) — those are recommended but not blocking.
+ */
+export const strictTokenSetSchema = tokenSetSchema.refine(
+	(tokens) => {
+		const keys = new Set(Object.keys(tokens));
+		for (const k of REQUIRED_COLOR_TOKENS) if (!keys.has(k)) return false;
+		for (const k of REQUIRED_RADIUS_TOKENS) if (!keys.has(k)) return false;
+		return true;
+	},
+	{
+		message: `Theme is missing one or more required tokens. Required colors: ${REQUIRED_COLOR_TOKENS.join(", ")}. Required radius: ${REQUIRED_RADIUS_TOKENS.join(", ")}.`,
+	},
+);
+
 export const themeSchema = z.object({
 	name: z.string(),
 	displayName: z.string(),
 	description: z.string(),
 	tokens: z.object({
-		light: z.record(z.string(), z.unknown()),
-		dark: z.record(z.string(), z.unknown()),
+		light: tokenSetSchema,
+		dark: tokenSetSchema,
 	}),
 });
 
 export type Theme = z.infer<typeof themeSchema>;
+
+/**
+ * A Theme schema where both `light` and `dark` token sets are validated by
+ * {@link strictTokenSetSchema}. Use for authoring / validation flows that must
+ * reject incomplete themes; runtime consumers typically use {@link themeSchema}.
+ */
+export const strictThemeSchema = z.object({
+	name: z.string(),
+	displayName: z.string(),
+	description: z.string(),
+	tokens: z.object({
+		light: strictTokenSetSchema,
+		dark: strictTokenSetSchema,
+	}),
+});
 
 // ─── Component Schema Definition (used in .schema.ts files) ───
 
