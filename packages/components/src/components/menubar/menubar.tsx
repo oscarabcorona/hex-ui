@@ -10,7 +10,7 @@ const Menubar = React.forwardRef<
 	<MenubarPrimitive.Root
 		ref={ref}
 		className={cn(
-			"flex h-10 items-center space-x-1 rounded-md border bg-background p-1",
+			"flex h-[var(--control-height-md,2.5rem)] items-center space-x-1 rounded-md border bg-background p-[var(--space-1,0.25rem)]",
 			className,
 		)}
 		{...props}
@@ -43,8 +43,8 @@ const MenubarTrigger = React.forwardRef<
 	<MenubarPrimitive.Trigger
 		ref={ref}
 		className={cn(
-			"flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none",
-			"transition-all duration-200 ease-out",
+			"flex cursor-default select-none items-center rounded-sm px-[var(--space-3,0.75rem)] py-1.5 text-sm font-medium outline-none",
+			"transition-all duration-[var(--duration-normal,200ms)] ease-out",
 			"focus:bg-accent focus:text-accent-foreground",
 			"data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
 			className,
@@ -66,7 +66,7 @@ const MenubarContent = React.forwardRef<
 			alignOffset={alignOffset}
 			sideOffset={sideOffset}
 			className={cn(
-				"z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+				"z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover p-[var(--space-1,0.25rem)] text-popover-foreground shadow-md",
 				"data-[state=open]:animate-in data-[state=closed]:animate-out",
 				"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
 				"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -86,11 +86,11 @@ const MenubarItem = React.forwardRef<
 	<MenubarPrimitive.Item
 		ref={ref}
 		className={cn(
-			"relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none",
-			"transition-all duration-200 ease-out",
+			"relative flex cursor-default select-none items-center gap-[var(--gap-sm,0.5rem)] rounded-sm px-[var(--space-2,0.5rem)] py-1.5 text-sm outline-none",
+			"transition-all duration-[var(--duration-normal,200ms)] ease-out",
 			"focus:bg-accent focus:text-accent-foreground",
 			"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-			inset && "pl-8",
+			inset && "pl-[var(--space-8,2rem)]",
 			className,
 		)}
 		{...props}
@@ -105,7 +105,7 @@ const MenubarLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
 	<MenubarPrimitive.Label
 		ref={ref}
-		className={cn("px-2 py-1.5 text-sm font-semibold", inset && "pl-8", className)}
+		className={cn("px-[var(--space-2,0.5rem)] py-1.5 text-sm font-semibold", inset && "pl-[var(--space-8,2rem)]", className)}
 		{...props}
 	/>
 ));
@@ -118,7 +118,7 @@ const MenubarSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<MenubarPrimitive.Separator
 		ref={ref}
-		className={cn("-mx-1 my-1 h-px bg-muted", className)}
+		className={cn("-mx-[var(--space-1,0.25rem)] my-[var(--space-1,0.25rem)] h-px bg-muted", className)}
 		{...props}
 	/>
 ));

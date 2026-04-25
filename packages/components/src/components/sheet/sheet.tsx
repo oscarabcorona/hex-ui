@@ -35,9 +35,9 @@ SheetOverlay.displayName = "SheetOverlay";
 
 const sheetVariants = cva(
 	cn(
-		"fixed z-50 gap-4 bg-background p-6 shadow-lg",
+		"fixed z-50 gap-[var(--gap-md,1rem)] bg-background p-[var(--space-6,1.5rem)] shadow-lg",
 		"transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out",
-		"data-[state=closed]:duration-300 data-[state=open]:duration-500",
+		"data-[state=closed]:duration-[var(--duration-slow,300ms)] data-[state=open]:duration-500",
 	),
 	{
 		variants: {
@@ -76,7 +76,7 @@ const SheetContent = React.forwardRef<
 			<SheetPrimitive.Close
 				className={cn(
 					"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background",
-					"transition-all duration-200 ease-out hover:opacity-100",
+					"transition-all duration-[var(--duration-normal,200ms)] ease-out hover:opacity-100",
 					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 					"disabled:pointer-events-none",
 				)}

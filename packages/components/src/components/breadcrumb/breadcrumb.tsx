@@ -14,7 +14,7 @@ const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWi
 		<ol
 			ref={ref}
 			className={cn(
-				"flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
+				"flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-[var(--gap-sm,0.5rem)].5",
 				className,
 			)}
 			{...props}
@@ -44,7 +44,7 @@ const BreadcrumbLink = React.forwardRef<
 	return (
 		<Comp
 			ref={ref}
-			className={cn("transition-all duration-200 ease-out hover:text-foreground", className)}
+			className={cn("transition-all duration-[var(--duration-normal,200ms)] ease-out hover:text-foreground", className)}
 			{...props}
 		/>
 	);
@@ -104,7 +104,7 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span"
 	// sr-only "More pages" label actually reaches screen readers.
 	return (
 		<span
-			className={cn("flex h-9 w-9 items-center justify-center", className)}
+			className={cn("flex h-[var(--control-height-sm,2.25rem)] w-[var(--control-height-sm,2.25rem)] items-center justify-center", className)}
 			{...props}
 		>
 			<svg

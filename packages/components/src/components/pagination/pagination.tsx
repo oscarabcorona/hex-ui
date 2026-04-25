@@ -131,7 +131,7 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span"
 	// sr-only "More pages" label actually reaches screen readers.
 	return (
 		<span
-			className={cn("flex h-9 w-9 items-center justify-center", className)}
+			className={cn("flex h-[var(--control-height-sm,2.25rem)] w-[var(--control-height-sm,2.25rem)] items-center justify-center", className)}
 			{...props}
 		>
 			<svg

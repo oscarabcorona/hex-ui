@@ -82,7 +82,7 @@ SidebarProvider.displayName = "SidebarProvider";
 const sidebarVariants = cva(
 	cn(
 		"flex h-full shrink-0 flex-col border-r bg-background text-foreground",
-		"transition-[width] duration-200 ease-out",
+		"transition-[width] duration-[var(--duration-normal,200ms)] ease-out",
 	),
 	{
 		variants: {
@@ -158,8 +158,8 @@ const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTriggerProps>(
 					}
 				}}
 				className={cn(
-					"inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground",
-					"transition-all duration-200 ease-out hover:bg-accent hover:text-accent-foreground",
+					"inline-flex h-[var(--control-height-sm,2.25rem)] w-[var(--control-height-sm,2.25rem)] items-center justify-center rounded-md text-muted-foreground",
+					"transition-all duration-[var(--duration-normal,200ms)] ease-out hover:bg-accent hover:text-accent-foreground",
 					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 					className,
 				)}
@@ -195,7 +195,7 @@ const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
 	({ className, ...props }, ref) => (
 		<div
 			ref={ref}
-			className={cn("flex items-center gap-2 border-b p-4", className)}
+			className={cn("flex items-center gap-[var(--gap-sm,0.5rem)] border-b p-[var(--space-4,1rem)]", className)}
 			{...props}
 		/>
 	),
@@ -207,7 +207,7 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
 	({ className, ...props }, ref) => (
 		<div
 			ref={ref}
-			className={cn("flex-1 overflow-auto p-2", className)}
+			className={cn("flex-1 overflow-auto p-[var(--space-2,0.5rem)]", className)}
 			{...props}
 		/>
 	),
@@ -219,7 +219,7 @@ const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
 	({ className, ...props }, ref) => (
 		<div
 			ref={ref}
-			className={cn("mt-auto border-t p-4", className)}
+			className={cn("mt-auto border-t p-[var(--space-4,1rem)]", className)}
 			{...props}
 		/>
 	),
@@ -247,8 +247,8 @@ const SidebarItem = React.forwardRef<HTMLButtonElement, SidebarItemProps>(
 				aria-current={active ? "page" : undefined}
 				data-active={active ? "" : undefined}
 				className={cn(
-					"inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium",
-					"transition-all duration-200 ease-out",
+					"inline-flex w-full items-center gap-[var(--gap-sm,0.5rem)] rounded-md px-[var(--space-3,0.75rem)] py-[var(--space-2,0.5rem)] text-sm font-medium",
+					"transition-all duration-[var(--duration-normal,200ms)] ease-out",
 					"hover:bg-accent hover:text-accent-foreground",
 					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 					"data-[active]:bg-accent data-[active]:text-accent-foreground",

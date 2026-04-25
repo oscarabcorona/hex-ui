@@ -57,7 +57,7 @@ const TableRow = React.forwardRef<
 	<tr
 		ref={ref}
 		className={cn(
-			"border-b transition-all duration-200 ease-out hover:bg-muted/50 data-[state=selected]:bg-muted",
+			"border-b transition-all duration-[var(--duration-normal,200ms)] ease-out hover:bg-muted/50 data-[state=selected]:bg-muted",
 			className,
 		)}
 		{...props}
@@ -73,7 +73,7 @@ const TableHead = React.forwardRef<
 	<th
 		ref={ref}
 		className={cn(
-			"h-10 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+			"h-[var(--control-height-md,2.5rem)] px-[var(--space-4,1rem)] text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
 			className,
 		)}
 		{...props}
@@ -88,7 +88,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<td
 		ref={ref}
-		className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+		className={cn("p-[var(--space-4,1rem)] align-middle [&:has([role=checkbox])]:pr-0", className)}
 		{...props}
 	/>
 ));
@@ -101,7 +101,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<caption
 		ref={ref}
-		className={cn("mt-4 text-sm text-muted-foreground", className)}
+		className={cn("mt-[var(--space-4,1rem)] text-sm text-muted-foreground", className)}
 		{...props}
 	/>
 ));
