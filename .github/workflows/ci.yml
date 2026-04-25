@@ -61,3 +61,18 @@ jobs:
         run: pnpm test
         env:
           CI: "1"
+
+      - name: A11y audit (axe-core, all component demos, light + dark)
+        run: pnpm run a11y-audit
+        env:
+          CI: "1"
+
+      - name: Upload a11y report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-report
+          path: |
+            a11y-report.json
+            a11y-report.md
+          if-no-files-found: ignore
