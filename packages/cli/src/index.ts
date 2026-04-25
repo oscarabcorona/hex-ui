@@ -61,6 +61,44 @@ recipe
 		await addRecipe(slug, options);
 	});
 
+const theme = program
+	.command("theme")
+	.description("Author + edit Hex Core themes (token files for your project)");
+
+theme
+	.command("init")
+	.description("Scaffold a globals.css (or JSON) theme file from a Hex Core preset")
+	.option("--name <preset>", "Preset to scaffold from: default | midnight | ember", "default")
+	.option("--out <path>", "Output file path", "./globals.css")
+	.option("--format <kind>", "Output format: css | json", "css")
+	.option("--overwrite", "Overwrite the output file if it exists", false)
+	.action(
+		async (options: { name: string; out: string; format: "css" | "json"; overwrite: boolean }) => {
+			const { themeInit } = await import("./commands/theme.js");
+			await themeInit(options);
+		},
+	);
+
+theme
+	.command("edit")
+	.description("Override one or more token values in an existing globals.css")
+	.option("--file <path>", "Path to the globals.css to edit", "./globals.css")
+	.option(
+		"--token <key=value...>",
+		"Token override (repeatable). Example: --token primary=\"240 50% 50%\"",
+	)
+	.option("--mode <kind>", "Which color mode to update: light | dark | both", "both")
+	.action(
+		async (options: {
+			file: string;
+			token?: string[];
+			mode: "light" | "dark" | "both";
+		}) => {
+			const { themeEdit } = await import("./commands/theme.js");
+			await themeEdit({ file: options.file, tokens: options.token ?? [], mode: options.mode });
+		},
+	);
+
 const skills = program
 	.command("skills")
 	.description("Manage Hex UI agent skills (SKILL.md packs for Claude Code)");
