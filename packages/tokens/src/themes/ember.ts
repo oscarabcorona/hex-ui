@@ -1,4 +1,5 @@
 import type { Theme } from "@hex-core/registry";
+import { sharedTokens } from "./shared.js";
 
 export const emberTheme: Theme = {
 	name: "ember",
@@ -27,6 +28,7 @@ export const emberTheme: Theme = {
 			input: { value: "30 15% 87%", type: "color" },
 			ring: { value: "16 65% 48%", type: "color" },
 			radius: { value: "0.75rem", type: "radius" },
+			...sharedTokens,
 		},
 		dark: {
 			background: { value: "20 14% 6%", type: "color" },
@@ -49,6 +51,7 @@ export const emberTheme: Theme = {
 			input: { value: "20 10% 16%", type: "color" },
 			ring: { value: "16 65% 52%", type: "color" },
 			radius: { value: "0.75rem", type: "radius" },
+			...sharedTokens,
 		},
 	},
 };

@@ -19,9 +19,11 @@ describe("Button", () => {
 		expect(screen.getByRole("button")).toHaveClass("bg-destructive");
 	});
 
-	it("applies the small size class", () => {
+	it("applies the small size height token", () => {
 		render(<Button size="sm">Small</Button>);
-		expect(screen.getByRole("button")).toHaveClass("h-9");
+		const btn = screen.getByRole("button");
+		// sm uses --control-height-sm token (2.25rem fallback).
+		expect(btn.className).toMatch(/h-\[var\(--control-height-sm,2\.25rem\)\]/);
 	});
 
 	it("disables the button and sets aria-busy when loading", () => {
