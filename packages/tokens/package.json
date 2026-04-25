@@ -40,7 +40,8 @@
 	},
 	"scripts": {
 		"build": "tsup",
-		"clean": "rm -rf dist"
+		"clean": "rm -rf dist",
+		"test": "vitest run"
 	},
 	"dependencies": {
 		"@hex-core/registry": "workspace:^",
