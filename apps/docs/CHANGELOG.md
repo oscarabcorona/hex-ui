@@ -1,5 +1,13 @@
 # docs
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [07bea53]
+  - @hex-core/components@0.2.0
+  - @hex-core/registry@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
