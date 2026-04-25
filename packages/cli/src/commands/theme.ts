@@ -18,13 +18,15 @@ const VALID_PRESETS = ["default", "midnight", "ember"] as const;
 type PresetName = (typeof VALID_PRESETS)[number];
 
 /**
- * Initialize a theme file from one of the @hex-core/tokens presets.
- * Writes either a globals.css (with @theme block) or a flat JSON map of CSS variables.
+ * Initialize a theme file from one of the `@hex-core/tokens` presets.
+ * Writes either a globals.css (with the `:root` and `.dark` token blocks) or
+ * a flat JSON map of CSS variables.
  *
- * @param options.name - Preset to scaffold from: default | midnight | ember
- * @param options.out - Output file path (relative to cwd)
- * @param options.format - "css" for globals.css, "json" for flat token map
- * @param options.overwrite - If false and file exists, abort
+ * @param options - Configuration object.
+ * @param options.name - Preset to scaffold from: default, midnight, or ember.
+ * @param options.out - Output file path relative to the current working directory.
+ * @param options.format - `"css"` for globals.css, `"json"` for a flat token map.
+ * @param options.overwrite - If false and the file exists, abort with non-zero exit.
  */
 export async function themeInit(options: InitOptions) {
 	const tokens = await import("@hex-core/tokens");
@@ -64,13 +66,14 @@ export async function themeInit(options: InitOptions) {
 }
 
 /**
- * Edit a token in a globals.css theme file by passing --token key=value flags.
- * Updates both light + dark by default; pass --mode light or --mode dark to scope.
- * Non-interactive — designed to be scripted or driven by an LLM.
+ * Edit a token in a globals.css theme file by passing `key=value` overrides.
+ * Updates both light and dark by default; pass `--mode light` or `--mode dark`
+ * to scope. Non-interactive — designed to be scripted or driven by an LLM.
  *
- * @param options.file - Path to globals.css to edit (default: ./globals.css)
- * @param options.tokens - One or more "key=value" strings to override
- * @param options.mode - Which color mode to update: light | dark | both
+ * @param options - Configuration object.
+ * @param options.file - Path to the globals.css to edit (default: `./globals.css`).
+ * @param options.tokens - One or more `"key=value"` strings to override.
+ * @param options.mode - Which color mode to update: `"light"`, `"dark"`, or `"both"`.
  */
 export async function themeEdit(options: EditOptions) {
 	const filePath = path.resolve(process.cwd(), options.file);
@@ -110,7 +113,12 @@ export async function themeEdit(options: EditOptions) {
 	}
 }
 
-/** Parse `--token key=value` strings into a flat record. */
+/**
+ * Parse `--token key=value` strings into a flat record.
+ *
+ * @param raw - Array of `key=value` strings (typically passed via `--token` flag).
+ * @returns A record mapping token name → desired value, with surrounding quotes stripped.
+ */
 function parseTokenOverrides(raw: string[]): Record<string, string> {
 	const overrides: Record<string, string> = {};
 	for (const entry of raw) {
@@ -132,9 +140,15 @@ interface OverrideResult {
 }
 
 /**
- * Replace a CSS custom property's value inside :root and/or .dark blocks.
+ * Replace a CSS custom property's value inside `:root` and/or `.dark` blocks.
  * Naive but precise — operates on the line declaring `--{key}: …;` so it
  * doesn't accidentally rewrite token references in the rest of the file.
+ *
+ * @param css - The full CSS content to operate on.
+ * @param key - The token name without the leading `--` (e.g. `"primary"`).
+ * @param value - The new value to write (e.g. `"240 50% 50%"`).
+ * @param mode - Which block to update: `"light"` for `:root`, `"dark"` for `.dark`, or `"both"`.
+ * @returns The updated CSS plus a flag indicating whether any replacement happened.
  */
 function applyTokenOverride(
 	css: string,

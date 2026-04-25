@@ -148,7 +148,7 @@ export default function ThemingPage() {
 					<strong>typography</strong> (text-*),{" "}
 					<strong>motion</strong> (duration-*), and{" "}
 					<strong>radius</strong>. Fallback values on every component match Tailwind
-					defaults — consumers who don't load a theme see zero visual change.
+					defaults — consumers who don&apos;t load a theme see zero visual change.
 				</p>
 			</DocSection>
 
@@ -191,7 +191,7 @@ export default function ThemingPage() {
 			<DocSection id="layout-tokens" title="Layout + motion tokens">
 				<p className="text-sm leading-6">
 					Spacing, gap, and control-height tokens are what let an override propagate across
-					components. A Button's <InlineCode>px-4</InlineCode> reads{" "}
+					components. A Button&apos;s <InlineCode>px-4</InlineCode> reads{" "}
 					<InlineCode>var(--space-4)</InlineCode>; change the token, every affected component
 					snaps.
 				</p>
@@ -220,7 +220,7 @@ export default function ThemingPage() {
 			<DocSection id="typography" title="Typography scale">
 				<p className="text-sm leading-6">
 					The type scale flows through <InlineCode>--text-xs</InlineCode> through{" "}
-					<InlineCode>--text-3xl</InlineCode> as tokens. Wire them into Tailwind's{" "}
+					<InlineCode>--text-3xl</InlineCode> as tokens. Wire them into Tailwind&apos;s{" "}
 					<InlineCode>theme.extend.fontSize</InlineCode> via{" "}
 					<InlineCode>themeToTailwindConfig(theme)</InlineCode> from{" "}
 					<InlineCode>@hex-core/tokens</InlineCode> and all Tailwind <InlineCode>text-*</InlineCode>{" "}
@@ -232,15 +232,15 @@ export default function ThemingPage() {
 				<p className="text-sm leading-6">
 					Because every component reads tokens, a full theme fits in a ~1 KB block. Paste it
 					at the start of a conversation with Claude Code / Cursor / ChatGPT and the LLM has
-					everything it needs to build a theme-perfect app on the first try — no "let me
-					iterate on the colors" round trips.
+					everything it needs to build a theme-perfect app on the first try — no &ldquo;let me
+					iterate on the colors&rdquo; round trips.
 				</p>
 				<CodeBlock label="markdown" code={LLM_CONTEXT_SNIPPET} />
 				<p className="text-sm leading-6 mt-4">
 					A richer payload (install commands, Tailwind config extension, context prompt
-					prefix) is available via the Hex Studio "Copy for LLM" button in the premium
-					platform. The OS MCP tool <InlineCode>emit_app_context</InlineCode> returns the
-					same payload for agents that want it programmatically.
+					prefix) is available via the Hex Studio &ldquo;Copy for LLM&rdquo; button in the
+					premium platform. The OS MCP tool <InlineCode>emit_app_context</InlineCode>{" "}
+					returns the same payload for agents that want it programmatically.
 				</p>
 			</DocSection>
 		</DocsPage>
