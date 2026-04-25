@@ -7,13 +7,16 @@ set -euo pipefail
 SECONDS=0
 
 # ------------- colors + logging -------------
+# Use $'...' so the vars hold actual ESC bytes; substituting these into
+# printf %s arguments works on bash 3.2 (macOS default) where printf does
+# not re-interpret backslash escapes in arguments.
 if [[ -t 1 ]]; then
-	GREEN='\033[0;32m'
-	YELLOW='\033[1;33m'
-	RED='\033[0;31m'
-	BLUE='\033[0;34m'
-	BOLD='\033[1m'
-	NC='\033[0m'
+	GREEN=$'\033[0;32m'
+	YELLOW=$'\033[1;33m'
+	RED=$'\033[0;31m'
+	BLUE=$'\033[0;34m'
+	BOLD=$'\033[1m'
+	NC=$'\033[0m'
 else
 	GREEN='' YELLOW='' RED='' BLUE='' BOLD='' NC=''
 fi
@@ -184,7 +187,8 @@ for pkg in "${PACKAGES[@]}"; do
 
 	log "Publishing ${BOLD}${spec}${NC}..."
 	PUBLISH_LOG=$(mktemp -t hex-core-publish.XXXXXX)
-	if (cd "$pkg" && npm publish --access=public --userconfig="$NPMRC_PATH" "${DRY_RUN_ARGS[@]}") > "$PUBLISH_LOG" 2>&1; then
+	# Safe expansion for bash 3.2 with set -u: empty array errors otherwise.
+	if (cd "$pkg" && npm publish --access=public --userconfig="$NPMRC_PATH" ${DRY_RUN_ARGS[@]+"${DRY_RUN_ARGS[@]}"}) > "$PUBLISH_LOG" 2>&1; then
 		grep -E "^(npm notice (name|version|filename|package size)|Publishing|\+)" "$PUBLISH_LOG" | sed 's/^/    /' || true
 		PUBLISHED+=("$spec")
 		rm -f "$PUBLISH_LOG"
