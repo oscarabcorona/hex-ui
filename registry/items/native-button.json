@@ -1,0 +1,289 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-button",
+  "displayName": "Button",
+  "description": "A pressable action button with variants, sizes and a loading state. Labels are Text children that inherit the button's colour automatically.",
+  "category": "primitive",
+  "subcategory": "actions",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "The visual style of the button",
+      "enumValues": [
+        "default",
+        "destructive",
+        "outline",
+        "secondary",
+        "ghost",
+        "link"
+      ]
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "The size of the button",
+      "enumValues": [
+        "default",
+        "sm",
+        "lg",
+        "icon"
+      ]
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Show loading spinner and disable interaction"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the button"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes to merge with the component styles"
+    },
+    {
+      "name": "onPress",
+      "type": "function",
+      "required": false,
+      "description": "Called when the button is pressed (React Native Pressable). Not called while disabled or loading."
+    },
+    {
+      "name": "onLongPress",
+      "type": "function",
+      "required": false,
+      "description": "Called after the press is held (React Native Pressable)"
+    },
+    {
+      "name": "hitSlop",
+      "type": "number",
+      "required": false,
+      "description": "Extra touchable area in points beyond the visible bounds — use on small or icon buttons"
+    }
+  ],
+  "variants": [
+    {
+      "name": "variant",
+      "description": "Visual style variants",
+      "values": [
+        {
+          "value": "default",
+          "description": "Primary filled button with subtle shadow for main actions",
+          "useWhen": "the single most important action on the screen — exactly one per view (Save, Submit, Continue)"
+        },
+        {
+          "value": "destructive",
+          "description": "Red button with shadow for dangerous/irreversible actions",
+          "useWhen": "the action cannot be undone without recreating data: Delete, Archive, Deactivate, Leave team, Force-quit"
+        },
+        {
+          "value": "outline",
+          "description": "Bordered button with hover fill for secondary actions",
+          "useWhen": "tertiary actions on a flat (non-elevated) surface; signals 'optional' next to a primary"
+        },
+        {
+          "value": "secondary",
+          "description": "Muted filled button for less prominent actions",
+          "useWhen": "the second-most-important action next to a primary CTA: Cancel, Save Draft, Skip"
+        },
+        {
+          "value": "ghost",
+          "description": "Transparent button, background appears on hover",
+          "useWhen": "low-emphasis action inside a list, toolbar, or row where chrome should disappear at rest"
+        },
+        {
+          "value": "link",
+          "description": "Styled as a hyperlink with underline on hover, no padding",
+          "useWhen": "an inline action inside flowing text, or a 'Learn more' affordance in an empty state"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "name": "size",
+      "description": "Size variants",
+      "values": [
+        {
+          "value": "default",
+          "description": "Standard size (h-10, px-4)",
+          "useWhen": "default everywhere; the only size you need on most surfaces"
+        },
+        {
+          "value": "sm",
+          "description": "Compact size (h-9, px-3)",
+          "useWhen": "buttons living inside a row, toolbar, or table cell where vertical density matters"
+        },
+        {
+          "value": "lg",
+          "description": "Large size (h-11, px-8, text-base)",
+          "useWhen": "the single hero CTA on a marketing page, pricing card, or empty-state action"
+        },
+        {
+          "value": "icon",
+          "description": "Square icon-only size (h-10, w-10)",
+          "useWhen": "icon-only actions (close, settings, more). Always pair with aria-label"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Button label content",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/button.tsx",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps, ReactNode } from \"react\";\nimport { ActivityIndicator, Pressable } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Container styles per variant and size.\n *\n * `active:` replaces the web `hover:` — touch has no hover, and NativeWind\n * maps `active:` to the Pressable pressed state. Focus rings are omitted:\n * React Native draws no keyboard focus ring on touch platforms.\n */\nexport const buttonVariants = cva(\n\t\"group shrink-0 flex-row items-center justify-center gap-2 rounded-md\",\n\t{\n\t\tvariants: {\n\t\t\tvariant: {\n\t\t\t\tdefault: \"bg-primary shadow-sm shadow-black/5 active:bg-primary/90\",\n\t\t\t\tdestructive: \"bg-destructive shadow-sm shadow-black/5 active:bg-destructive/90\",\n\t\t\t\toutline: \"border border-input bg-background shadow-sm shadow-black/5 active:bg-accent\",\n\t\t\t\tsecondary: \"bg-secondary shadow-sm shadow-black/5 active:bg-secondary/80\",\n\t\t\t\tghost: \"active:bg-accent\",\n\t\t\t\tlink: \"\",\n\t\t\t},\n\t\t\tsize: {\n\t\t\t\tdefault: \"h-10 px-4 py-2\",\n\t\t\t\tsm: \"h-9 rounded-md px-3\",\n\t\t\t\tlg: \"h-11 rounded-md px-8\",\n\t\t\t\ticon: \"h-10 w-10\",\n\t\t\t},\n\t\t},\n\t\tdefaultVariants: {\n\t\t\tvariant: \"default\",\n\t\t\tsize: \"default\",\n\t\t},\n\t},\n);\n\n/**\n * Label styles per variant, published to descendant `Text` through\n * `TextClassContext`. `group-active:` follows the container's pressed state.\n */\nexport const buttonTextVariants = cva(\"text-sm font-medium text-foreground\", {\n\tvariants: {\n\t\tvariant: {\n\t\t\tdefault: \"text-primary-foreground\",\n\t\t\tdestructive: \"text-destructive-foreground\",\n\t\t\toutline: \"group-active:text-accent-foreground\",\n\t\t\tsecondary: \"text-secondary-foreground\",\n\t\t\tghost: \"group-active:text-accent-foreground\",\n\t\t\tlink: \"text-primary group-active:underline\",\n\t\t},\n\t\tsize: {\n\t\t\tdefault: \"\",\n\t\t\tsm: \"\",\n\t\t\tlg: \"text-base\",\n\t\t\ticon: \"\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\tvariant: \"default\",\n\t\tsize: \"default\",\n\t},\n});\n\n/**\n * Props for {@link Button}. `ref` comes with the `Pressable` props and reaches\n * the host view (React 19 — no forwardRef).\n */\nexport interface ButtonProps\n\textends Omit<ComponentProps<typeof Pressable>, \"children\">,\n\t\tVariantProps<typeof buttonVariants> {\n\t/**\n\t * The label and any icons. Wrap strings in `Text` — React Native cannot\n\t * render a bare string inside a Pressable. Render-prop children are not\n\t * supported because the loading indicator is composed in front of them.\n\t */\n\tchildren?: ReactNode;\n\t/** Show an activity indicator before the label and block interaction. */\n\tloading?: boolean;\n}\n\n/**\n * A pressable action button with the web catalog's variants and sizes.\n *\n * The container is a `Pressable` with `role=\"button\"`; labels pick up their\n * colour through `TextClassContext`, so `<Button><Text>Save</Text></Button>`\n * renders the label in `primary-foreground` without any extra prop.\n * @param props - {@link ButtonProps}\n * @returns A React Native `Pressable`\n * @example\n * ```tsx\n * <Button onPress={save}>\n *   <Text>Save</Text>\n * </Button>\n * <Button variant=\"outline\" size=\"icon\" aria-label=\"Settings\" onPress={openSettings}>\n *   <SettingsIcon />\n * </Button>\n * ```\n */\nexport function Button({\n\tclassName,\n\tvariant,\n\tsize,\n\tloading = false,\n\tdisabled,\n\tchildren,\n\t...props\n}: ButtonProps) {\n\tconst inactive = disabled === true || loading;\n\tconst textClass = buttonTextVariants({ variant, size });\n\treturn (\n\t\t<TextClassContext.Provider value={textClass}>\n\t\t\t<Pressable\n\t\t\t\trole=\"button\"\n\t\t\t\taria-busy={loading || undefined}\n\t\t\t\tdisabled={inactive}\n\t\t\t\tclassName={cn(buttonVariants({ variant, size }), inactive && \"opacity-50\", className)}\n\t\t\t\t{...props}\n\t\t\t>\n\t\t\t\t{loading ? <ActivityIndicator size=\"small\" className={textClass} /> : null}\n\t\t\t\t{children}\n\t\t\t</Pressable>\n\t\t</TextClassContext.Provider>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "lib/text-context"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "primary",
+    "primary-foreground",
+    "destructive",
+    "destructive-foreground",
+    "secondary",
+    "secondary-foreground",
+    "accent",
+    "accent-foreground",
+    "background",
+    "input",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Basic usage",
+      "description": "A primary button with a Text label",
+      "code": "<Button onPress={save}>\n  <Text>Save</Text>\n</Button>",
+      "composition": [
+        "form-action"
+      ]
+    },
+    {
+      "title": "Variants",
+      "description": "Every visual style; each label inherits the right colour with no extra props",
+      "code": "<View className=\"gap-2\">\n  <Button><Text>Primary</Text></Button>\n  <Button variant=\"outline\"><Text>Outline</Text></Button>\n  <Button variant=\"secondary\"><Text>Secondary</Text></Button>\n  <Button variant=\"ghost\"><Text>Ghost</Text></Button>\n  <Button variant=\"destructive\"><Text>Delete</Text></Button>\n  <Button variant=\"link\"><Text>Link</Text></Button>\n</View>",
+      "composition": [
+        "showcase"
+      ]
+    },
+    {
+      "title": "Form action pair",
+      "description": "Primary submit plus secondary cancel — the universal end-of-form row",
+      "code": "<View className=\"flex-row justify-end gap-2\">\n  <Button variant=\"secondary\" onPress={cancel}>\n    <Text>Cancel</Text>\n  </Button>\n  <Button onPress={submit}>\n    <Text>Save changes</Text>\n  </Button>\n</View>",
+      "composition": [
+        "form",
+        "form-action"
+      ]
+    },
+    {
+      "title": "Loading state",
+      "description": "Shows a spinner in the label colour and blocks presses while an async action runs",
+      "code": "<Button loading={isSaving} onPress={save}>\n  <Text>Saving…</Text>\n</Button>",
+      "composition": [
+        "form-action",
+        "async"
+      ]
+    },
+    {
+      "title": "Icon button",
+      "description": "Square button holding only an icon; aria-label gives it a name",
+      "code": "<Button variant=\"outline\" size=\"icon\" aria-label=\"Settings\" onPress={openSettings}>\n  <SettingsIcon size={16} />\n</Button>",
+      "composition": [
+        "icon-only",
+        "toolbar"
+      ]
+    },
+    {
+      "title": "Navigation with expo-router",
+      "description": "Navigate imperatively from onPress instead of wrapping a link element",
+      "code": "<Button variant=\"ghost\" onPress={() => router.push(\"/login\")}>\n  <Text>Log in</Text>\n</Button>",
+      "composition": [
+        "navigation"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for tappable actions: form submissions, confirmations, triggering operations. Wire the handler to onPress and put the label in a Text child. Use 'default' for the primary action, 'outline' or 'secondary' for less important actions, 'ghost' for toolbar-style actions.",
+    "whenNotToUse": "Don't use for navigation rows in a list (use a Pressable row or the router's Link). Don't use 'destructive' for non-dangerous actions. Don't use for toggling state (use Switch). Don't render a bare string child — wrap it in Text.",
+    "commonMistakes": [
+      "Passing a bare string as the child — React Native throws 'Text strings must be rendered within a <Text> component'; wrap labels in Text",
+      "Importing Text from react-native for the label instead of the Hex Text — the raw element ignores TextClassContext, so the label renders in default black on a coloured button",
+      "Using <Button variant='destructive'> for recoverable actions like 'Reset filters' — reserve destructive for delete/archive/leave; use 'secondary' or 'ghost' for resets",
+      "Using size='icon' without an aria-label — VoiceOver announces an unnamed button; always pair icon-only buttons with aria-label",
+      "Handling disabled manually by checking a flag inside onPress — pass disabled (or loading) so the press is blocked and the state is announced"
+    ],
+    "antiPatterns": [
+      {
+        "mistake": "Using <Button> to flip a boolean on/off (notifications, dark mode, airplane mode)",
+        "insteadUse": "native-switch",
+        "why": "Switch carries role=switch and the checked state to VoiceOver and TalkBack; a button announces only 'button' and loses the on/off semantic."
+      }
+    ],
+    "relatedComponents": [
+      "native-text",
+      "native-badge",
+      "native-switch"
+    ],
+    "accessibilityNotes": "Renders a Pressable with role=\"button\"; disabled and loading set the disabled state so VoiceOver and TalkBack announce it, and loading also sets aria-busy. Icon-only buttons MUST have aria-label. The 40pt default height meets the touch-target minimum; add hitSlop on 'sm' buttons in dense rows. React Native draws no focus ring, so no ring classes are needed.",
+    "tokenBudget": 993
+  },
+  "tags": [
+    "button",
+    "action",
+    "cta",
+    "form",
+    "interactive",
+    "click",
+    "native",
+    "react-native"
+  ]
+}

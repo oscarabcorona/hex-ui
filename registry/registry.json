@@ -2846,6 +2846,567 @@
       "tokenBudget": 2026
     },
     {
+      "name": "native-avatar",
+      "displayName": "Avatar",
+      "description": "A circular user image with an initials fallback for when there is no image or the image fails. The alt text is declared once on the root and applied to whichever of the two is showing.",
+      "category": "primitive",
+      "subcategory": "display",
+      "platform": "native",
+      "tags": [
+        "avatar",
+        "profile",
+        "user",
+        "image",
+        "display",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 496
+    },
+    {
+      "name": "native-badge",
+      "displayName": "Badge",
+      "description": "A small status indicator with multiple style variants. Used for tags, statuses, and categorization.",
+      "category": "primitive",
+      "subcategory": "display",
+      "platform": "native",
+      "tags": [
+        "badge",
+        "tag",
+        "status",
+        "label",
+        "indicator",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 483
+    },
+    {
+      "name": "native-button",
+      "displayName": "Button",
+      "description": "A pressable action button with variants, sizes and a loading state. Labels are Text children that inherit the button's colour automatically.",
+      "category": "primitive",
+      "subcategory": "actions",
+      "platform": "native",
+      "tags": [
+        "button",
+        "action",
+        "cta",
+        "form",
+        "interactive",
+        "click",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 993
+    },
+    {
+      "name": "native-checkbox",
+      "displayName": "Checkbox",
+      "description": "A square box the user ticks. Controlled only on native — pass checked and onCheckedChange together — and it extends its own touch target beyond the 16pt box.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "platform": "native",
+      "tags": [
+        "checkbox",
+        "form",
+        "toggle",
+        "boolean",
+        "check",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 315
+    },
+    {
+      "name": "native-input",
+      "displayName": "Input",
+      "description": "A single-line text field. Reports edits through onChangeText with the string itself, and picks its keyboard through keyboardType rather than an input type.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "platform": "native",
+      "tags": [
+        "input",
+        "text",
+        "form",
+        "field",
+        "text-field",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 294
+    },
+    {
+      "name": "native-label",
+      "displayName": "Label",
+      "description": "A caption naming a form control. React Native has no htmlFor, so the label carries a nativeID and the control points at it with aria-labelledby.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "platform": "native",
+      "tags": [
+        "label",
+        "form",
+        "accessibility",
+        "text",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 264
+    },
+    {
+      "name": "native-progress",
+      "displayName": "Progress",
+      "description": "A determinate progress bar for measurable work. Animates its fill with React Native's built-in Animated API, so it pulls in no native module.",
+      "category": "primitive",
+      "subcategory": "feedback",
+      "platform": "native",
+      "tags": [
+        "progress",
+        "loading",
+        "bar",
+        "feedback",
+        "determinate",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 495
+    },
+    {
+      "name": "native-radio-group",
+      "displayName": "Radio Group",
+      "description": "A set of mutually exclusive options. Controlled only on native — pass value and onValueChange — with each item named by a Label through aria-labelledby.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "platform": "native",
+      "tags": [
+        "radio",
+        "radio-group",
+        "form",
+        "choice",
+        "mutually-exclusive",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 505
+    },
+    {
+      "name": "native-separator",
+      "displayName": "Separator",
+      "description": "A visual divider between content sections with horizontal or vertical orientation.",
+      "category": "primitive",
+      "subcategory": "layout",
+      "platform": "native",
+      "tags": [
+        "separator",
+        "divider",
+        "hr",
+        "layout",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 272
+    },
+    {
+      "name": "native-skeleton",
+      "displayName": "Skeleton",
+      "description": "A pulsing placeholder that mimics the shape of content still loading. Animates with React Native's built-in Animated API, so it needs no native module.",
+      "category": "primitive",
+      "subcategory": "feedback",
+      "platform": "native",
+      "tags": [
+        "skeleton",
+        "loading",
+        "placeholder",
+        "shimmer",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 461
+    },
+    {
+      "name": "native-switch",
+      "displayName": "Switch",
+      "description": "An instant-effect on/off control, the standard idiom for a settings row on a phone. Controlled only — pass checked and onCheckedChange together.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "platform": "native",
+      "tags": [
+        "switch",
+        "toggle",
+        "form",
+        "boolean",
+        "setting",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 301
+    },
+    {
+      "name": "native-text",
+      "displayName": "Text",
+      "description": "Typography primitive for React Native. Every string on screen must live inside a Text; this one carries the theme's foreground colour, a typographic variant scale, and inherits classes from styled parents (Button, Card, Badge) through TextClassContext.",
+      "category": "primitive",
+      "subcategory": "typography",
+      "platform": "native",
+      "tags": [
+        "text",
+        "typography",
+        "heading",
+        "label",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 654
+    },
+    {
+      "name": "native-textarea",
+      "displayName": "Textarea",
+      "description": "A multi-line text field. Reports edits through onChangeText, and grows from a 80pt minimum rather than using a rows attribute.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "platform": "native",
+      "tags": [
+        "textarea",
+        "text",
+        "form",
+        "multiline",
+        "input",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 295
+    },
+    {
+      "name": "native-alert-dialog",
+      "displayName": "Alert Dialog",
+      "description": "A confirmation modal the user must answer. The scrim does not dismiss it. Renders through a PortalHost mounted in the app's root layout.",
+      "category": "component",
+      "subcategory": "overlay",
+      "platform": "native",
+      "tags": [
+        "alert-dialog",
+        "confirm",
+        "destructive",
+        "modal",
+        "overlay",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 911
+    },
+    {
+      "name": "native-bottom-sheet",
+      "displayName": "BottomSheet",
+      "description": "A modal panel that rises from the bottom edge. The React Native answer to a dropdown menu, an option list, or a short form — placed where a thumb can reach it.",
+      "category": "component",
+      "subcategory": "overlay",
+      "platform": "native",
+      "tags": [
+        "bottom-sheet",
+        "sheet",
+        "overlay",
+        "menu",
+        "modal",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 1047
+    },
+    {
+      "name": "native-card",
+      "displayName": "Card",
+      "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
+      "category": "component",
+      "subcategory": "layout",
+      "platform": "native",
+      "tags": [
+        "card",
+        "container",
+        "panel",
+        "layout",
+        "surface",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context",
+        "primitives/text/text"
+      ],
+      "tokenBudget": 1378
+    },
+    {
+      "name": "native-dialog",
+      "displayName": "Dialog",
+      "description": "A modal surface layered over the screen. Renders through a PortalHost that the app mounts once in its root layout.",
+      "category": "component",
+      "subcategory": "overlay",
+      "platform": "native",
+      "tags": [
+        "dialog",
+        "modal",
+        "overlay",
+        "popup",
+        "form",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context",
+        "primitives/text/text"
+      ],
+      "tokenBudget": 1502
+    },
+    {
+      "name": "native-popover",
+      "displayName": "Popover",
+      "description": "A small panel anchored to the control that opened it. Renders through a PortalHost, and closes on an outside tap.",
+      "category": "component",
+      "subcategory": "overlay",
+      "platform": "native",
+      "tags": [
+        "popover",
+        "overlay",
+        "floating",
+        "inline",
+        "anchored",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 525
+    },
+    {
+      "name": "native-select",
+      "displayName": "Select",
+      "description": "A dropdown for choosing one option. The value is an { value, label } object rather than a bare string, because React Native has no option element for the trigger to read a label back from.",
+      "category": "primitive",
+      "subcategory": "forms",
+      "platform": "native",
+      "tags": [
+        "select",
+        "dropdown",
+        "form",
+        "field",
+        "options",
+        "choose",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 1007
+    },
+    {
+      "name": "native-tabs",
+      "displayName": "Tabs",
+      "description": "A tabbed panel switcher. Controlled only on native — pass value and onValueChange — with each trigger matched to a panel by a shared value.",
+      "category": "component",
+      "subcategory": "navigation",
+      "platform": "native",
+      "tags": [
+        "tabs",
+        "navigation",
+        "panel",
+        "tabbed",
+        "sections",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 689
+    },
+    {
+      "name": "native-tooltip",
+      "displayName": "Tooltip",
+      "description": "A brief label anchored to a control. Touch has no hover, so the trigger toggles the bubble on tap and consumes that tap — a tooltip is a secondary affordance on native, never the only place a label lives.",
+      "category": "component",
+      "subcategory": "overlay",
+      "platform": "native",
+      "tags": [
+        "tooltip",
+        "hint",
+        "label",
+        "hover",
+        "overlay",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 571
+    },
+    {
+      "name": "native-composer",
+      "displayName": "Composer",
+      "description": "The chat input bar: a growing text field plus an explicit send control. Return inserts a newline, because a phone keyboard has no modifier to distinguish send from newline.",
+      "category": "ai",
+      "subcategory": "input",
+      "platform": "native",
+      "tags": [
+        "ai",
+        "input",
+        "chat",
+        "form",
+        "composer",
+        "textarea",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 641
+    },
+    {
+      "name": "native-markdown",
+      "displayName": "Markdown",
+      "description": "Markdown rendered as React Native elements. Shares the micromark parser the web component uses and replaces only the render step, so a partially-streamed reply renders safely on every token.",
+      "category": "ai",
+      "subcategory": "content",
+      "platform": "native",
+      "tags": [
+        "ai",
+        "markdown",
+        "streaming",
+        "content",
+        "renderer",
+        "slots",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "primitives/text/text"
+      ],
+      "tokenBudget": 2457
+    },
+    {
+      "name": "native-message",
+      "displayName": "Message",
+      "description": "One turn in a conversation. The role sets the alignment and colour, and publishes the body text colour so the message content needs no styling of its own.",
+      "category": "ai",
+      "subcategory": "chat",
+      "platform": "native",
+      "tags": [
+        "ai",
+        "chat",
+        "message",
+        "turn",
+        "conversation",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "lib/text-context"
+      ],
+      "tokenBudget": 575
+    },
+    {
+      "name": "native-message-list",
+      "displayName": "MessageList",
+      "description": "A scrolling conversation pinned to the newest turn. Built on an inverted FlatList, so a streaming reply grows without pushing the view around.",
+      "category": "ai",
+      "subcategory": "chat",
+      "platform": "native",
+      "tags": [
+        "ai",
+        "chat",
+        "scroll",
+        "viewport",
+        "streaming",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils"
+      ],
+      "tokenBudget": 642
+    },
+    {
+      "name": "native-tool-call",
+      "displayName": "ToolCall",
+      "description": "A collapsible record of one tool invocation — name, status, and the arguments and result behind a tap. Collapsed by default so a transcript stays scannable on a phone.",
+      "category": "ai",
+      "subcategory": "agent",
+      "platform": "native",
+      "tags": [
+        "ai",
+        "agent",
+        "tool-call",
+        "function-call",
+        "collapsible",
+        "transparency",
+        "native",
+        "react-native"
+      ],
+      "internalDeps": [
+        "lib/utils",
+        "primitives/text/text"
+      ],
+      "tokenBudget": 1524
+    },
+    {
       "name": "blur-in",
       "displayName": "BlurIn",
       "description": "CSS filter:blur(N) → blur(0) wrapper. Adds a focus-pull aesthetic to entrance moments. Filter is the only non-compositor-friendly prop the engine animates by design — keep blur radii small (≤16px) to stay GPU-accelerated.",

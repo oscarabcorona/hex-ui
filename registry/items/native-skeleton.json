@@ -1,0 +1,115 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-skeleton",
+  "displayName": "Skeleton",
+  "description": "A pulsing placeholder that mimics the shape of content still loading. Animates with React Native's built-in Animated API, so it needs no native module.",
+  "category": "primitive",
+  "subcategory": "feedback",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Width/height and any additional styling via Tailwind classes"
+    },
+    {
+      "name": "animated",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Run the pulse. Turn it off for dense lists, or when the user prefers reduced motion."
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/skeleton.tsx",
+      "content": "import { type ComponentProps, useEffect, useRef } from \"react\";\nimport { Animated, View } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Skeleton}. */\nexport interface SkeletonProps extends ComponentProps<typeof View> {\n\t/**\n\t * Stop the pulse. Set this when many skeletons are on screen at once and\n\t * the motion becomes noise, or to respect a reduce-motion preference.\n\t */\n\tanimated?: boolean;\n}\n\n/** One full fade-out/fade-in cycle, in milliseconds. */\nconst PULSE_DURATION = 900;\n\n/**\n * A placeholder block that mimics the shape of content still loading.\n *\n * Uses React Native's built-in `Animated` rather than Reanimated, so the\n * package pulls in no native module: `hex add native-skeleton` needs no\n * config plugin and no rebuild of the consumer's dev client.\n * @param props - {@link SkeletonProps}\n * @returns An animated `View`\n * @example\n * ```tsx\n * <View className=\"gap-2\" aria-busy>\n *   <Skeleton className=\"h-4 w-32\" />\n *   <Skeleton className=\"h-4 w-full\" />\n * </View>\n * ```\n */\nexport function Skeleton({ className, animated = true, ...props }: SkeletonProps) {\n\tconst opacity = useRef(new Animated.Value(1)).current;\n\n\tuseEffect(() => {\n\t\tif (!animated) {\n\t\t\topacity.setValue(1);\n\t\t\treturn;\n\t\t}\n\t\tconst loop = Animated.loop(\n\t\t\tAnimated.sequence([\n\t\t\t\tAnimated.timing(opacity, {\n\t\t\t\t\ttoValue: 0.4,\n\t\t\t\t\tduration: PULSE_DURATION / 2,\n\t\t\t\t\tuseNativeDriver: true,\n\t\t\t\t}),\n\t\t\t\tAnimated.timing(opacity, {\n\t\t\t\t\ttoValue: 1,\n\t\t\t\t\tduration: PULSE_DURATION / 2,\n\t\t\t\t\tuseNativeDriver: true,\n\t\t\t\t}),\n\t\t\t]),\n\t\t);\n\t\tloop.start();\n\t\treturn () => {\n\t\t\tloop.stop();\n\t\t};\n\t}, [animated, opacity]);\n\n\treturn (\n\t\t<Animated.View\n\t\t\tstyle={{ opacity }}\n\t\t\tclassName={cn(\"rounded-md bg-muted\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "muted"
+  ],
+  "examples": [
+    {
+      "title": "Text placeholder",
+      "description": "Two lines standing in for a title and its body",
+      "code": "<View className=\"gap-2\">\n  <Skeleton className=\"h-4 w-32\" />\n  <Skeleton className=\"h-4 w-full\" />\n</View>",
+      "composition": [
+        "loading"
+      ]
+    },
+    {
+      "title": "List row",
+      "description": "Avatar plus two text lines, matching the real row so nothing shifts on load",
+      "code": "<View className=\"flex-row items-center gap-3\" aria-busy>\n  <Skeleton className=\"h-10 w-10 rounded-full\" />\n  <View className=\"flex-1 gap-2\">\n    <Skeleton className=\"h-4 w-24\" />\n    <Skeleton className=\"h-3 w-40\" />\n  </View>\n</View>",
+      "composition": [
+        "list-row",
+        "loading"
+      ]
+    },
+    {
+      "title": "Respecting reduced motion",
+      "description": "Freeze the pulse when the OS reports a motion preference",
+      "code": "const reduceMotion = useReducedMotion();\n\n<Skeleton animated={!reduceMotion} className=\"h-4 w-32\" />",
+      "composition": [
+        "loading",
+        "accessibility"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use during async loads to show the shape of forthcoming content. Match the dimensions of the real content so nothing shifts when data arrives. Put aria-busy on the container that wraps the skeletons.",
+    "whenNotToUse": "Don't use for loads under ~200ms — a brief nothing reads better than a flash of placeholder. Don't use as a permanent empty state (render real empty-state copy). Don't use for a determinate operation whose completion you can measure (use Progress).",
+    "commonMistakes": [
+      "Sizing the skeleton differently from the real content — the layout jumps when data arrives, which is the exact problem skeletons exist to prevent",
+      "Leaving aria-busy off the loading container — VoiceOver and TalkBack read a screen of empty boxes with no indication anything is loading",
+      "Rendering dozens of animating skeletons in a long list — each one drives its own Animated loop; pass animated={false} below the fold",
+      "Forgetting to unmount skeletons once data arrives, leaving them pulsing under real content"
+    ],
+    "relatedComponents": [
+      "native-progress",
+      "native-avatar",
+      "native-card"
+    ],
+    "accessibilityNotes": "The skeleton itself is decorative and announces nothing. Put aria-busy on the container so assistive tech reports that the region is loading, and render the real content in the same place once it arrives. Honour the OS reduce-motion setting by passing animated={false} — the pulse is the only motion in the component.",
+    "tokenBudget": 461
+  },
+  "tags": [
+    "skeleton",
+    "loading",
+    "placeholder",
+    "shimmer",
+    "native",
+    "react-native"
+  ]
+}

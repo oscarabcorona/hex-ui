@@ -1,8 +1,17 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import pc from "picocolors";
+import { detectFramework, type PlatformKind } from "../lib/detect-framework.js";
 import { detectTailwind, type TailwindVersion } from "../lib/detect-tailwind.js";
 import { emitTailwindV3Config } from "../lib/emit-tailwind-config.js";
+import {
+	emitNativeTailwindConfig,
+	entryImportsGlobalsCss,
+	nativePeerDeps,
+	nativeTemplateFiles,
+	writeNativeTemplate,
+	type TemplateWrite,
+} from "../lib/native-template.js";
 import { writeMcpEntry } from "../lib/mcp-config.js";
 import { printSkillsHint } from "../lib/post-install.js";
 import { detectSrcLayout } from "../lib/resolve-alias.js";
@@ -13,7 +22,9 @@ import { runDoctor } from "./doctor.js";
 const STUDIO_URL = "https://hex-core.dev/studio";
 
 /** Per-target overwrite set. `--overwrite` (no value) → "all". */
-export type OverwriteTargets = Set<"globals.css" | "tailwind.config.ts" | "all">;
+export type OverwriteTargets = Set<
+	"globals.css" | "tailwind.config.ts" | "global.css" | "tailwind.config.js" | "all"
+>;
 
 export interface InitOptions {
 	theme: string;
@@ -37,6 +48,12 @@ export interface InitOptions {
 	 * accident.
 	 */
 	mcp?: boolean;
+	/**
+	 * Which render target to scaffold. Omitted means "ask the project":
+	 * an Expo or React Native app gets the native template, everything else
+	 * the web one.
+	 */
+	platform?: PlatformKind;
 }
 
 /** URL of the @hex-core/mcp manual-install docs. Surfaced when --mcp is off. */
@@ -60,12 +77,17 @@ export function parseOverwriteFlag(raw: string | boolean | undefined): Overwrite
 	if (raw === undefined || raw === false) return undefined;
 	if (raw === true || raw === "") return new Set(["all"]);
 	const set: OverwriteTargets = new Set();
+	// The native template writes different filenames from the web one
+	// (`global.css`, `tailwind.config.js`), so both spellings are accepted —
+	// otherwise no targeted value could ever name a native file.
+	const known = ["all", "globals.css", "tailwind.config.ts", "global.css", "tailwind.config.js"] as const;
 	for (const part of String(raw).split(",")) {
 		const trimmed = part.trim();
-		if (trimmed === "all" || trimmed === "globals.css" || trimmed === "tailwind.config.ts") {
-			set.add(trimmed);
+		const match = known.find((target) => target === trimmed);
+		if (match) {
+			set.add(match);
 		} else {
-			console.error(`Unknown --overwrite target: "${trimmed}". Use one of: all, globals.css, tailwind.config.ts.`);
+			console.error(`Unknown --overwrite target: "${trimmed}". Use one of: ${known.join(", ")}.`);
 			process.exit(1);
 		}
 	}
@@ -89,6 +111,8 @@ export function parseOverwriteFlag(raw: string | boolean | undefined): Overwrite
 export async function initProject(options: InitOptions) {
 	const cwd = process.cwd();
 	const configPath = path.join(cwd, "hex.config.json");
+	const detection = detectFramework(cwd);
+	const platform = options.platform ?? detection.platform;
 	const tailwind = detectTailwind(cwd);
 
 	if (options.check) {
@@ -102,6 +126,11 @@ export async function initProject(options: InitOptions) {
 			}
 		}
 		process.exit(failed > 0 ? 1 : 0);
+	}
+
+	if (platform === "native") {
+		await initNativeProject(cwd, options, detection);
+		return;
 	}
 
 	if (tailwind.version === "missing") {
@@ -138,6 +167,143 @@ export async function initProject(options: InitOptions) {
 	});
 }
 
+/**
+ * Add `platform` to an existing `hex.config.json` when it is missing or wrong.
+ *
+ * Deliberately narrow: it touches that one field and leaves every other
+ * setting the user has (aliases, theme) exactly as it was.
+ * @param configPath - Absolute path to `hex.config.json`
+ * @param platform - The platform this init resolved to
+ * @returns True when the file was rewritten
+ */
+function mergePlatformIntoConfig(configPath: string, platform: PlatformKind): boolean {
+	try {
+		const raw: unknown = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+		if (typeof raw !== "object" || raw === null) return false;
+		const config: Record<string, unknown> = { ...raw };
+		if (config.platform === platform) return false;
+		config.platform = platform;
+		if (platform === "native") config.styling = "nativewind";
+		fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+		return true;
+	} catch {
+		// A malformed config is the user's to fix; never overwrite it.
+		return false;
+	}
+}
+
+/**
+ * Whether one native template file may be replaced.
+ *
+ * Mirrors {@link shouldOverwrite} on the web path, but matches on the file's
+ * own basename so `--overwrite global.css` names something real.
+ * @param value - The parsed `--overwrite` flag
+ * @param filePath - Cwd-relative path of the file about to be written
+ * @returns True when the file may be replaced
+ */
+function shouldOverwriteNative(
+	value: boolean | OverwriteTargets | undefined,
+	filePath: string,
+): boolean {
+	if (!value) return false;
+	if (value === true) return true;
+	if (value.has("all")) return true;
+	const base = path.basename(filePath);
+	for (const target of value) {
+		if (target === base) return true;
+	}
+	return false;
+}
+
+/**
+ * Scaffold a React Native project: the NativeWind config chain plus the
+ * token stylesheet, written from the same `@hex-core/tokens` functions the
+ * web path uses.
+ *
+ * Deliberately does not edit the app's entry file. Rewriting someone's root
+ * layout is the kind of silent change that breaks a working app, so the
+ * summary prints the one import line to add instead.
+ * @param cwd - Project root
+ * @param options - The init options, for theme / overwrite / install
+ * @param detection - Detected framework, for the entry hint and layout
+ */
+async function initNativeProject(
+	cwd: string,
+	options: InitOptions,
+	detection: ReturnType<typeof detectFramework>,
+): Promise<void> {
+	const tokens = await import("@hex-core/tokens");
+	const themeData = tokens.getTheme(options.theme);
+	if (!themeData) {
+		console.error(`Unknown theme "${options.theme}". Try one of: default, midnight, ember.`);
+		process.exit(1);
+	}
+
+	const files = nativeTemplateFiles(
+		`${tokens.generateGlobalsCssNative(themeData)}\n`,
+		emitNativeTailwindConfig(tokens.themeToTailwindConfig(themeData)),
+		detection,
+	);
+	// Per-file, matching the web path: `--overwrite global.css` must replace
+	// that one file rather than silently doing nothing and then telling the
+	// user to pass the flag they just passed.
+	const writes = writeNativeTemplate(cwd, files, (filePath) =>
+		shouldOverwriteNative(options.overwrite, filePath),
+	);
+
+	const wroteConfig = writeHexConfig(path.join(cwd, "hex.config.json"), options.theme, "native");
+	const peerDeps = nativePeerDeps(detection.kind === "react-native");
+	const installed = await maybeInstall(cwd, peerDeps, options.install ?? true);
+
+	printNativeSummary({
+		detection,
+		writes,
+		wroteConfig,
+		installed,
+		peerDeps,
+		entryHasImport: entryImportsGlobalsCss(cwd, detection.entryHint),
+	});
+}
+
+interface NativeSummaryParams {
+	detection: ReturnType<typeof detectFramework>;
+	writes: TemplateWrite[];
+	wroteConfig: boolean;
+	installed: MaybeInstallResult;
+	peerDeps: string[];
+	entryHasImport: boolean;
+}
+
+/**
+ * Report what the native scaffold wrote and what the user still has to do.
+ * @param p - {@link NativeSummaryParams}
+ */
+function printNativeSummary(p: NativeSummaryParams): void {
+	console.log(`Detected ${p.detection.label}.`);
+	console.log(p.wroteConfig ? "Created hex.config.json" : "hex.config.json already existed — left in place.");
+	for (const write of p.writes) {
+		console.log(write.skipped ? `Skipped ${write.path} (already exists; pass --overwrite to replace).` : `Wrote ${write.path}`);
+	}
+
+	if (p.installed.manager === "(skipped)") {
+		console.log(`\nSkipping auto-install (--no-install). Run yourself:`);
+		console.log(`  npx expo install ${p.peerDeps.join(" ")}`);
+	} else if (p.installed.exitCode !== undefined && p.installed.exitCode !== 0) {
+		console.log(`\nPeer-dep install via ${p.installed.manager} exited with code ${p.installed.exitCode}.`);
+		console.log(`  Prefer \`npx expo install\` on an Expo project — it picks versions your SDK supports.`);
+	}
+
+	console.log("");
+	if (!p.entryHasImport) {
+		console.log(pc.bold("One manual step:"));
+		console.log(`  Add \`import "./global.css";\` to ${p.detection.entryHint}`);
+	}
+	console.log(`  Mount <PortalHost /> from @rn-primitives/portal in ${p.detection.entryHint} before adding overlay components.`);
+	console.log("\nNext: hex add button text card");
+	console.log(pc.dim("On a native project `hex add button` installs the native-button item."));
+	printSkillsHint(process.cwd());
+}
+
 function peerDepsFor(version: TailwindVersion): string[] {
 	if (version === "v4") return ["clsx", "tailwind-merge", "class-variance-authority", "tw-animate-css"];
 	return ["clsx", "tailwind-merge", "class-variance-authority", "tailwindcss-animate"];
@@ -163,12 +329,21 @@ async function maybeInstall(cwd: string, peerDeps: string[], install: boolean): 
 	};
 }
 
-function writeHexConfig(configPath: string, theme: string): boolean {
-	if (fs.existsSync(configPath)) return false;
+function writeHexConfig(configPath: string, theme: string, platform: PlatformKind = "web"): boolean {
+	if (fs.existsSync(configPath)) {
+		// An existing config used to mean "leave it alone entirely", which
+		// silently dropped `platform` on a re-run. Every later `hex add` then
+		// fell back to detection — fine for Expo, wrong for a bare React
+		// Native app in a monorepo where `react-native` is hoisted rather
+		// than declared. Merge the field in rather than skipping the write.
+		return mergePlatformIntoConfig(configPath, platform);
+	}
 	const config = {
 		$schema: "https://hex-core.dev/schema/config.json",
+		// React Native is still React — `platform` is the axis that changes.
 		framework: "react",
-		styling: "tailwind",
+		platform,
+		styling: platform === "native" ? "nativewind" : "tailwind",
 		typescript: true,
 		theme,
 		aliases: {

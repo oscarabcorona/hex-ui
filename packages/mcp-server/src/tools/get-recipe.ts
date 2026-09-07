@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { internalDepToSlug, loadRecipe, loadRegistryItem } from "@hex-core/payload";
+import { loadRecipe, loadRegistryItem, resolveInternalDepForPlatform } from "@hex-core/payload";
 import { TOOL } from "../tool-names.js";
 
 /**
@@ -60,7 +60,16 @@ export function register(server: McpServer): void {
 				for (const dep of item.dependencies?.npm ?? []) npmDeps.add(dep);
 				for (const dep of item.dependencies?.peer ?? []) peerDeps.add(dep);
 				for (const dep of item.dependencies?.internal ?? []) {
-					const depSlug = internalDepToSlug(dep);
+					// Resolve against the declaring item's platform: a native
+					// item's `primitives/text/text` means `native-text`, and the
+					// bare slug would send the agent to install a component that
+					// does not exist — mid-recipe, with no way to tell whether
+					// the recipe or the catalog is at fault.
+					const depSlug = resolveInternalDepForPlatform(
+						dep,
+						item.platform ?? "web",
+						(name) => loadRegistryItem(name) !== null,
+					);
 					if (depSlug && !recipeSlugs.has(depSlug)) internalDeps.add(depSlug);
 				}
 			}

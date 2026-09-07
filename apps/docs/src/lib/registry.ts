@@ -23,14 +23,49 @@ const index: RegistryIndex = registryIndexSchema.parse(registryIndex);
 
 export type { RegistryIndexItem };
 
-/** All component summaries from the registry index. */
+/**
+ * Render target of an index entry. The registry omits the field for web
+ * items, so absence means web.
+ * @param item - A registry index entry
+ * @returns Its platform
+ */
+function platformOf(item: RegistryIndexItem): "web" | "native" {
+	return item.platform ?? "web";
+}
+
+/**
+ * Web component summaries — what the `/docs/components/*` surface covers.
+ *
+ * Deliberately excludes React Native items. They live in the same registry
+ * but render with `react-native`, so a web docs page cannot preview one, and
+ * including them here would have `generateStaticParams` emit a dozen routes
+ * whose demo lookup finds nothing. They get their own `/native/*` surface.
+ * @returns Every web item, in registry order
+ */
 export function listComponents(): RegistryIndexItem[] {
-	return index.items;
+	return index.items.filter((item) => platformOf(item) === "web");
+}
+
+/**
+ * React Native component summaries, for the `/native/*` surface.
+ * @returns Every `native-*` item, in registry order
+ */
+export function listNativeComponents(): RegistryIndexItem[] {
+	return index.items.filter((item) => platformOf(item) === "native");
+}
+
+/**
+ * Strip the `native-` prefix from an item name for display.
+ * @param name - A native item name such as `native-button`
+ * @returns The bare slug, `button`
+ */
+export function nativeDisplaySlug(name: string): string {
+	return name.startsWith("native-") ? name.slice("native-".length) : name;
 }
 
 /** Subset of registry items whose `category` is `"block"` — page-level compositions. */
 export function listBlocks(): RegistryIndexItem[] {
-	return index.items.filter((item) => item.category === "block");
+	return listComponents().filter((item) => item.category === "block");
 }
 
 /** Display labels for the `category` field on each registry item. */
@@ -59,11 +94,14 @@ export const CATEGORY_ORDER = [
  * Group components by `category` (primitive, component, block, etc.). Return
  * type is `Partial<Record>` because callers must handle missing categories
  * (e.g. the registry has no `hook` entries today).
+ * @param items - Which items to group; defaults to the web catalog
  * @returns Record of category → components list (values possibly undefined)
  */
-export function componentsByCategory(): Partial<Record<string, RegistryIndexItem[]>> {
+export function componentsByCategory(
+	items: readonly RegistryIndexItem[] = listComponents(),
+): Partial<Record<string, RegistryIndexItem[]>> {
 	const groups: Partial<Record<string, RegistryIndexItem[]>> = {};
-	for (const item of index.items) {
+	for (const item of items) {
 		const list = groups[item.category] ?? [];
 		list.push(item);
 		groups[item.category] = list;

@@ -62,6 +62,7 @@ export {
 	loadRegistryItem,
 	type RegistryIndex,
 	type RegistryItem,
+	resolveInternalDepForPlatform,
 	SLUG_REGEX,
 } from "./loaders/registry-loader.js";
 

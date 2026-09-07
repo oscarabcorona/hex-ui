@@ -1,0 +1,22 @@
+{
+	"expo": {
+		"name": "Hex Native Playground",
+		"slug": "hex-native-playground",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"scheme": "hexplayground",
+		"userInterfaceStyle": "automatic",
+		"newArchEnabled": true,
+		"ios": {
+			"supportsTablet": true,
+			"bundleIdentifier": "dev.hexcore.playground"
+		},
+		"android": {
+			"package": "dev.hexcore.playground"
+		},
+		"plugins": ["expo-router"],
+		"experiments": {
+			"typedRoutes": false
+		}
+	}
+}

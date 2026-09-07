@@ -1,0 +1,120 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-tooltip",
+  "displayName": "Tooltip",
+  "description": "A brief label anchored to a control. Touch has no hover, so the trigger toggles the bubble on tap and consumes that tap — a tooltip is a secondary affordance on native, never the only place a label lives.",
+  "category": "component",
+  "subcategory": "overlay",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "[Tooltip root prop] Callback on open state change: (open: boolean) => void"
+    },
+    {
+      "name": "portalHost",
+      "type": "string",
+      "required": false,
+      "description": "Name of the PortalHost to render into. Only needed when the app mounts more than one."
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "TooltipTrigger + TooltipContent, all inside a TooltipProvider",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/tooltip.tsx",
+      "content": "import * as TooltipPrimitive from \"@rn-primitives/tooltip\";\nimport type { ComponentProps } from \"react\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Tooltip}. */\nexport type TooltipProps = ComponentProps<typeof TooltipPrimitive.Root>;\n\n/**\n * A brief label shown next to the control that opened it.\n *\n * Touch has no hover, so the trigger **toggles the tooltip on tap** and is\n * uncontrolled — there is no `open` prop on native. That means a tooltip\n * trigger consumes the tap: do not wrap a control that already does\n * something on press. Needs a `<PortalHost />` in the root layout.\n * @param props - {@link TooltipProps}\n * @returns The tooltip root\n * @example\n * ```tsx\n * <Tooltip>\n *   <TooltipTrigger asChild>\n *     <Button variant=\"ghost\" size=\"icon\" aria-label=\"Archive\"><ArchiveIcon /></Button>\n *   </TooltipTrigger>\n *   <TooltipContent><Text>Archive</Text></TooltipContent>\n * </Tooltip>\n * ```\n */\nexport function Tooltip(props: TooltipProps) {\n\treturn <TooltipPrimitive.Root {...props} />;\n}\n\n/** Props for {@link TooltipTrigger}. */\nexport type TooltipTriggerProps = ComponentProps<typeof TooltipPrimitive.Trigger>;\n\n/**\n * The control the tooltip describes. A tap toggles the bubble, and that tap\n * does not reach whatever the trigger wraps.\n * @param props - {@link TooltipTriggerProps}\n * @returns The trigger\n */\nexport function TooltipTrigger(props: TooltipTriggerProps) {\n\treturn <TooltipPrimitive.Trigger {...props} />;\n}\n\n/** Props for {@link TooltipContent}. */\nexport interface TooltipContentProps extends ComponentProps<typeof TooltipPrimitive.Content> {\n\t/** Name of the `PortalHost` to render into, when the app mounts more than one. */\n\tportalHost?: string;\n}\n\n/**\n * The tooltip bubble. Renders through the portal host.\n * @param props - {@link TooltipContentProps}\n * @returns The portalled bubble\n */\nexport function TooltipContent({ className, portalHost, ...props }: TooltipContentProps) {\n\treturn (\n\t\t<TooltipPrimitive.Portal hostName={portalHost}>\n\t\t\t<TooltipPrimitive.Overlay className=\"absolute inset-0\">\n\t\t\t\t<TextClassContext.Provider value=\"text-xs text-primary-foreground\">\n\t\t\t\t\t<TooltipPrimitive.Content\n\t\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\t\"rounded-md bg-primary px-3 py-1.5 shadow-md shadow-black/10\",\n\t\t\t\t\t\t\tclassName,\n\t\t\t\t\t\t)}\n\t\t\t\t\t\t{...props}\n\t\t\t\t\t/>\n\t\t\t\t</TextClassContext.Provider>\n\t\t\t</TooltipPrimitive.Overlay>\n\t\t</TooltipPrimitive.Portal>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/tooltip",
+      "@rn-primitives/portal",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "lib/text-context"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "primary",
+    "primary-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Naming an icon button",
+      "description": "The aria-label is what actually names the control; the tooltip only reveals it visually",
+      "code": "<Tooltip>\n  <TooltipTrigger asChild>\n    <Button variant=\"ghost\" size=\"icon\" aria-label=\"Archive\">\n      <ArchiveIcon size={16} />\n    </Button>\n  </TooltipTrigger>\n  <TooltipContent>\n    <Text>Archive</Text>\n  </TooltipContent>\n</Tooltip>",
+      "composition": [
+        "toolbar",
+        "icon-only"
+      ]
+    },
+    {
+      "title": "Reacting to open state",
+      "description": "The bubble is uncontrolled on native — there is no open prop. Observe it with onOpenChange when something else needs to know.",
+      "code": "<Tooltip onOpenChange={setHintVisible}>\n  <TooltipTrigger asChild>\n    <Button variant=\"ghost\" size=\"icon\" aria-label=\"Filter\">\n      <FilterIcon size={16} />\n    </Button>\n  </TooltipTrigger>\n  <TooltipContent>\n    <Text>Narrow the list</Text>\n  </TooltipContent>\n</Tooltip>",
+      "composition": [
+        "onboarding"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use sparingly, to reveal the name of an icon-only control that does nothing else on tap — a legend button, a help affordance. Treat the bubble as a visual convenience layered on a real accessible name.",
+    "whenNotToUse": "Don't wrap a control that already acts on press: the trigger consumes the tap, so a Button inside a TooltipTrigger stops running its own handler. Don't use it to carry information the user needs. Don't use it for anything interactive (use Popover).",
+    "commonMistakes": [
+      "Wrapping a working Button in TooltipTrigger — the tap opens the bubble instead of running the button's onPress, silently breaking the action",
+      "Treating the tooltip as the control's name and omitting aria-label — a screen-reader user then hears an unnamed button, because the bubble is not the accessible name",
+      "Expecting hover behaviour from the web version: on a device the bubble toggles on tap, and there is no open prop to drive it from the parent",
+      "Putting essential instructions in it — if the user must read it, it belongs on the screen",
+      "Forgetting <PortalHost /> in the root layout, so the bubble never renders"
+    ],
+    "relatedComponents": [
+      "native-button",
+      "native-popover",
+      "native-text"
+    ],
+    "accessibilityNotes": "A tooltip is never a substitute for a name: always give the trigger its own aria-label, and treat the bubble as a visual echo of it. The trigger reports its expanded state, so assistive tech knows the bubble opened. Because the tap toggles the bubble rather than acting, reserve this for controls whose only job is to explain themselves; anything actionable should carry a visible label instead. Positioning is measured on device, so the bubble anchors only once the trigger has laid out.",
+    "tokenBudget": 571
+  },
+  "tags": [
+    "tooltip",
+    "hint",
+    "label",
+    "hover",
+    "overlay",
+    "native",
+    "react-native"
+  ]
+}

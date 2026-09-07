@@ -14,6 +14,22 @@ try {
 	pkg = { version: "0.0.0-unknown" };
 }
 
+/**
+ * Validate a `--platform` value.
+ *
+ * Exits rather than falling back to a default: silently installing web
+ * components into a React Native app produces a screen of runtime errors
+ * far from the typo that caused them.
+ * @param raw - The flag value, when the user passed one
+ * @returns The platform, or undefined to let detection decide
+ */
+function parsePlatformFlag(raw: string | undefined): "web" | "native" | undefined {
+	if (raw === undefined) return undefined;
+	if (raw === "web" || raw === "native") return raw;
+	console.error(`Unknown --platform value: "${raw}". Use one of: web, native.`);
+	process.exit(1);
+}
+
 const program = new Command();
 
 program.name("hex").description("Hex Core — AI-native component library").version(pkg.version);
@@ -21,9 +37,13 @@ program.name("hex").description("Hex Core — AI-native component library").vers
 program
 	.command("list")
 	.description("List all available Hex Core components")
-	.action(async () => {
+	.option(
+		"--platform <target>",
+		"Only list one render target: `web` (React DOM) or `native` (React Native).",
+	)
+	.action(async (options: { platform?: string }) => {
 		const { listComponents } = await import("./commands/list.js");
-		await listComponents();
+		await listComponents({ platform: parsePlatformFlag(options.platform) });
 	});
 
 program
@@ -43,6 +63,10 @@ program
 		"--pack <name>",
 		"Install a curated pack instead of positional args. Currently: `layout` (container, stack, cluster, grid, spacer, empty)",
 	)
+	.option(
+		"--platform <target>",
+		"Render target: `web` (React DOM) or `native` (React Native). Defaults to hex.config.json, then framework detection — so `hex add button` on an Expo app installs native-button.",
+	)
 	.action(
 		async (
 			components: string[],
@@ -54,6 +78,7 @@ program
 				dryRun?: boolean;
 				from?: string;
 				pack?: string;
+				platform?: string;
 			},
 		) => {
 			const { addComponents, layoutPack } = await import("./commands/add.js");
@@ -69,7 +94,8 @@ program
 				console.error("Pass at least one component name, --from <manifest>, or --pack <name>.");
 				process.exit(1);
 			}
-			await addComponents(queue, options);
+			const platform = parsePlatformFlag(options.platform);
+			await addComponents(queue, { ...options, platform });
 		},
 	);
 
@@ -77,6 +103,10 @@ program
 	.command("init")
 	.description("Initialize Hex Core in your project")
 	.option("--theme <theme>", "Theme to use", "default")
+	.option(
+		"--platform <target>",
+		"Render target: `web` (React DOM, Tailwind) or `native` (React Native, NativeWind). Defaults to framework detection — an Expo or React Native project gets the native scaffold.",
+	)
 	.option(
 		"--overwrite [targets]",
 		"Replace existing files. Pass a comma list (globals.css,tailwind.config.ts) or omit the value for everything.",
@@ -91,6 +121,7 @@ program
 			install: boolean;
 			mcp: boolean;
 			check?: boolean;
+			platform?: string;
 		}) => {
 			const { initProject, parseOverwriteFlag } = await import("./commands/init.js");
 			await initProject({
@@ -99,6 +130,7 @@ program
 				install: options.install,
 				mcp: options.mcp,
 				check: options.check,
+				platform: parsePlatformFlag(options.platform),
 			});
 		},
 	);

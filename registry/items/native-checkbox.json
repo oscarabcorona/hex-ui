@@ -1,0 +1,141 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-checkbox",
+  "displayName": "Checkbox",
+  "description": "A square box the user ticks. Controlled only on native — pass checked and onCheckedChange together — and it extends its own touch target beyond the 16pt box.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled checked state"
+    },
+    {
+      "name": "onCheckedChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback: (checked: boolean | 'indeterminate') => void"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the checkbox"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    },
+    {
+      "name": "hitSlop",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Extra tappable area in points around the visible box. Defaults to 12 so the target clears the 44pt minimum."
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/checkbox.tsx",
+      "content": "import * as CheckboxPrimitive from \"@rn-primitives/checkbox\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Extra touch area around the 16pt box, in points. */\nconst HIT_SLOP = 12;\n\n/** Props for {@link Checkbox}. */\nexport type CheckboxProps = ComponentProps<typeof CheckboxPrimitive.Root>;\n\n/**\n * A square box the user ticks.\n *\n * Controlled only: pass `checked` and `onCheckedChange` together. The\n * visible box is 16pt, well under the 44pt touch-target minimum, so it\n * carries `hitSlop` to extend the tappable area.\n * @param props - {@link CheckboxProps}\n * @returns The checkbox element\n * @example\n * ```tsx\n * <Checkbox\n *   aria-labelledby=\"terms\"\n *   checked={accepted}\n *   onCheckedChange={setAccepted}\n * />\n * ```\n */\nexport function Checkbox({ className, ...props }: CheckboxProps) {\n\treturn (\n\t\t<CheckboxPrimitive.Root\n\t\t\thitSlop={HIT_SLOP}\n\t\t\tclassName={cn(\n\t\t\t\t\"size-4 shrink-0 overflow-hidden rounded-[4px] border border-input\",\n\t\t\t\tprops.checked && \"border-primary\",\n\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<CheckboxPrimitive.Indicator className=\"size-full items-center justify-center bg-primary\" />\n\t\t</CheckboxPrimitive.Root>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/checkbox",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "input",
+    "primary",
+    "primary-foreground",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "With a label",
+      "description": "The label names the box and enlarges the tap area",
+      "code": "<View className=\"flex-row items-center gap-2\">\n  <Checkbox\n    aria-labelledby=\"terms\"\n    checked={accepted}\n    onCheckedChange={setAccepted}\n  />\n  <Label nativeID=\"terms\">I accept the terms</Label>\n</View>",
+      "composition": [
+        "form",
+        "field"
+      ]
+    },
+    {
+      "title": "Multi-select list",
+      "description": "One controlled box per row, keyed by id",
+      "code": "<View className=\"gap-3\">\n  {options.map((option) => (\n    <View key={option.id} className=\"flex-row items-center gap-2\">\n      <Checkbox\n        aria-labelledby={option.id}\n        checked={selected.includes(option.id)}\n        onCheckedChange={(next) => toggle(option.id, next)}\n      />\n      <Label nativeID={option.id}>{option.label}</Label>\n    </View>\n  ))}\n</View>",
+      "composition": [
+        "form",
+        "list"
+      ]
+    },
+    {
+      "title": "Disabled",
+      "description": "Dim both the box and its label",
+      "code": "<View className=\"flex-row items-center gap-2\">\n  <Checkbox aria-labelledby=\"locked\" checked disabled onCheckedChange={() => {}} />\n  <Label nativeID=\"locked\" disabled>Included in every plan</Label>\n</View>",
+      "composition": [
+        "form",
+        "disabled"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for boolean choices submitted with a form — accepting terms, opting in, selecting several items from a list. Always pair with a Label and keep the state in the parent.",
+    "whenNotToUse": "Don't use for a setting that takes effect immediately (use Switch, which is also the platform-native idiom on a phone). Don't use for mutually exclusive options (use RadioGroup). Don't use for an indeterminate parent state — the native primitive has no indeterminate value.",
+    "commonMistakes": [
+      "Rendering it uncontrolled — the native primitive requires both checked and onCheckedChange, and without them the box never visibly ticks no matter how many times it is tapped",
+      "Passing defaultChecked as on the web — there is no uncontrolled mode here; seed the parent state instead",
+      "Removing hitSlop to make the layout tighter — the visible box is 16pt, so without the extra area the target is far below the 44pt minimum and the control is hard to hit",
+      "Expecting an indeterminate state — onCheckedChange is called with a boolean only; model a partially-selected parent yourself",
+      "Using a checkbox for an instant-effect setting in a settings screen, where a Switch is what a phone user expects"
+    ],
+    "relatedComponents": [
+      "native-label",
+      "native-switch",
+      "native-text"
+    ],
+    "accessibilityNotes": "The primitive sets role=\"checkbox\" and reports the checked state, so VoiceOver and TalkBack announce both name and state. Name it by pairing a Label's nativeID with aria-labelledby — tapping that label also toggles the box, which is the main way of hitting so small a control. Keep hitSlop so the touch target clears 44pt. The disabled state dims the box and is announced.",
+    "tokenBudget": 315
+  },
+  "tags": [
+    "checkbox",
+    "form",
+    "toggle",
+    "boolean",
+    "check",
+    "native",
+    "react-native"
+  ]
+}

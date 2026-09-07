@@ -1,0 +1,141 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-message-list",
+  "displayName": "MessageList",
+  "description": "A scrolling conversation pinned to the newest turn. Built on an inverted FlatList, so a streaming reply grows without pushing the view around.",
+  "category": "ai",
+  "subcategory": "chat",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes (e.g. height, padding)."
+    },
+    {
+      "name": "messages",
+      "type": "object",
+      "required": true,
+      "description": "The turns, oldest first. The list reverses internally for the inverted layout."
+    },
+    {
+      "name": "renderMessage",
+      "type": "function",
+      "required": true,
+      "description": "Renders one turn: (message, index) => ReactElement"
+    },
+    {
+      "name": "keyExtractor",
+      "type": "function",
+      "required": true,
+      "description": "Stable identity per turn: (message, index) => string"
+    },
+    {
+      "name": "footer",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Rendered under the newest turn — a typing indicator, or a retry affordance"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Messages to render in order.",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/message-list.tsx",
+      "content": "import { type ReactElement, useCallback } from \"react\";\nimport { FlatList, type FlatListProps, View } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link MessageList}. */\nexport interface MessageListProps<TMessage> extends Partial<FlatListProps<TMessage>> {\n\t/** Turns, oldest first — the same order you store them in. */\n\tmessages: readonly TMessage[];\n\t/** Render one turn. */\n\trenderMessage: (message: TMessage, index: number) => ReactElement;\n\t/** Stable identity per turn. */\n\tkeyExtractor: (message: TMessage, index: number) => string;\n\t/** Rendered under the last turn, e.g. a typing indicator. */\n\tfooter?: ReactElement | null;\n\t/** Additional classes on the list. */\n\tclassName?: string;\n}\n\n/**\n * A scrolling conversation that stays pinned to the newest turn.\n *\n * Renders inverted: the list is drawn from the bottom up, which is what\n * keeps the newest message in view while earlier ones scroll away, and what\n * stops the view jumping when a streaming reply grows. The `messages` array\n * is passed oldest-first and reversed internally, so callers never store\n * their history backwards to satisfy the list.\n * @param props - {@link MessageListProps}\n * @returns The conversation list\n * @example\n * ```tsx\n * <MessageList\n *   messages={messages}\n *   keyExtractor={(m) => m.id}\n *   renderMessage={(m) => (\n *     <Message role={m.role}><Text>{m.content}</Text></Message>\n *   )}\n * />\n * ```\n */\nexport function MessageList<TMessage>({\n\tmessages,\n\trenderMessage,\n\tkeyExtractor,\n\tfooter,\n\tclassName,\n\t...props\n}: MessageListProps<TMessage>) {\n\t// Inverted lists render index 0 at the bottom, so the newest turn has to\n\t// come first in the data. Reversing here keeps the caller's array in the\n\t// natural oldest-first order.\n\tconst inverted = [...messages].reverse();\n\n\tconst renderItem = useCallback(\n\t\t({ item, index }: { item: TMessage; index: number }) =>\n\t\t\trenderMessage(item, messages.length - 1 - index),\n\t\t[renderMessage, messages.length],\n\t);\n\n\treturn (\n\t\t<FlatList\n\t\t\tinverted\n\t\t\tdata={inverted}\n\t\t\trenderItem={renderItem}\n\t\t\tkeyExtractor={(item, index) => keyExtractor(item, messages.length - 1 - index)}\n\t\t\t// In an inverted list the header renders at the bottom, which is\n\t\t\t// where a typing indicator belongs.\n\t\t\tListHeaderComponent={footer ? <View className=\"pb-2\">{footer}</View> : null}\n\t\t\tItemSeparatorComponent={() => <View className=\"h-2\" />}\n\t\t\tcontentContainerClassName=\"px-4 py-3\"\n\t\t\ttestID=\"message-list\"\n\t\t\tclassName={cn(\"flex-1\", className)}\n\t\t\tkeyboardShouldPersistTaps=\"handled\"\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [],
+  "examples": [
+    {
+      "title": "A conversation",
+      "description": "Pass messages oldest-first; the list handles the inversion",
+      "code": "<MessageList\n  messages={messages}\n  keyExtractor={(message) => message.id}\n  renderMessage={(message) => (\n    <Message role={message.role}>\n      <Text>{message.content}</Text>\n    </Message>\n  )}\n/>",
+      "composition": [
+        "chat"
+      ]
+    },
+    {
+      "title": "With a typing indicator",
+      "description": "The footer renders under the newest turn",
+      "code": "<MessageList\n  messages={messages}\n  keyExtractor={(message) => message.id}\n  renderMessage={(message) => (\n    <Message role={message.role}><Text>{message.content}</Text></Message>\n  )}\n  footer={isStreaming ? <ActivityIndicator size=\"small\" /> : null}\n/>",
+      "composition": [
+        "chat",
+        "streaming"
+      ]
+    },
+    {
+      "title": "Inside a keyboard-aware screen",
+      "description": "The list takes the free space above the composer",
+      "code": "<KeyboardAvoidingView\n  behavior={Platform.OS === \"ios\" ? \"padding\" : undefined}\n  className=\"flex-1\"\n>\n  <MessageList\n    messages={messages}\n    keyExtractor={(message) => message.id}\n    renderMessage={(message) => (\n      <Message role={message.role}><Text>{message.content}</Text></Message>\n    )}\n  />\n  <Composer value={draft} onChangeText={setDraft} onSubmit={send} />\n</KeyboardAvoidingView>",
+      "composition": [
+        "chat",
+        "screen"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use as the scrolling body of a chat surface. Give it the message array, a key extractor and a renderer, and let it own the scroll position.",
+    "whenNotToUse": "Don't use it for a short fixed set of turns that fits on screen — a plain View with a gap is lighter. Don't nest it inside another scroll view; two scrollables on the same axis fight over the gesture.",
+    "commonMistakes": [
+      "Reversing the messages array before passing it in, which double-inverts the list and shows the oldest turn at the bottom",
+      "Deriving keys from the array index, so a streaming turn remounts on every token and loses its scroll position",
+      "Wrapping it in a ScrollView, which breaks virtualisation and the stick-to-bottom behaviour at once",
+      "Putting the typing indicator in the data array instead of the footer, which makes it a real list item that has to be added and removed",
+      "Giving it no bounded height — inside a flex column it needs flex-1, or it collapses to nothing"
+    ],
+    "relatedComponents": [
+      "native-message",
+      "native-composer",
+      "native-text"
+    ],
+    "accessibilityNotes": "An inverted FlatList reverses the visual order but keeps each turn its own element, so VoiceOver still reads them one at a time. Because the newest turn is at the bottom and the list is inverted, announce arriving replies through the message content itself rather than relying on scroll position. Set keyboardShouldPersistTaps so a tap on a message does not get eaten by the keyboard dismissing, which the component already does.",
+    "tokenBudget": 642
+  },
+  "tags": [
+    "ai",
+    "chat",
+    "scroll",
+    "viewport",
+    "streaming",
+    "native",
+    "react-native"
+  ]
+}

@@ -200,6 +200,30 @@
       "tokenBudget": 1300
     },
     {
+      "slug": "chatbot-native",
+      "kind": "component",
+      "title": "Chatbot (React Native)",
+      "summary": "Streaming chatbot for Expo. An inverted <MessageList> keeps the newest turn in view while a reply grows, assistant text renders through the native <Markdown> renderer, tool invocations collapse into <ToolCall> rows, and the <Composer> pins above the keyboard. The proof that the AI Kit works on a device, not just in a browser.",
+      "tags": [
+        "ai",
+        "chat",
+        "chatbot",
+        "streaming",
+        "react-native",
+        "expo",
+        "native"
+      ],
+      "components": [
+        "native-message-list",
+        "native-message",
+        "native-markdown",
+        "native-composer",
+        "native-tool-call",
+        "native-text"
+      ],
+      "tokenBudget": 2600
+    },
+    {
       "slug": "chatbot",
       "kind": "component",
       "title": "Chatbot",

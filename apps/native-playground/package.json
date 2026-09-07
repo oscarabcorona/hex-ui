@@ -1,0 +1,38 @@
+{
+	"name": "native-playground",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Expo host for the @hex-core/native demos — the manual QA surface and the source of the docs screenshots.",
+	"main": "expo-router/entry",
+	"scripts": {
+		"start": "expo start",
+		"ios": "expo start --ios",
+		"android": "expo start --android",
+		"export": "expo export --platform ios --output-dir .expo-export",
+		"typecheck": "tsc --noEmit",
+		"build:theme": "tsx scripts/build-theme.mts"
+	},
+	"dependencies": {
+		"@hex-core/native": "workspace:^",
+		"@hex-core/tokens": "workspace:^",
+		"@rn-primitives/portal": "^1.5.3",
+		"expo": "^57.0.20",
+		"expo-constants": "^57.0.17",
+		"expo-linking": "^57.0.9",
+		"expo-router": "^57.0.19",
+		"expo-status-bar": "^57.0.1",
+		"nativewind": "^4.2.6",
+		"react": "19.2.3",
+		"react-native": "^0.86.3",
+		"react-native-css-interop": "^0.2.6",
+		"react-native-reanimated": "^4.5.1",
+		"react-native-safe-area-context": "^5.7.0",
+		"react-native-screens": "^4.26.2"
+	},
+	"devDependencies": {
+		"@types/react": "catalog:",
+		"tailwindcss": "^3.4.0",
+		"tsx": "catalog:",
+		"typescript": "catalog:"
+	}
+}

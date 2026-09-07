@@ -28,6 +28,10 @@ import { fileURLToPath } from "node:url";
 import { encode } from "gpt-tokenizer/encoding/cl100k_base";
 
 import { registryItemSchema, type RegistryItem } from "../packages/registry/src/schema.js";
+import {
+	internalDepToSlug,
+	resolveInternalDepForPlatform,
+} from "../packages/registry/src/recipe-schema.js";
 import { schemaWireShape } from "../packages/mcp-server/src/tools/get-component-schema.js";
 
 const REPO_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -53,6 +57,88 @@ const BUDGET_RATIO_MIN = 0.5;
 const BUDGET_RATIO_MAX = 1.5;
 
 const tok = (s: string): number => encode(s).length;
+
+/** Every native item's `name` starts with this; no web item's may. */
+const NATIVE_PREFIX = "native-";
+
+/**
+ * DOM idioms that cannot appear in a React Native item's `ai` prose or
+ * example code. Each is a thing an agent would copy verbatim into an Expo
+ * app and get a runtime error or a silent no-op for:
+ *
+ * - `onClick` — RN uses `onPress`
+ * - `hover:` / `focus-visible:` — no pointer hover, no focus ring on touch
+ * - `href=` — navigation goes through the router, not an anchor
+ * - DOM elements — `<div>`, `<span>`, `<button>`, … do not exist in RN
+ *
+ * Two things are deliberately NOT listed. `aria-*` works: React Native
+ * ≥0.71 accepts `aria-label`, `aria-hidden` and friends as alias props, and
+ * the native schemas use them. `asChild` works too: `@rn-primitives/slot`
+ * implements the same Slot composition Radix does, and every overlay
+ * primitive accepts it.
+ */
+const NATIVE_DOM_LEAKS: Array<{ re: RegExp; label: string }> = [
+	{ re: /\bonClick\b/, label: "onClick" },
+	{ re: /\bhover:/, label: "hover: variant" },
+	{ re: /\bfocus-visible:/, label: "focus-visible: variant" },
+	{ re: /\bhref=/, label: "href attribute" },
+	{ re: /<(?:div|span|button|input|textarea|select|a|p|ul|ol|li|form|label|img|h[1-6])\b/, label: "DOM element" },
+];
+
+/**
+ * Run the platform-consistency checks for one parsed item.
+ *
+ * Web items may not carry the native prefix; native items must, and must
+ * not leak DOM idioms into the prose or examples an agent will copy.
+ * @param item - The parsed registry item
+ * @returns Human-readable failure strings (empty when the item passes)
+ */
+function checkPlatform(item: RegistryItem): string[] {
+	const errors: string[] = [];
+	const prefixed = item.name.startsWith(NATIVE_PREFIX);
+
+	if (item.platform === "web" && prefixed) {
+		errors.push(`name carries the "${NATIVE_PREFIX}" prefix but platform is "web"`);
+		return errors;
+	}
+	if (item.platform !== "native") return errors;
+	if (!prefixed) {
+		errors.push(`platform is "native" but name does not start with "${NATIVE_PREFIX}"`);
+	}
+
+	const { ai } = item;
+	// Every prose surface, not just the hand-written ones. `deriveNativeSchema`
+	// inherits props, variants, slots and example descriptions from the web
+	// schema by default — so those are precisely where a DOM idiom arrives
+	// without anyone typing it.
+	const surfaces: Array<[string, string]> = [
+		["description", item.description],
+		["ai.whenToUse", ai.whenToUse],
+		["ai.whenNotToUse", ai.whenNotToUse],
+		["ai.accessibilityNotes", ai.accessibilityNotes],
+		...ai.commonMistakes.map((m, i): [string, string] => [`ai.commonMistakes[${i}]`, m]),
+		...(ai.antiPatterns ?? []).map((a, i): [string, string] => [`ai.antiPatterns[${i}].mistake`, a.mistake]),
+		...item.props.map((p, i): [string, string] => [`props[${i}].description`, p.description]),
+		...item.variants.flatMap((v, i): Array<[string, string]> => [
+			[`variants[${i}].description`, v.description],
+			...v.values.map((value, j): [string, string] => [
+				`variants[${i}].values[${j}].description`,
+				value.description,
+			]),
+		]),
+		...item.slots.map((s, i): [string, string] => [`slots[${i}].description`, s.description]),
+		...item.examples.flatMap((e, i): Array<[string, string]> => [
+			[`examples[${i}].code`, e.code],
+			[`examples[${i}].description`, e.description],
+		]),
+	];
+	for (const [field, text] of surfaces) {
+		for (const { re, label } of NATIVE_DOM_LEAKS) {
+			if (re.test(text)) errors.push(`${field} leaks a DOM idiom (${label}) into a native item`);
+		}
+	}
+	return errors;
+}
 
 interface ItemReport {
 	slug: string;
@@ -121,6 +207,22 @@ function checkItem(item: RegistryItem, slugs: Set<string>): string[] {
 	for (const anti of ai.antiPatterns ?? []) {
 		if (!slugs.has(anti.insteadUse)) {
 			errors.push(`ai.antiPatterns insteadUse references unknown slug "${anti.insteadUse}"`);
+		}
+	}
+	// `dependencies.internal` went unchecked, which is how the native items
+	// shipped deps that resolved to nothing: the graph dropped their edges and
+	// two MCP tools reported an install closure the catalog could not satisfy.
+	// A dep that names a component must name one that exists, for this item's
+	// platform.
+	for (const dep of item.dependencies.internal) {
+		if (internalDepToSlug(dep) === null) continue; // lib/* and friends
+		const resolved = resolveInternalDepForPlatform(dep, item.platform ?? "web", (name) =>
+			slugs.has(name),
+		);
+		if (resolved === null) {
+			errors.push(
+				`dependencies.internal "${dep}" resolves to no item for platform "${item.platform ?? "web"}"`,
+			);
 		}
 	}
 	return errors;
@@ -211,7 +313,7 @@ for (const file of itemFiles) {
 		continue;
 	}
 	const item = parsed.data;
-	const errors = checkItem(item, indexSlugs);
+	const errors = [...checkItem(item, indexSlugs), ...checkPlatform(item)];
 	if (!indexSlugs.has(item.name)) {
 		errors.push("item is not listed in registry.json — rebuild the registry");
 	}
@@ -242,7 +344,7 @@ if (reports.length > 0) {
 		for (const error of report.errors) console.error(`    ✗ ${error}`);
 	}
 	console.error(
-		"\nFix the schema source (packages/components/src/**/*.schema.ts or packages/motion/src/schemas/*.schema.ts), then run: pnpm run build:registry",
+		"\nFix the schema source (packages/components/src/**/*.schema.ts, packages/native/src/**/*.schema.ts or packages/motion/src/schemas/*.schema.ts), then run: pnpm run build:registry",
 	);
 	process.exit(1);
 }

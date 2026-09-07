@@ -6,13 +6,17 @@
 				"scripts/build-barrels.ts",
 				"scripts/lib/**",
 				"packages/components/src/**",
+				"packages/native/src/**",
 				"packages/motion/src/**",
 				"packages/themes/src/presets/_briefs/**"
 			],
 			"outputs": [
 				"packages/components/src/index.generated.ts",
 				"packages/components/src/schemas.generated.ts",
+				"packages/native/src/index.generated.ts",
+				"packages/native/src/schemas.generated.ts",
 				"apps/docs/src/lib/demos.generated.tsx",
+				"apps/native-playground/src/demos.generated.tsx",
 				"packages/themes/src/presets/briefs.generated.ts"
 			]
 		},

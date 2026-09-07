@@ -1,0 +1,160 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-composer",
+  "displayName": "Composer",
+  "description": "The chat input bar: a growing text field plus an explicit send control. Return inserts a newline, because a phone keyboard has no modifier to distinguish send from newline.",
+  "category": "ai",
+  "subcategory": "input",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "description": "Controlled textarea value."
+    },
+    {
+      "name": "onSubmit",
+      "type": "function",
+      "required": true,
+      "description": "Called with the trimmed value on Enter or form submit."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "description": "Textarea placeholder copy."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes on the form wrapper."
+    },
+    {
+      "name": "onChangeText",
+      "type": "function",
+      "required": true,
+      "description": "Called with the new draft on every edit. Replaces the web onValueChange."
+    },
+    {
+      "name": "busy",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Block input and the send control while a reply streams"
+    },
+    {
+      "name": "sendLabel",
+      "type": "string",
+      "required": false,
+      "default": "Send message",
+      "description": "Accessible name for the send control"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Trailing action buttons rendered after the textarea.",
+      "required": false,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/composer.tsx",
+      "content": "import type { ComponentProps } from \"react\";\nimport { ActivityIndicator, Pressable, TextInput, View } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Composer}. */\nexport interface ComposerProps extends Omit<ComponentProps<typeof TextInput>, \"onSubmitEditing\"> {\n\t/** Current draft text. */\n\tvalue: string;\n\t/** Called with the new draft on every edit. */\n\tonChangeText: (next: string) => void;\n\t/** Called with the trimmed draft when the user sends. */\n\tonSubmit: (message: string) => void;\n\t/** Block input and the send control while a reply streams. */\n\tbusy?: boolean;\n\t/** Accessible name for the send control. */\n\tsendLabel?: string;\n\t/** Additional classes on the surrounding bar. */\n\tclassName?: string;\n}\n\n/**\n * The chat input bar: a growing text field plus a send control.\n *\n * Send is an explicit button rather than a Return key. On a phone Return\n * should insert a newline in a multi-line field, and a visible control is\n * also the only send affordance a screen-reader user can find.\n * @param props - {@link ComposerProps}\n * @returns The composer bar\n * @example\n * ```tsx\n * <Composer\n *   value={draft}\n *   onChangeText={setDraft}\n *   onSubmit={send}\n *   busy={isStreaming}\n * />\n * ```\n */\nexport function Composer({\n\tvalue,\n\tonChangeText,\n\tonSubmit,\n\tbusy = false,\n\tsendLabel = \"Send message\",\n\tplaceholder = \"Message…\",\n\tclassName,\n\t...props\n}: ComposerProps) {\n\tconst trimmed = value.trim();\n\tconst canSend = trimmed.length > 0 && !busy;\n\n\treturn (\n\t\t<View\n\t\t\tclassName={cn(\n\t\t\t\t\"flex-row items-end gap-2 border-t border-border bg-background px-4 py-3\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t>\n\t\t\t<TextInput\n\t\t\t\tmultiline\n\t\t\t\tvalue={value}\n\t\t\t\tonChangeText={onChangeText}\n\t\t\t\teditable={!busy}\n\t\t\t\tplaceholder={placeholder}\n\t\t\t\ttextAlignVertical=\"top\"\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"max-h-32 min-h-10 flex-1 rounded-2xl border border-input bg-background px-4 py-2 text-base leading-5 text-foreground\",\n\t\t\t\t\t\"placeholder:text-muted-foreground\",\n\t\t\t\t\tbusy && \"opacity-50\",\n\t\t\t\t)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t\t<Pressable\n\t\t\t\trole=\"button\"\n\t\t\t\taria-label={sendLabel}\n\t\t\t\taria-disabled={!canSend}\n\t\t\t\tdisabled={!canSend}\n\t\t\t\tonPress={() => {\n\t\t\t\t\tif (canSend) onSubmit(trimmed);\n\t\t\t\t}}\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"h-10 w-10 items-center justify-center rounded-full bg-primary\",\n\t\t\t\t\t!canSend && \"opacity-50\",\n\t\t\t\t)}\n\t\t\t>\n\t\t\t\t{busy ? <ActivityIndicator size=\"small\" className=\"text-primary-foreground\" /> : null}\n\t\t\t</Pressable>\n\t\t</View>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "ring",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Basic composer",
+      "description": "Draft held by the parent, sent on the button",
+      "code": "<Composer\n  value={draft}\n  onChangeText={setDraft}\n  onSubmit={(message) => {\n    void send(message);\n    setDraft(\"\");\n  }}\n/>",
+      "composition": [
+        "chat"
+      ]
+    },
+    {
+      "title": "Blocked while streaming",
+      "description": "busy dims the field and shows a spinner in the send control",
+      "code": "<Composer\n  value={draft}\n  onChangeText={setDraft}\n  onSubmit={send}\n  busy={isStreaming}\n/>",
+      "composition": [
+        "chat",
+        "streaming"
+      ]
+    },
+    {
+      "title": "Pinned above the keyboard",
+      "description": "The composer sits under the message list inside a keyboard-aware view",
+      "code": "<KeyboardAvoidingView\n  behavior={Platform.OS === \"ios\" ? \"padding\" : undefined}\n  className=\"flex-1\"\n>\n  <MessageList\n    messages={messages}\n    keyExtractor={(message) => message.id}\n    renderMessage={(message) => (\n      <Message role={message.role}><Text>{message.content}</Text></Message>\n    )}\n  />\n  <Composer value={draft} onChangeText={setDraft} onSubmit={send} />\n</KeyboardAvoidingView>",
+      "composition": [
+        "chat",
+        "screen"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use as the input bar of a chat surface. Hold the draft in the parent, clear it after sending, and pass busy while a reply is streaming.",
+    "whenNotToUse": "Don't use it as a general form field (use Input or Textarea). Don't use it for a single-line search box. Don't put it inside a scrolling list; it belongs pinned below one.",
+    "commonMistakes": [
+      "Expecting Return to send — it inserts a newline here, because a phone keyboard has no Shift-Return to distinguish the two; sending is the button's job",
+      "Forgetting to clear the draft after onSubmit, leaving the sent text in the field",
+      "Not passing busy while a reply streams, so the user can fire a second request into a half-finished turn",
+      "Placing it outside a KeyboardAvoidingView, so the keyboard covers the bar the moment it is focused",
+      "Sending an untrimmed value — the component hands onSubmit the trimmed text and refuses to send whitespace"
+    ],
+    "relatedComponents": [
+      "native-message-list",
+      "native-message",
+      "native-input"
+    ],
+    "accessibilityNotes": "The send control is a real button with an accessible name from sendLabel, and it reports disabled while the draft is empty or a reply is streaming — so a screen-reader user knows why nothing happens. The field is multi-line and grows to a bounded height, keeping long drafts readable without pushing the list off screen. Keyboard avoidance is the caller's job: wrap the screen in a KeyboardAvoidingView so the bar stays visible.",
+    "tokenBudget": 641
+  },
+  "tags": [
+    "ai",
+    "input",
+    "chat",
+    "form",
+    "composer",
+    "textarea",
+    "native",
+    "react-native"
+  ]
+}

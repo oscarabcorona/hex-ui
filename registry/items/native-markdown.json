@@ -1,0 +1,137 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-markdown",
+  "displayName": "Markdown",
+  "description": "Markdown rendered as React Native elements. Shares the micromark parser the web component uses and replaces only the render step, so a partially-streamed reply renders safely on every token.",
+  "category": "ai",
+  "subcategory": "content",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "children",
+      "type": "string",
+      "required": true,
+      "description": "Raw markdown. May be a partial chunk during streaming."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes on the root element."
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Markdown source as a string.",
+      "required": true,
+      "acceptedTypes": [
+        "string"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/markdown.tsx",
+      "content": "import { gfmFromMarkdown } from \"mdast-util-gfm\";\nimport { fromMarkdown } from \"mdast-util-from-markdown\";\nimport { gfm } from \"micromark-extension-gfm\";\nimport { Fragment, type ReactNode, useMemo } from \"react\";\nimport { Linking, View } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\nimport { Text } from \"../../primitives/text/text.js\";\n\n/**\n * Markdown rendered natively, not through a DOM.\n *\n * `react-markdown` emits HTML element names, so it cannot be reused here.\n * The parser is the same one underneath it — micromark with the GitHub\n * extension — and only the render step is replaced: an mdast tree walked\n * into React Native `Text` and `View` elements.\n *\n * Streaming safety comes from the parser: an unterminated `**`, a half-typed\n * fence or a dangling `[link](` parses as literal text rather than throwing,\n * so a partial reply renders on every token without a guard.\n */\n\n/** The mdast node shapes this renderer handles. */\ninterface MdastNode {\n\ttype: string;\n\tvalue?: string;\n\tdepth?: number;\n\tordered?: boolean;\n\tlang?: string | null;\n\turl?: string;\n\tchecked?: boolean | null;\n\tchildren?: MdastNode[];\n}\n\n/** Heading depth to the Text variant that renders it. */\nconst HEADING_VARIANT = [\"h1\", \"h2\", \"h3\", \"h4\", \"h4\", \"h4\"] as const;\n\n/**\n * Open a link, ignoring failures.\n *\n * A markdown link in a model reply can be anything, including a scheme the\n * device has no handler for. Failing silently is better than crashing a\n * transcript on a bad URL.\n * @param url - The link target\n */\nfunction openLink(url: string): void {\n\tvoid Linking.openURL(url).catch(() => undefined);\n}\n\n/**\n * Render the inline children of a block node into a single `Text` run.\n *\n * Inline formatting has to stay inside one `Text` so it wraps as prose;\n * nesting a `View` here would break the line.\n * @param nodes - Inline mdast nodes\n * @param keyPrefix - Key namespace for this run\n * @returns The rendered inline nodes\n */\nfunction renderInline(nodes: readonly MdastNode[] | undefined, keyPrefix: string): ReactNode {\n\tif (!nodes) return null;\n\treturn nodes.map((node, index) => {\n\t\tconst key = `${keyPrefix}-${String(index)}`;\n\t\tswitch (node.type) {\n\t\t\tcase \"text\":\n\t\t\t\treturn <Fragment key={key}>{node.value}</Fragment>;\n\t\t\tcase \"strong\":\n\t\t\t\treturn (\n\t\t\t\t\t<Text key={key} className=\"font-semibold\">\n\t\t\t\t\t\t{renderInline(node.children, key)}\n\t\t\t\t\t</Text>\n\t\t\t\t);\n\t\t\tcase \"emphasis\":\n\t\t\t\treturn (\n\t\t\t\t\t<Text key={key} className=\"italic\">\n\t\t\t\t\t\t{renderInline(node.children, key)}\n\t\t\t\t\t</Text>\n\t\t\t\t);\n\t\t\tcase \"delete\":\n\t\t\t\treturn (\n\t\t\t\t\t<Text key={key} className=\"line-through\">\n\t\t\t\t\t\t{renderInline(node.children, key)}\n\t\t\t\t\t</Text>\n\t\t\t\t);\n\t\t\tcase \"inlineCode\":\n\t\t\t\treturn (\n\t\t\t\t\t<Text key={key} variant=\"code\">\n\t\t\t\t\t\t{node.value}\n\t\t\t\t\t</Text>\n\t\t\t\t);\n\t\t\tcase \"break\":\n\t\t\t\treturn <Fragment key={key}>{\"\\n\"}</Fragment>;\n\t\t\tcase \"link\": {\n\t\t\t\tconst url = node.url ?? \"\";\n\t\t\t\treturn (\n\t\t\t\t\t<Text\n\t\t\t\t\t\tkey={key}\n\t\t\t\t\t\trole=\"link\"\n\t\t\t\t\t\tclassName=\"text-primary underline\"\n\t\t\t\t\t\tonPress={() => {\n\t\t\t\t\t\t\topenLink(url);\n\t\t\t\t\t\t}}\n\t\t\t\t\t>\n\t\t\t\t\t\t{renderInline(node.children, key)}\n\t\t\t\t\t</Text>\n\t\t\t\t);\n\t\t\t}\n\t\t\tdefault:\n\t\t\t\t// An unhandled inline node still has text worth showing.\n\t\t\t\treturn <Fragment key={key}>{renderInline(node.children, key)}</Fragment>;\n\t\t}\n\t});\n}\n\n/**\n * Render one list, ordered or bulleted, with its markers.\n * @param node - A `list` mdast node\n * @param keyPrefix - Key namespace\n * @returns The rendered list\n */\nfunction renderList(node: MdastNode, keyPrefix: string): ReactNode {\n\tconst ordered = node.ordered === true;\n\treturn (\n\t\t<View key={keyPrefix} className=\"gap-1 pl-1\">\n\t\t\t{(node.children ?? []).map((item, index) => {\n\t\t\t\tconst key = `${keyPrefix}-${String(index)}`;\n\t\t\t\tconst marker = item.checked === true ? \"☑\" : item.checked === false ? \"☐\" : ordered ? `${String(index + 1)}.` : \"•\";\n\t\t\t\treturn (\n\t\t\t\t\t<View key={key} className=\"flex-row gap-2\">\n\t\t\t\t\t\t<Text className=\"text-muted-foreground\">{marker}</Text>\n\t\t\t\t\t\t<View className=\"flex-1 gap-1\">\n\t\t\t\t\t\t\t{(item.children ?? []).map((child, childIndex) =>\n\t\t\t\t\t\t\t\trenderBlock(child, `${key}-${String(childIndex)}`),\n\t\t\t\t\t\t\t)}\n\t\t\t\t\t\t</View>\n\t\t\t\t\t</View>\n\t\t\t\t);\n\t\t\t})}\n\t\t</View>\n\t);\n}\n\n/**\n * Render one block-level node.\n * @param node - A block mdast node\n * @param key - React key\n * @returns The rendered block\n */\nfunction renderBlock(node: MdastNode, key: string): ReactNode {\n\tswitch (node.type) {\n\t\tcase \"paragraph\":\n\t\t\treturn <Text key={key}>{renderInline(node.children, key)}</Text>;\n\t\tcase \"heading\": {\n\t\t\tconst depth = Math.min(Math.max(node.depth ?? 1, 1), 6);\n\t\t\treturn (\n\t\t\t\t<Text key={key} variant={HEADING_VARIANT[depth - 1]}>\n\t\t\t\t\t{renderInline(node.children, key)}\n\t\t\t\t</Text>\n\t\t\t);\n\t\t}\n\t\tcase \"list\":\n\t\t\treturn renderList(node, key);\n\t\tcase \"code\":\n\t\t\treturn (\n\t\t\t\t<View key={key} className=\"rounded-lg bg-muted p-3\">\n\t\t\t\t\t<Text selectable className=\"font-mono text-sm text-foreground\">\n\t\t\t\t\t\t{node.value ?? \"\"}\n\t\t\t\t\t</Text>\n\t\t\t\t</View>\n\t\t\t);\n\t\tcase \"blockquote\":\n\t\t\treturn (\n\t\t\t\t<View key={key} className=\"gap-2 border-l-2 border-border pl-3\">\n\t\t\t\t\t{(node.children ?? []).map((child, index) =>\n\t\t\t\t\t\trenderBlock(child, `${key}-${String(index)}`),\n\t\t\t\t\t)}\n\t\t\t\t</View>\n\t\t\t);\n\t\tcase \"thematicBreak\":\n\t\t\treturn <View key={key} className=\"h-px w-full bg-border\" />;\n\t\tcase \"html\":\n\t\t\t// Raw HTML has no meaning here. Show it as text rather than\n\t\t\t// dropping content a model deliberately produced.\n\t\t\treturn (\n\t\t\t\t<Text key={key} variant=\"muted\">\n\t\t\t\t\t{node.value ?? \"\"}\n\t\t\t\t</Text>\n\t\t\t);\n\t\tdefault:\n\t\t\tif (!node.children) return null;\n\t\t\treturn (\n\t\t\t\t<Fragment key={key}>\n\t\t\t\t\t{node.children.map((child, index) => renderBlock(child, `${key}-${String(index)}`))}\n\t\t\t\t</Fragment>\n\t\t\t);\n\t}\n}\n\n/** Props for {@link Markdown}. */\nexport interface MarkdownProps {\n\t/** The markdown source. Safe to pass a partially-streamed string. */\n\tchildren: string;\n\t/** Additional classes on the container. */\n\tclassName?: string;\n}\n\n/**\n * Render markdown as React Native elements.\n *\n * Handles paragraphs, headings, ordered and bulleted lists, task lists,\n * fenced and inline code, links, blockquotes, rules, bold, italic and\n * strikethrough. Tables and images fall back to their text content.\n * @param props - {@link MarkdownProps}\n * @returns The rendered document\n * @example\n * ```tsx\n * <Message role=\"assistant\">\n *   <Markdown>{message.content}</Markdown>\n * </Message>\n * ```\n */\nexport function Markdown({ children, className }: MarkdownProps) {\n\tconst tree = useMemo(() => {\n\t\tconst parsed: unknown = fromMarkdown(children, {\n\t\t\textensions: [gfm()],\n\t\t\tmdastExtensions: [gfmFromMarkdown()],\n\t\t});\n\t\treturn parsed as MdastNode;\n\t}, [children]);\n\n\treturn (\n\t\t<View className={cn(\"gap-2\", className)}>\n\t\t\t{(tree.children ?? []).map((node, index) => renderBlock(node, `md-${String(index)}`))}\n\t\t</View>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "components/ui/text.tsx",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { Text as RNText } from \"react-native\";\nimport { useTextClass } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Typographic scale for native text.\n *\n * Mirrors the web docs' heading and body styles, minus anything that needs a\n * DOM: no `scroll-m-*`, no `text-balance`, no `select-text`.\n */\nexport const textVariants = cva(\"text-base text-foreground\", {\n\tvariants: {\n\t\tvariant: {\n\t\t\tdefault: \"\",\n\t\t\th1: \"text-4xl font-extrabold tracking-tight\",\n\t\t\th2: \"text-3xl font-semibold tracking-tight\",\n\t\t\th3: \"text-2xl font-semibold tracking-tight\",\n\t\t\th4: \"text-xl font-semibold tracking-tight\",\n\t\t\tp: \"leading-7\",\n\t\t\tlead: \"text-xl text-muted-foreground\",\n\t\t\tlarge: \"text-lg font-semibold\",\n\t\t\tsmall: \"text-sm font-medium leading-none\",\n\t\t\tmuted: \"text-sm text-muted-foreground\",\n\t\t\tcode: \"rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\tvariant: \"default\",\n\t},\n});\n\ntype TextVariant = NonNullable<VariantProps<typeof textVariants>[\"variant\"]>;\n\n/** Variants that read as headings to VoiceOver and TalkBack. */\nconst HEADING_VARIANTS: ReadonlySet<TextVariant> = new Set<TextVariant>([\"h1\", \"h2\", \"h3\", \"h4\"]);\n\n/**\n * Props for {@link Text}. `ref` comes with the React Native `Text` props and\n * reaches the host element (React 19 — no forwardRef).\n */\nexport type TextProps = ComponentProps<typeof RNText> & VariantProps<typeof textVariants>;\n\n/**\n * Themed text with a typographic scale and parent-driven class inheritance.\n *\n * React Native text does not inherit colour or size from a `View`, so\n * containers like `Button`, `Card` and `Badge` publish the classes they want\n * their labels to carry through `TextClassContext`; this component reads\n * them and lets an explicit `className` win.\n * @param props - {@link TextProps}\n * @returns A React Native `Text` element\n * @example\n * ```tsx\n * <Text variant=\"h2\">Settings</Text>\n * <Text variant=\"muted\">Manage your account preferences.</Text>\n * ```\n */\nexport function Text({ className, variant = \"default\", ...props }: TextProps) {\n\tconst inherited = useTextClass();\n\tconst isHeading = variant !== null && HEADING_VARIANTS.has(variant);\n\treturn (\n\t\t<RNText\n\t\t\tclassName={cn(textVariants({ variant }), inherited, className)}\n\t\t\trole={isHeading ? \"heading\" : undefined}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "mdast-util-from-markdown",
+      "mdast-util-gfm",
+      "micromark-extension-gfm",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "primitives/text/text"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "foreground",
+    "primary",
+    "muted",
+    "muted-foreground",
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "An assistant reply",
+      "description": "Markdown inside a message bubble",
+      "code": "<Message role=\"assistant\">\n  <Markdown>{message.content}</Markdown>\n</Message>",
+      "composition": [
+        "chat"
+      ]
+    },
+    {
+      "title": "Streaming",
+      "description": "Pass the partial text straight through — an unterminated ** or fence parses as literal text",
+      "code": "<Message role=\"assistant\">\n  <Markdown>{partialText}</Markdown>\n</Message>",
+      "composition": [
+        "chat",
+        "streaming"
+      ]
+    },
+    {
+      "title": "Standalone document",
+      "description": "Release notes or help content rendered outside a conversation",
+      "code": "<ScrollView contentContainerClassName=\"p-4\">\n  <Markdown>{releaseNotes}</Markdown>\n</ScrollView>",
+      "composition": [
+        "document"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for any model output that may contain markdown, and for static documents like release notes. Pass the raw string as the child — including a partial one while a reply streams.",
+    "whenNotToUse": "Don't use it for plain text with no markup; a Text is cheaper. Don't use it to render untrusted HTML — raw HTML is shown as text, never interpreted. Don't use it for syntax-highlighted code with a language picker; that is a dedicated component.",
+    "commonMistakes": [
+      "Wrapping it in a Text — it renders View containers for blocks, and React Native cannot nest a View inside a Text",
+      "Passing an object or a message part instead of a string; the child must be the markdown source",
+      "Expecting tables and images to render — both fall back to their text content in this version",
+      "Sanitising or trimming the stream before passing it, which usually breaks a fence mid-flight; the parser already tolerates partial input"
+    ],
+    "relatedComponents": [
+      "native-message",
+      "native-text",
+      "native-message-list"
+    ],
+    "accessibilityNotes": "Headings render through the Text heading variants, so they are announced as headings and a screen-reader user can navigate a long reply by structure. Links are announced as links and open through the system handler, with failures ignored rather than crashing a transcript. Code blocks are selectable so they can be copied. Because block content renders as Views, place this as a child of a Message rather than inside a Text.",
+    "tokenBudget": 2457
+  },
+  "tags": [
+    "ai",
+    "markdown",
+    "streaming",
+    "content",
+    "renderer",
+    "slots",
+    "native",
+    "react-native"
+  ]
+}

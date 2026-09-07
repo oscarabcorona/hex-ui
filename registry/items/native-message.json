@@ -1,0 +1,174 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-message",
+  "displayName": "Message",
+  "description": "One turn in a conversation. The role sets the alignment and colour, and publishes the body text colour so the message content needs no styling of its own.",
+  "category": "ai",
+  "subcategory": "chat",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "role",
+      "type": "enum",
+      "required": true,
+      "description": "Speaker. Drives variant styling and the data-role attribute.",
+      "enumValues": [
+        "user",
+        "assistant",
+        "system",
+        "tool"
+      ]
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Message content. Strings, Markdown, CodeBlock, ToolCall, or any composition."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes merged onto the row."
+    }
+  ],
+  "variants": [
+    {
+      "name": "role",
+      "description": "Visual treatment per speaker.",
+      "values": [
+        {
+          "value": "user",
+          "description": "Tinted secondary background — user turns.",
+          "useWhen": "The author is the human."
+        },
+        {
+          "value": "assistant",
+          "description": "Card background — model output.",
+          "useWhen": "The author is the LLM/agent."
+        },
+        {
+          "value": "system",
+          "description": "Muted, italic — system instructions.",
+          "useWhen": "Rendering a visible system prompt or framing message."
+        },
+        {
+          "value": "tool",
+          "description": "Accent left-border — tool messages distinct from assistant text.",
+          "useWhen": "Showing raw tool/function output as its own turn."
+        }
+      ],
+      "default": "assistant"
+    }
+  ],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Message body. Compose with Markdown, CodeBlock, ToolCall, or plain text.",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/message.tsx",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { View } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Bubble styles per role. */\nexport const messageVariants = cva(\"max-w-[85%] rounded-2xl px-4 py-2.5\", {\n\tvariants: {\n\t\trole: {\n\t\t\tuser: \"self-end bg-primary rounded-br-md\",\n\t\t\tassistant: \"self-start bg-muted rounded-bl-md\",\n\t\t\tsystem: \"self-center bg-transparent px-0 py-1\",\n\t\t\ttool: \"self-start border border-border bg-card\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\trole: \"assistant\",\n\t},\n});\n\n/** Body-text styles per role, published through `TextClassContext`. */\nexport const messageTextVariants = cva(\"text-base\", {\n\tvariants: {\n\t\trole: {\n\t\t\tuser: \"text-primary-foreground\",\n\t\t\tassistant: \"text-foreground\",\n\t\t\tsystem: \"text-center text-sm text-muted-foreground\",\n\t\t\ttool: \"text-sm text-card-foreground\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\trole: \"assistant\",\n\t},\n});\n\n/**\n * Props for {@link Message}.\n *\n * React Native's `ViewProps` already has a `role` (the accessibility role),\n * which collides with the speaker variant. The variant keeps the name — it\n * matches the web component and the message objects every SDK produces — and\n * the accessibility grouping is owned internally instead.\n */\nexport type MessageProps = Omit<ComponentProps<typeof View>, \"role\"> & VariantProps<typeof messageVariants>;\n\n/**\n * One turn in a conversation.\n *\n * The role decides both the alignment and the colour, and publishes the body\n * text colour to any `Text` inside — so a message body needs no styling of\n * its own.\n * @param props - {@link MessageProps}\n * @returns The message bubble\n * @example\n * ```tsx\n * <Message role=\"user\"><Text>What is the weather?</Text></Message>\n * <Message role=\"assistant\"><Text>Sunny, 21 degrees.</Text></Message>\n * ```\n */\nexport function Message({ className, role, ...props }: MessageProps) {\n\treturn (\n\t\t<TextClassContext.Provider value={messageTextVariants({ role })}>\n\t\t\t{/* `accessible` groups the bubble so VoiceOver reads a turn as one\n\t\t\t    unit rather than announcing each fragment separately. */}\n\t\t\t<View accessible className={cn(messageVariants({ role }), className)} {...props} />\n\t\t</TextClassContext.Provider>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "lib/text-context"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "secondary",
+    "foreground",
+    "card",
+    "card-foreground",
+    "muted",
+    "muted-foreground",
+    "accent",
+    "accent-foreground"
+  ],
+  "examples": [
+    {
+      "title": "A user and an assistant turn",
+      "description": "Alignment and colour come from the role alone",
+      "code": "<View className=\"gap-2\">\n  <Message role=\"user\">\n    <Text>What is the weather?</Text>\n  </Message>\n  <Message role=\"assistant\">\n    <Text>Sunny, 21 degrees.</Text>\n  </Message>\n</View>",
+      "composition": [
+        "chat"
+      ]
+    },
+    {
+      "title": "Streaming an assistant reply",
+      "description": "Render the partial text as it arrives; the bubble grows with it",
+      "code": "<Message role=\"assistant\">\n  <Text>{partialText}</Text>\n  {isStreaming ? <ActivityIndicator size=\"small\" /> : null}\n</Message>",
+      "composition": [
+        "chat",
+        "streaming"
+      ]
+    },
+    {
+      "title": "A system note",
+      "description": "Centred and muted, for context rather than conversation",
+      "code": "<Message role=\"system\">\n  <Text>Model switched to the fast tier.</Text>\n</Message>",
+      "composition": [
+        "chat",
+        "system"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for each turn in a chat surface. Pass the role from your message objects and put the body in a Text child; for assistant turns carrying markdown, render it with the native Markdown component instead of a plain Text.",
+    "whenNotToUse": "Don't use it for a tool invocation with arguments and a result (use ToolCall). Don't use it for a list row or a notification. Don't nest one message inside another.",
+    "commonMistakes": [
+      "Passing a bare string as the child — React Native throws; wrap the body in Text or Markdown",
+      "Styling the body text directly instead of letting the role publish its colour, which breaks the contrast pairing on user bubbles",
+      "Rendering raw markdown as plain Text, so an assistant reply shows literal asterisks and backticks",
+      "Giving every message the same role, which removes the only signal of who is speaking"
+    ],
+    "relatedComponents": [
+      "native-text",
+      "native-message-list",
+      "native-tool-call",
+      "native-markdown"
+    ],
+    "accessibilityNotes": "Each bubble is grouped as one accessibility element so VoiceOver reads a turn as a unit rather than word by word. Alignment and colour both encode the speaker, but neither is available to a screen-reader user, so include the speaker in the surrounding structure — a preceding label, or the accessible name of the list row. The role colour pairings are contrast-audited in light and dark.",
+    "tokenBudget": 575
+  },
+  "tags": [
+    "ai",
+    "chat",
+    "message",
+    "turn",
+    "conversation",
+    "native",
+    "react-native"
+  ]
+}

@@ -3,10 +3,10 @@ import * as fs from "node:fs";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import {
-	internalDepToSlug,
 	loadRecipe,
 	loadRegistryItem,
 	type RegistryItem,
+	resolveInternalDepForPlatform,
 	SLUG_REGEX,
 } from "@hex-core/payload";
 import { TOOL } from "../tool-names.js";
@@ -67,7 +67,14 @@ export function register(server: McpServer): void {
 				const deps = item.dependencies?.internal ?? [];
 				const missingSlugs: string[] = [];
 				for (const dep of deps) {
-					const depSlug = internalDepToSlug(dep);
+					// Platform-aware: without it a correctly installed native app
+					// is told it is missing `text` (the web slug) forever, so the
+					// tool whose job is to say "you're done" never can.
+					const depSlug = resolveInternalDepForPlatform(
+						dep,
+						item.platform ?? "web",
+						(name) => loadRegistryItem(name) !== null,
+					);
 					if (!depSlug) continue;
 					if (!installed.has(depSlug)) missingSlugs.push(depSlug);
 				}

@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseMap, type RegistryItem } from "@hex-core/payload";
-import { internalDepToSlug, SLUG_REGEX } from "@hex-core/registry";
+import { resolveInternalDepForPlatform, SLUG_REGEX } from "@hex-core/registry";
 import pc from "picocolors";
 import { z } from "zod";
 import {
@@ -9,8 +9,10 @@ import {
 	promptHeavyPeers,
 	type PendingHeavyPeer,
 } from "../lib/heavy-peer-prompt.js";
+import type { PlatformKind } from "../lib/detect-framework.js";
 import { detectPackageManager } from "../lib/package-manager.js";
 import { printSkillsHint } from "../lib/post-install.js";
+import { resolvePlatform, resolveSlugForPlatform } from "../lib/resolve-platform.js";
 import { resolveAlias } from "../lib/resolve-alias.js";
 import { type AliasConfig, DEFAULT_ALIASES, rewriteRegistryImports } from "../lib/rewrite-imports.js";
 import { findRegistryDir } from "../lib/registry-dir.js";
@@ -132,6 +134,9 @@ function printRelatedPrimitivesHint(ctx: Context, runSlugs: Iterable<string>): v
  * project has stack/grid/container, the nudge stays quiet forever.
  */
 function printLayoutPackNudge(ctx: Context, runSlugs: Iterable<string>): void {
+	// The layout pack is web-only — a React Native app composes with `View`
+	// and gap classes, and none of these six have a native port to suggest.
+	if (ctx.platform === "native") return;
 	const runSet = new Set(runSlugs);
 	const onDisk = listInstalledSlugs(ctx);
 	const haveLayout = LAYOUT_PACK.some((slug) => runSet.has(slug) || onDisk.has(slug));
@@ -166,6 +171,11 @@ export interface AddOptions {
 	dryRun?: boolean;
 	/** Optional path to a `hex.components.json`-style manifest. If set, the manifest's `components` array seeds the queue. */
 	from?: string;
+	/**
+	 * Force a render target instead of asking the project. Without it the
+	 * platform comes from `hex.config.json`, then from framework detection.
+	 */
+	platform?: PlatformKind;
 }
 
 const ManifestSchema = z
@@ -190,6 +200,8 @@ interface Context {
 	pendingHeavyPeers: Map<string, PendingHeavyPeer>;
 	/** Files that would be written (in dry-run) or were written. Cwd-relative for stable display. */
 	plannedWrites: string[];
+	/** Render target for this run; items of the other platform are refused. */
+	platform: PlatformKind;
 }
 
 /**
@@ -299,6 +311,25 @@ function installOne(name: string, ctx: Context): string[] | null {
 		console.error(`Component "${name}" not found.`);
 		return null;
 	}
+
+	// Refuse to write a component built for the other renderer. Without this,
+	// asking a React Native project for a component with no native port
+	// installs the React DOM one — it copies cleanly, then fails at runtime
+	// with an error pointing at the component rather than at this decision.
+	const itemPlatform = item.platform ?? "web";
+	if (itemPlatform !== ctx.platform) {
+		const other = ctx.platform === "native" ? "web" : "React Native";
+		console.error(
+			`Component "${name}" is a ${other} component; this project is ${ctx.platform === "native" ? "React Native" : "web"}.`,
+		);
+		console.error(
+			ctx.platform === "native"
+				? `  No native port exists yet. Run \`hex list --platform native\` to see what does.`
+				: `  Pass --platform native if this really is a React Native project.`,
+		);
+		return null;
+	}
+
 	console.log(`\nAdding ${pc.bold(item.displayName)}...`);
 
 	const cwdPrefix = ctx.cwd.endsWith(path.sep) ? ctx.cwd : ctx.cwd + path.sep;
@@ -413,12 +444,23 @@ function installOne(name: string, ctx: Context): string[] | null {
 	// state means `--no-deps` warnings stay accurate across re-runs and also
 	// matches what `verify_checklist` reports.
 	const internalSlugs: string[] = [];
+	const itemsDir = path.join(ctx.registryDir, "items");
 	for (const dep of (deps.internal ?? []) as string[]) {
-		const depSlug = internalDepToSlug(dep);
+		// Resolve against the DECLARING item's platform, not the project's.
+		// Internal deps name a source path, which is identical inside a native
+		// item and a web one, so the bare slug would point at the wrong
+		// renderer's component.
+		const depSlug = resolveInternalDepForPlatform(
+			dep,
+			item.platform === "native" ? "native" : "web",
+			(name) => readItem(itemsDir, name) !== null,
+		);
 		if (!depSlug) {
-			// `lib/utils` is the conventional ref to the shared util module, not
-			// a component slug — exempt so the warning stays signal, not noise.
-			if (dep && dep !== "lib/utils") {
+			// A `lib/` ref names a shared module (`lib/utils`, and on native
+			// `lib/text-context`), not a component slug. Those ship as
+			// `type: "lib"` files alongside the item, so there is nothing to
+			// resolve — exempt the whole prefix and keep the warning signal.
+			if (dep && !dep.startsWith("lib/")) {
 				console.warn(
 					`  Warning: ignoring unrecognized internal dep "${dep}" — expected "primitives/<slug>/<slug>", "components/<slug>/<slug>", or "blocks/<slug>/<slug>".`,
 				);
@@ -459,12 +501,36 @@ export async function addComponents(components: string[], options: AddOptions): 
 		console.error("Pass either positional component names or --from <manifest>, not both.");
 		process.exit(1);
 	}
-	const queue: string[] = options.from ? readManifest(cwd, options.from) : [...components];
+	const requested: string[] = options.from ? readManifest(cwd, options.from) : [...components];
+
+	// A React Native project holds one platform, so `hex add button` there
+	// means `native-button`. Internal deps are declared as *source paths*
+	// (`primitives/text/text`), which resolve to the unprefixed slug, so the
+	// same mapping has to run again on every transitive dep below.
+	const { platform, source, label } = resolvePlatform(cwd, options.platform);
+	const itemsDir = path.join(registryDir, "items");
+	const itemExists = (name: string): boolean => readItem(itemsDir, name) !== null;
+	const queue: string[] = [];
+	const rewrites: Array<{ from: string; to: string }> = [];
+	for (const name of requested) {
+		const resolved = resolveSlugForPlatform(name, platform, itemExists);
+		queue.push(resolved.slug);
+		if (resolved.rewritten) rewrites.push({ from: name, to: resolved.slug });
+	}
+	if (rewrites.length > 0) {
+		const detail = source === "flag" ? "--platform native" : source === "config" ? "hex.config.json" : label;
+		console.log(
+			pc.dim(`Native project (${detail}) — installing ${rewrites.map((r) => r.to).join(", ")}.`),
+		);
+	}
+
 	// Snapshot of the direct asks for post-install nudges. Transitive deps
 	// arrive via the queue walker and end up in `ctx.visited`, but the
-	// "Related primitives" + layout-pack hints should reflect what the
-	// user typed (or the manifest declared), not the dep graph.
+	// "Related primitives" + layout-pack hints should reflect what the user
+	// asked for (after platform resolution), not the dep graph.
 	const directAsks = new Set(queue);
+
+
 
 	const ctx: Context = {
 		registryDir,
@@ -476,6 +542,7 @@ export async function addComponents(components: string[], options: AddOptions): 
 		postInstallHints: new Set(),
 		pendingHeavyPeers: new Map(),
 		plannedWrites: [],
+		platform,
 	};
 
 	const pendingDeps: string[] = [];
@@ -487,13 +554,16 @@ export async function addComponents(components: string[], options: AddOptions): 
 		const internalDeps = installOne(name, ctx);
 		if (internalDeps === null) continue;
 
+		// `installOne` already returns slugs mapped for this platform.
+		const resolvedDeps = internalDeps;
+
 		if (options.deps) {
 			// Transitive install: queue missing internal deps for the same pass.
-			for (const dep of internalDeps) {
+			for (const dep of resolvedDeps) {
 				if (!ctx.visited.has(dep)) queue.push(dep);
 			}
 		} else {
-			pendingDeps.push(...internalDeps);
+			pendingDeps.push(...resolvedDeps);
 		}
 	}
 

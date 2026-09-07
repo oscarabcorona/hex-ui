@@ -1,0 +1,131 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-progress",
+  "displayName": "Progress",
+  "description": "A determinate progress bar for measurable work. Animates its fill with React Native's built-in Animated API, so it pulls in no native module.",
+  "category": "primitive",
+  "subcategory": "feedback",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": false,
+      "description": "Current value (0–max). Omit to render at 0% (both visually and in ARIA — the component clamps undefined to 0). Use Skeleton for indeterminate loading states."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "required": false,
+      "default": 100,
+      "description": "Maximum value"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes"
+    },
+    {
+      "name": "indicatorClassName",
+      "type": "string",
+      "required": false,
+      "description": "Classes for the filled portion, e.g. to recolour it for a warning threshold"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/progress.tsx",
+      "content": "import * as ProgressPrimitive from \"@rn-primitives/progress\";\nimport { type ComponentProps, useEffect, useRef } from \"react\";\nimport { Animated } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Progress}. */\nexport interface ProgressProps extends ComponentProps<typeof ProgressPrimitive.Root> {\n\t/** Class names for the filled portion, e.g. to recolour it. */\n\tindicatorClassName?: string;\n}\n\n/** How long the bar takes to animate to a new value, in milliseconds. */\nconst FILL_DURATION = 300;\n\n/**\n * A determinate progress bar.\n *\n * Animates the fill with React Native's built-in `Animated` rather than\n * Reanimated, so the package needs no native module. The bar animates its\n * width, which cannot use the native driver, so keep it off long lists.\n * @param props - {@link ProgressProps}\n * @returns The progress element\n * @example\n * ```tsx\n * <Progress value={uploaded} aria-label=\"Upload progress\" />\n * ```\n */\nexport function Progress({\n\tclassName,\n\tindicatorClassName,\n\tvalue,\n\tmax = 100,\n\t...props\n}: ProgressProps) {\n\tconst percent = Math.min(Math.max(((value ?? 0) / max) * 100, 0), 100);\n\tconst width = useRef(new Animated.Value(percent)).current;\n\n\tuseEffect(() => {\n\t\tconst animation = Animated.timing(width, {\n\t\t\ttoValue: percent,\n\t\t\tduration: FILL_DURATION,\n\t\t\t// Width is a layout property, so it cannot run on the native driver.\n\t\t\tuseNativeDriver: false,\n\t\t});\n\t\tanimation.start();\n\t\treturn () => {\n\t\t\tanimation.stop();\n\t\t};\n\t}, [percent, width]);\n\n\treturn (\n\t\t<ProgressPrimitive.Root\n\t\t\tvalue={value}\n\t\t\tmax={max}\n\t\t\tclassName={cn(\"h-2 w-full overflow-hidden rounded-full bg-secondary\", className)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<ProgressPrimitive.Indicator asChild>\n\t\t\t\t<Animated.View\n\t\t\t\t\tclassName={cn(\"h-full bg-primary\", indicatorClassName)}\n\t\t\t\t\tstyle={{\n\t\t\t\t\t\twidth: width.interpolate({\n\t\t\t\t\t\t\tinputRange: [0, 100],\n\t\t\t\t\t\t\toutputRange: [\"0%\", \"100%\"],\n\t\t\t\t\t\t}),\n\t\t\t\t\t}}\n\t\t\t\t/>\n\t\t\t</ProgressPrimitive.Indicator>\n\t\t</ProgressPrimitive.Root>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/progress",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "secondary",
+    "primary"
+  ],
+  "examples": [
+    {
+      "title": "Upload progress",
+      "description": "A named bar with a visible percentage beside it",
+      "code": "<View className=\"gap-1.5\">\n  <View className=\"flex-row justify-between\">\n    <Text variant=\"small\">Uploading</Text>\n    <Text variant=\"muted\">{percent}%</Text>\n  </View>\n  <Progress value={percent} aria-label=\"Upload progress\" />\n</View>",
+      "composition": [
+        "feedback",
+        "async"
+      ]
+    },
+    {
+      "title": "Multi-step form",
+      "description": "Steps mapped onto the bar with an explicit max",
+      "code": "<Progress value={step} max={totalSteps} aria-label={`Step ${step} of ${totalSteps}`} />",
+      "composition": [
+        "form",
+        "wizard"
+      ]
+    },
+    {
+      "title": "Threshold colour",
+      "description": "Recolour the fill without touching the track",
+      "code": "<Progress\n  value={usage}\n  aria-label=\"Storage used\"\n  indicatorClassName={usage > 90 ? \"bg-destructive\" : undefined}\n/>",
+      "composition": [
+        "feedback",
+        "threshold"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use where completion is measurable: uploads, downloads, batch jobs, step counters. Give it an aria-label, and show the number next to it when precision matters.",
+    "whenNotToUse": "Don't use for waits of unknown length (use an ActivityIndicator or Skeleton). Don't use for a value that is a measurement rather than progress toward completion — that is a chart. Don't animate it from a high-frequency event without throttling.",
+    "commonMistakes": [
+      "Leaving off aria-label — the bar announces a percentage with no indication of what is progressing",
+      "Rendering one per row in a long list — the fill animates a width, which React Native cannot run on the native driver, so many bars animating at once drop frames",
+      "Passing a value on a different scale without setting max, so a step counter like 3 renders as 3% instead of 3 of 5",
+      "Using it for an indeterminate wait by looping a fake value, which tells the user something false about how long is left"
+    ],
+    "relatedComponents": [
+      "native-skeleton",
+      "native-text",
+      "native-badge"
+    ],
+    "accessibilityNotes": "The primitive sets role=\"progressbar\" and reports the current, minimum and maximum values, so VoiceOver and TalkBack announce the position. Always pass aria-label naming the work. Colour never carries the meaning on its own — pair a threshold recolour with visible text. The fill animates over 300ms, which is short enough not to mislead about the real rate.",
+    "tokenBudget": 495
+  },
+  "tags": [
+    "progress",
+    "loading",
+    "bar",
+    "feedback",
+    "determinate",
+    "native",
+    "react-native"
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-alert-dialog",
+  "displayName": "Alert Dialog",
+  "description": "A confirmation modal the user must answer. The scrim does not dismiss it. Renders through a PortalHost mounted in the app's root layout.",
+  "category": "component",
+  "subcategory": "overlay",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled open state"
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Default open state for uncontrolled usage"
+    },
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback fired on open state change: (open: boolean) => void"
+    },
+    {
+      "name": "portalHost",
+      "type": "string",
+      "required": false,
+      "description": "Name of the PortalHost to render into. Only needed when the app mounts more than one."
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "AlertDialogTrigger + AlertDialogContent (with Header, Footer, Action, Cancel)",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/alert-dialog.tsx",
+      "content": "import * as AlertDialogPrimitive from \"@rn-primitives/alert-dialog\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link AlertDialog}. */\nexport type AlertDialogProps = ComponentProps<typeof AlertDialogPrimitive.Root>;\n\n/**\n * A confirmation modal the user must answer.\n *\n * Unlike `Dialog`, the scrim does not dismiss it: an alert dialog asks a\n * question, so it stays until Cancel or Action is chosen. Needs a\n * `<PortalHost />` in the root layout.\n * @param props - {@link AlertDialogProps}\n * @returns The alert dialog root\n * @example\n * ```tsx\n * <AlertDialog open={open} onOpenChange={setOpen}>\n *   <AlertDialogContent>\n *     <AlertDialogTitle>Delete account?</AlertDialogTitle>\n *     <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>\n *     <View className=\"flex-row justify-end gap-2\">\n *       <AlertDialogCancel asChild><Button variant=\"secondary\"><Text>Cancel</Text></Button></AlertDialogCancel>\n *       <AlertDialogAction asChild><Button variant=\"destructive\"><Text>Delete</Text></Button></AlertDialogAction>\n *     </View>\n *   </AlertDialogContent>\n * </AlertDialog>\n * ```\n */\nexport function AlertDialog(props: AlertDialogProps) {\n\treturn <AlertDialogPrimitive.Root {...props} />;\n}\n\n/** Props for {@link AlertDialogTrigger}. */\nexport type AlertDialogTriggerProps = ComponentProps<typeof AlertDialogPrimitive.Trigger>;\n\n/**\n * Opens the alert dialog.\n * @param props - {@link AlertDialogTriggerProps}\n * @returns The trigger\n */\nexport function AlertDialogTrigger(props: AlertDialogTriggerProps) {\n\treturn <AlertDialogPrimitive.Trigger {...props} />;\n}\n\n/** Props for {@link AlertDialogContent}. */\nexport interface AlertDialogContentProps\n\textends ComponentProps<typeof AlertDialogPrimitive.Content> {\n\t/** Name of the `PortalHost` to render into, when the app mounts more than one. */\n\tportalHost?: string;\n}\n\n/**\n * The alert panel and its scrim. The scrim is deliberately not dismissive.\n * @param props - {@link AlertDialogContentProps}\n * @returns The portalled overlay and panel\n */\nexport function AlertDialogContent({\n\tclassName,\n\tportalHost,\n\tchildren,\n\t...props\n}: AlertDialogContentProps) {\n\treturn (\n\t\t<AlertDialogPrimitive.Portal hostName={portalHost}>\n\t\t\t<AlertDialogPrimitive.Overlay className=\"absolute inset-0 items-center justify-center bg-black/50 p-6\">\n\t\t\t\t<AlertDialogPrimitive.Content\n\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\"w-full max-w-md gap-4 rounded-xl border border-border bg-background p-6 shadow-lg shadow-black/10\",\n\t\t\t\t\t\tclassName,\n\t\t\t\t\t)}\n\t\t\t\t\t{...props}\n\t\t\t\t>\n\t\t\t\t\t{children}\n\t\t\t\t</AlertDialogPrimitive.Content>\n\t\t\t</AlertDialogPrimitive.Overlay>\n\t\t</AlertDialogPrimitive.Portal>\n\t);\n}\n\n/** Props for {@link AlertDialogTitle} and {@link AlertDialogDescription}. */\nexport type AlertDialogTextProps = ComponentProps<typeof AlertDialogPrimitive.Title>;\n\n/**\n * The question being asked. Always include one.\n * @param props - {@link AlertDialogTextProps}\n * @returns The title\n */\nexport function AlertDialogTitle({ className, ...props }: AlertDialogTextProps) {\n\treturn (\n\t\t<AlertDialogPrimitive.Title\n\t\t\tclassName={cn(\"text-lg font-semibold text-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\n/**\n * The consequence of confirming.\n * @param props - {@link AlertDialogTextProps}\n * @returns The description\n */\nexport function AlertDialogDescription({ className, ...props }: AlertDialogTextProps) {\n\treturn (\n\t\t<AlertDialogPrimitive.Description\n\t\t\tclassName={cn(\"text-sm text-muted-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\n/** Props for {@link AlertDialogAction} and {@link AlertDialogCancel}. */\nexport type AlertDialogActionProps = ComponentProps<typeof AlertDialogPrimitive.Action>;\n\n/**\n * Confirms and closes. Wrap a Button with `asChild`.\n * @param props - {@link AlertDialogActionProps}\n * @returns The action control\n */\nexport function AlertDialogAction(props: AlertDialogActionProps) {\n\treturn <AlertDialogPrimitive.Action {...props} />;\n}\n\n/**\n * Dismisses without acting. Wrap a Button with `asChild`.\n * @param props - {@link AlertDialogActionProps}\n * @returns The cancel control\n */\nexport function AlertDialogCancel(props: AlertDialogActionProps) {\n\treturn <AlertDialogPrimitive.Cancel {...props} />;\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/alert-dialog",
+      "@rn-primitives/portal",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "foreground",
+    "muted-foreground",
+    "destructive",
+    "destructive-foreground",
+    "accent",
+    "accent-foreground",
+    "border",
+    "input",
+    "ring"
+  ],
+  "examples": [
+    {
+      "title": "Destructive confirmation",
+      "description": "Cancel first, destructive action second — the phone convention",
+      "code": "<AlertDialog open={open} onOpenChange={setOpen}>\n  <AlertDialogContent>\n    <AlertDialogTitle>Delete account?</AlertDialogTitle>\n    <AlertDialogDescription>\n      Everything in this account is removed. This cannot be undone.\n    </AlertDialogDescription>\n    <View className=\"flex-row justify-end gap-2\">\n      <AlertDialogCancel asChild>\n        <Button variant=\"secondary\"><Text>Cancel</Text></Button>\n      </AlertDialogCancel>\n      <AlertDialogAction asChild>\n        <Button variant=\"destructive\" onPress={remove}><Text>Delete</Text></Button>\n      </AlertDialogAction>\n    </View>\n  </AlertDialogContent>\n</AlertDialog>",
+      "composition": [
+        "overlay",
+        "destructive",
+        "confirm"
+      ]
+    },
+    {
+      "title": "Opened from a trigger",
+      "description": "Let the alert own its state",
+      "code": "<AlertDialog>\n  <AlertDialogTrigger asChild>\n    <Button variant=\"destructive\"><Text>Leave team</Text></Button>\n  </AlertDialogTrigger>\n  <AlertDialogContent>\n    <AlertDialogTitle>Leave this team?</AlertDialogTitle>\n    <AlertDialogDescription>You will lose access to its projects.</AlertDialogDescription>\n    <View className=\"flex-row justify-end gap-2\">\n      <AlertDialogCancel asChild>\n        <Button variant=\"secondary\"><Text>Stay</Text></Button>\n      </AlertDialogCancel>\n      <AlertDialogAction asChild>\n        <Button variant=\"destructive\"><Text>Leave</Text></Button>\n      </AlertDialogAction>\n    </View>\n  </AlertDialogContent>\n</AlertDialog>",
+      "composition": [
+        "overlay",
+        "confirm"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use to confirm something irreversible before it happens: delete, archive, leave, revoke. Always pair a Cancel with the confirming Action, and say the consequence in the description.",
+    "whenNotToUse": "Don't use for anything the user can undo — show the result with an undo affordance instead of asking first. Don't use it to carry a form (that is Dialog). Don't use it for information with only one button; that is a message, not a question.",
+    "commonMistakes": [
+      "Forgetting <PortalHost /> in the root layout — the alert mounts but renders nothing at all",
+      "Expecting a scrim tap to dismiss it: an alert dialog deliberately ignores that, so a missing Cancel leaves the user stuck",
+      "Confirming a recoverable action, which trains users to dismiss the dialog without reading it",
+      "Writing the title as a statement instead of a question, so the two buttons have no question to answer",
+      "Labelling the buttons OK and Cancel rather than naming the action — Delete next to Cancel is unambiguous when read aloud out of context"
+    ],
+    "relatedComponents": [
+      "native-button",
+      "native-text",
+      "native-dialog"
+    ],
+    "accessibilityNotes": "The panel is announced as an alert when it opens, with the title as its name — always include AlertDialogTitle, and put the consequence in AlertDialogDescription so it is read with the question. Because the scrim does not dismiss, a Cancel control is mandatory rather than a courtesy: it is the only exit for a screen-reader or keyboard user. Name buttons after their effect so each is unambiguous when announced alone.",
+    "tokenBudget": 911
+  },
+  "tags": [
+    "alert-dialog",
+    "confirm",
+    "destructive",
+    "modal",
+    "overlay",
+    "native",
+    "react-native"
+  ]
+}

@@ -1,6 +1,6 @@
 import { loadRegistryItem, rewriteRegistryImports } from "@hex-core/payload";
 import { toShadcnRegistryItem } from "@hex-core/registry";
-import { listComponents } from "../../../lib/registry";
+import { listComponents, listNativeComponents } from "../../../lib/registry";
 import { getRegistryItem } from "../../../lib/registry.server";
 
 /**
@@ -12,9 +12,17 @@ import { getRegistryItem } from "../../../lib/registry.server";
  * riding along.
  */
 
-/** Every catalog slug, prerendered at build time. */
+/**
+ * Every catalog slug, prerendered at build time.
+ *
+ * Both platforms: `/registry.json` advertises the React Native items too, so
+ * serving only the web ones would list items whose own URLs 404 — which is
+ * exactly what a shadcn-CLI consumer following the index would hit.
+ */
 export function generateStaticParams(): { item: string }[] {
-	return listComponents().map((component) => ({ item: `${component.name}.json` }));
+	return [...listComponents(), ...listNativeComponents()].map((component) => ({
+		item: `${component.name}.json`,
+	}));
 }
 
 /** Params outside the catalog 404 instead of rendering at request time. */

@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { internalDepToSlug, SLUG_REGEX } from "@hex-core/registry";
+import { internalDepToSlug, resolveInternalDepForPlatform, SLUG_REGEX } from "@hex-core/registry";
 
-export { internalDepToSlug, SLUG_REGEX };
+export { internalDepToSlug, resolveInternalDepForPlatform, SLUG_REGEX };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -83,6 +83,12 @@ export interface RegistryIndex {
 		description: string;
 		category: string;
 		subcategory?: string;
+		/**
+		 * Render target. Omitted from the emitted JSON for web items (the
+		 * default), present as `"native"` for `@hex-core/native` items —
+		 * so read it as `item.platform ?? "web"`.
+		 */
+		platform?: "web" | "native";
 		tags: string[];
 		internalDeps: string[];
 		tokenBudget?: number;
@@ -97,6 +103,8 @@ export interface RegistryItem {
 	subcategory?: string;
 	version: string;
 	framework: string;
+	/** Render target; absent means `"web"`. See `RegistryIndex.items[].platform`. */
+	platform?: "web" | "native";
 	props: unknown[];
 	variants: unknown[];
 	slots: unknown[];

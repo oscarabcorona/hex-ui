@@ -1,0 +1,288 @@
+{
+  "$schema": "https://hex-core.dev/schema/recipe.json",
+  "slug": "chatbot-native",
+  "kind": "component",
+  "title": "Chatbot (React Native)",
+  "summary": "Streaming chatbot for Expo. An inverted <MessageList> keeps the newest turn in view while a reply grows, assistant text renders through the native <Markdown> renderer, tool invocations collapse into <ToolCall> rows, and the <Composer> pins above the keyboard. The proof that the AI Kit works on a device, not just in a browser.",
+  "tags": [
+    "ai",
+    "chat",
+    "chatbot",
+    "streaming",
+    "react-native",
+    "expo",
+    "native"
+  ],
+  "brief": "Build a streaming chatbot in an Expo app. Hold the message array in state, render it through <MessageList> (pass it oldest-first — the list inverts internally) with one <Message> per turn, and render assistant content with <Markdown> so partial streamed text stays valid on every token. Put <Composer> below the list inside a KeyboardAvoidingView; sending is the button, because Return inserts a newline on a phone. Streaming needs expo/fetch rather than the global fetch — React Native's built-in fetch does not expose a readable body, so a stream never arrives. Mount <PortalHost /> in the root layout if the screen uses any overlay. Install with `hex add chatbot-native` on a project already set up by `hex init --platform native`.",
+  "steps": [
+    {
+      "component": "native-message-list",
+      "reason": "Inverted transcript that stays pinned to the newest turn while a reply streams",
+      "role": "primary"
+    },
+    {
+      "component": "native-message",
+      "reason": "One chat turn, aligned and coloured by role",
+      "role": "primary"
+    },
+    {
+      "component": "native-markdown",
+      "reason": "Renders assistant text natively; partial markup parses as literal text rather than throwing",
+      "role": "primary"
+    },
+    {
+      "component": "native-composer",
+      "reason": "Input bar with an explicit send control and a busy state",
+      "role": "primary"
+    },
+    {
+      "component": "native-tool-call",
+      "reason": "Collapsed record of each tool invocation, so the transcript stays scannable",
+      "role": "optional"
+    },
+    {
+      "component": "native-text",
+      "reason": "Every string on screen lives in a Text; message bodies inherit their colour from the bubble",
+      "role": "supporting"
+    }
+  ],
+  "sections": [],
+  "checklist": [
+    {
+      "id": "expo-fetch-for-streaming",
+      "check": "Stream with expo/fetch, not the global fetch. React Native's built-in fetch does not expose a readable body, so the response arrives only when the model finishes and nothing streams.",
+      "severity": "blocker",
+      "source": "author"
+    },
+    {
+      "id": "keyboard-avoiding-view",
+      "check": "Wrap the screen in a KeyboardAvoidingView. Without it the keyboard covers the composer the moment it is focused, and the user cannot see what they are typing.",
+      "severity": "blocker",
+      "source": "author"
+    },
+    {
+      "id": "messages-oldest-first",
+      "check": "Pass messages to <MessageList> oldest-first. The list inverts internally; reversing them yourself double-inverts and shows the oldest turn at the bottom.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "assistant-via-markdown",
+      "check": "Render assistant content through <Markdown>, not a plain <Text>. Raw text shows literal asterisks and backticks, and drops code blocks entirely.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "composer-busy-while-streaming",
+      "check": "Pass busy to <Composer> while a reply streams. Without it the user can fire a second request into a half-finished turn.",
+      "severity": "warn",
+      "source": "author"
+    },
+    {
+      "id": "stable-message-key",
+      "check": "Key each turn on its id, never the array index. A streaming turn changes on every token, and index keys remount the bubble and lose scroll position.",
+      "severity": "nit",
+      "source": "author"
+    },
+    {
+      "id": "portal-host-for-overlays",
+      "check": "Mount <PortalHost /> from @rn-primitives/portal in the root layout if the screen opens any overlay. Without it a sheet or dialog mounts and renders nothing, with no error.",
+      "severity": "nit",
+      "source": "author"
+    },
+    {
+      "id": "native-message-list-reversing-the-messages-array-before-passing-it-i",
+      "check": "[MessageList] Avoid: Reversing the messages array before passing it in, which double-inverts the list and shows the oldest turn at the bottom",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-list-deriving-keys-from-the-array-index-so-a-streamin",
+      "check": "[MessageList] Avoid: Deriving keys from the array index, so a streaming turn remounts on every token and loses its scroll position",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-list-wrapping-it-in-a-scrollview-which-breaks-virtual",
+      "check": "[MessageList] Avoid: Wrapping it in a ScrollView, which breaks virtualisation and the stick-to-bottom behaviour at once",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-list-putting-the-typing-indicator-in-the-data-array-i",
+      "check": "[MessageList] Avoid: Putting the typing indicator in the data array instead of the footer, which makes it a real list item that has to be added and removed",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-list-giving-it-no-bounded-height-inside-a-flex-column",
+      "check": "[MessageList] Avoid: Giving it no bounded height — inside a flex column it needs flex-1, or it collapses to nothing",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-list-a11y",
+      "check": "[MessageList] A11y: An inverted FlatList reverses the visual order but keeps each turn its own element, so VoiceOver still reads them one at a time. Because the newest turn is at the bottom and the list is inverted, announce arriving replies through the message content itself rather than relying on scroll position. Set keyboardShouldPersistTaps so a tap on a message does not get eaten by the keyboard dismissing, which the component already does.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "native-message-passing-a-bare-string-as-the-child-react-native-",
+      "check": "[Message] Avoid: Passing a bare string as the child — React Native throws; wrap the body in Text or Markdown",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-styling-the-body-text-directly-instead-of-lettin",
+      "check": "[Message] Avoid: Styling the body text directly instead of letting the role publish its colour, which breaks the contrast pairing on user bubbles",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-rendering-raw-markdown-as-plain-text-so-an-assis",
+      "check": "[Message] Avoid: Rendering raw markdown as plain Text, so an assistant reply shows literal asterisks and backticks",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-giving-every-message-the-same-role-which-removes",
+      "check": "[Message] Avoid: Giving every message the same role, which removes the only signal of who is speaking",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-message-a11y",
+      "check": "[Message] A11y: Each bubble is grouped as one accessibility element so VoiceOver reads a turn as a unit rather than word by word. Alignment and colour both encode the speaker, but neither is available to a screen-reader user, so include the speaker in the surrounding structure — a preceding label, or the accessible name of the list row. The role colour pairings are contrast-audited in light and dark.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "native-markdown-wrapping-it-in-a-text-it-renders-view-containers",
+      "check": "[Markdown] Avoid: Wrapping it in a Text — it renders View containers for blocks, and React Native cannot nest a View inside a Text",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-markdown-passing-an-object-or-a-message-part-instead-of-a",
+      "check": "[Markdown] Avoid: Passing an object or a message part instead of a string; the child must be the markdown source",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-markdown-expecting-tables-and-images-to-render-both-fall-",
+      "check": "[Markdown] Avoid: Expecting tables and images to render — both fall back to their text content in this version",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-markdown-sanitising-or-trimming-the-stream-before-passing",
+      "check": "[Markdown] Avoid: Sanitising or trimming the stream before passing it, which usually breaks a fence mid-flight; the parser already tolerates partial input",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-markdown-a11y",
+      "check": "[Markdown] A11y: Headings render through the Text heading variants, so they are announced as headings and a screen-reader user can navigate a long reply by structure. Links are announced as links and open through the system handler, with failures ignored rather than crashing a transcript. Code blocks are selectable so they can be copied. Because block content renders as Views, place this as a child of a Message rather than inside a Text.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "native-composer-expecting-return-to-send-it-inserts-a-newline-he",
+      "check": "[Composer] Avoid: Expecting Return to send — it inserts a newline here, because a phone keyboard has no Shift-Return to distinguish the two; sending is the button's job",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-composer-forgetting-to-clear-the-draft-after-onsubmit-lea",
+      "check": "[Composer] Avoid: Forgetting to clear the draft after onSubmit, leaving the sent text in the field",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-composer-not-passing-busy-while-a-reply-streams-so-the-us",
+      "check": "[Composer] Avoid: Not passing busy while a reply streams, so the user can fire a second request into a half-finished turn",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-composer-placing-it-outside-a-keyboardavoidingview-so-the",
+      "check": "[Composer] Avoid: Placing it outside a KeyboardAvoidingView, so the keyboard covers the bar the moment it is focused",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-composer-sending-an-untrimmed-value-the-component-hands-o",
+      "check": "[Composer] Avoid: Sending an untrimmed value — the component hands onSubmit the trimmed text and refuses to send whitespace",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-composer-a11y",
+      "check": "[Composer] A11y: The send control is a real button with an accessible name from sendLabel, and it reports disabled while the draft is empty or a reply is streaming — so a screen-reader user knows why nothing happens. The field is multi-line and grows to a bounded height, keeping long drafts readable without pushing the list off screen. Keyboard avoidance is the caller's job: wrap the screen in a KeyboardAvoidingView so the bar stays visible.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "native-tool-call-leaving-the-state-at-pending-after-the-call-fini",
+      "check": "[ToolCall] Avoid: Leaving the state at 'pending' after the call finishes, so a completed tool reads as still queued",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-tool-call-passing-defaultopen-on-every-call-which-buries-t",
+      "check": "[ToolCall] Avoid: Passing defaultOpen on every call, which buries the conversation under argument dumps",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-tool-call-rendering-it-only-after-the-result-arrives-which",
+      "check": "[ToolCall] Avoid: Rendering it only after the result arrives, which hides the fact that anything is happening during the slowest part of a turn",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-tool-call-passing-a-value-that-cannot-be-serialised-and-ex",
+      "check": "[ToolCall] Avoid: Passing a value that cannot be serialised and expecting it to render — the component falls back to the string form, which is rarely useful; format it yourself first",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-tool-call-a11y",
+      "check": "[ToolCall] A11y: The header row is a button whose accessible name carries both the tool name and its status, so a screen-reader user hears \"search_flights, Done\" without needing the colour. It reports its expanded state, and is disabled outright when there is nothing to expand. The error state pairs the destructive colour with the word Failed, so the status never rests on colour alone. Argument and result blocks are selectable for copying.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    },
+    {
+      "id": "native-text-importing-text-from-react-native-directly-the-ra",
+      "check": "[Text] Avoid: Importing Text from react-native directly — the raw element ignores the theme foreground colour and the class inheritance parents rely on, so a Button label renders in default black on a dark button",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-text-passing-a-bare-string-as-a-button-or-card-child-",
+      "check": "[Text] Avoid: Passing a bare string as a Button or Card child instead of wrapping it in Text — React Native throws 'Text strings must be rendered within a <Text> component'",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-text-putting-a-view-inside-a-text-to-build-a-layout-n",
+      "check": "[Text] Avoid: Putting a View inside a Text to build a layout — nest Text inside Text for mixed styling, but use a View container for anything positional",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-text-reaching-for-h1-more-than-once-per-screen-voiceo",
+      "check": "[Text] Avoid: Reaching for h1 more than once per screen — VoiceOver users navigate by heading, and several h1s flatten the hierarchy",
+      "severity": "warn",
+      "source": "derived-mistake"
+    },
+    {
+      "id": "native-text-a11y",
+      "check": "[Text] A11y: Heading variants (h1–h4) set role=\"heading\" so VoiceOver and TalkBack announce them and users can jump between them; React Native has no aria-level, so the hierarchy comes from reading order. Body text has no role. Keep contrast by using the foreground and muted-foreground tokens rather than custom colours; both are audited in light and dark.",
+      "severity": "warn",
+      "source": "derived-a11y"
+    }
+  ],
+  "example": "// app/chat.tsx\nimport { useState } from \"react\";\nimport { KeyboardAvoidingView, Platform, View } from \"react-native\";\nimport { fetch as expoFetch } from \"expo/fetch\";\nimport {\n  Composer,\n  Markdown,\n  Message,\n  MessageList,\n  Text,\n} from \"@/components/ui\";\n\ninterface Turn {\n  id: string;\n  role: \"user\" | \"assistant\";\n  content: string;\n}\n\nexport default function ChatScreen() {\n  const [messages, setMessages] = useState<Turn[]>([]);\n  const [draft, setDraft] = useState(\"\");\n  const [streaming, setStreaming] = useState(false);\n\n  async function send(text: string) {\n    const userTurn: Turn = { id: `u${Date.now()}`, role: \"user\", content: text };\n    const replyId = `a${Date.now()}`;\n    setMessages((current) => [...current, userTurn, { id: replyId, role: \"assistant\", content: \"\" }]);\n    setDraft(\"\");\n    setStreaming(true);\n\n    // expo/fetch, not the global fetch: React Native's built-in fetch has no\n    // readable body, so the reply would arrive in one lump at the end.\n    const response = await expoFetch(\"https://example.com/api/chat\", {\n      method: \"POST\",\n      headers: { \"Content-Type\": \"application/json\" },\n      body: JSON.stringify({ messages: [...messages, userTurn] }),\n    });\n\n    const reader = response.body?.getReader();\n    const decoder = new TextDecoder();\n    while (reader) {\n      const { done, value } = await reader.read();\n      if (done) break;\n      const chunk = decoder.decode(value, { stream: true });\n      setMessages((current) =>\n        current.map((turn) =>\n          turn.id === replyId ? { ...turn, content: turn.content + chunk } : turn,\n        ),\n      );\n    }\n    setStreaming(false);\n  }\n\n  return (\n    <KeyboardAvoidingView\n      behavior={Platform.OS === \"ios\" ? \"padding\" : undefined}\n      className=\"flex-1 bg-background\"\n    >\n      <MessageList\n        messages={messages}\n        keyExtractor={(turn) => turn.id}\n        footer={streaming ? <Text variant=\"muted\">Thinking…</Text> : null}\n        renderMessage={(turn) => (\n          <Message role={turn.role}>\n            {turn.role === \"assistant\" ? (\n              <Markdown>{turn.content}</Markdown>\n            ) : (\n              <Text>{turn.content}</Text>\n            )}\n          </Message>\n        )}\n      />\n      <Composer\n        value={draft}\n        onChangeText={setDraft}\n        onSubmit={(text) => void send(text)}\n        busy={streaming}\n      />\n    </KeyboardAvoidingView>\n  );\n}",
+  "tokenBudget": 2600
+}

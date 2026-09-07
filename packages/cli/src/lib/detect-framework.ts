@@ -9,10 +9,22 @@ export type FrameworkKind =
 	| "vite"
 	| "cra"
 	| "craco"
+	| "expo-router"
+	| "expo"
+	| "react-native"
 	| "unknown";
+
+/**
+ * Which renderer the project targets. Mirrors the `platform` field on
+ * registry items: a React Native project installs `native-*` items, a web
+ * project installs the unprefixed ones.
+ */
+export type PlatformKind = "web" | "native";
 
 export interface FrameworkDetection {
 	kind: FrameworkKind;
+	/** Render target implied by `kind`. */
+	platform: PlatformKind;
 	/** True when source lives under `<cwd>/src/` (Next.js `--src-dir`, Vite, CRA, CRACO). */
 	srcDir: boolean;
 	/** Cwd-relative path of the file the user should mount `<Toaster />` in. */
@@ -68,9 +80,12 @@ function exists(cwd: string, ...segments: string[]): boolean {
  * directory layout. Used by `hex migrate` to (a) emit a framework-aware
  * Toaster mount hint in the report and (b) print a "Detected: X" diagnostic.
  *
- * Detection precedence: Next.js (App vs Pages by which dir exists) → CRACO
- * (wraps CRA, so check before CRA) → CRA → Vite → unknown. The directory
- * checks honor both top-level (`app/`, `pages/`) and `src/` layouts.
+ * Detection precedence: Expo / React Native (checked first — an Expo app also
+ * declares `react-native`, and a React Native app can carry a `metro.config`
+ * that would otherwise look like nothing else) → Next.js (App vs Pages by
+ * which dir exists) → CRACO (wraps CRA, so check before CRA) → CRA → Vite →
+ * unknown. The directory checks honor both top-level (`app/`, `pages/`) and
+ * `src/` layouts.
  */
 export function detectFramework(cwd: string): FrameworkDetection {
 	const pkg = readPackageJson(cwd);
@@ -83,6 +98,39 @@ export function detectFramework(cwd: string): FrameworkDetection {
 		exists(cwd, "src", "index.tsx") ||
 		exists(cwd, "src", "index.jsx");
 
+	// Native comes first. An Expo app declares both `expo` and `react-native`,
+	// and Expo Router apps have an `app/` directory that the Next.js branch
+	// below would otherwise claim.
+	if (pkg && hasDep(pkg, "expo")) {
+		const routerAt = exists(cwd, "src", "app") ? "src/app" : exists(cwd, "app") ? "app" : null;
+		if (hasDep(pkg, "expo-router") && routerAt) {
+			return {
+				kind: "expo-router",
+				platform: "native",
+				srcDir: routerAt.startsWith("src/"),
+				entryHint: `${routerAt}/_layout.tsx`,
+				label: `Expo (expo-router${routerAt.startsWith("src/") ? ", src/" : ""})`,
+			};
+		}
+		return {
+			kind: "expo",
+			platform: "native",
+			srcDir,
+			entryHint: exists(cwd, "App.tsx") ? "App.tsx" : "App.js",
+			label: "Expo",
+		};
+	}
+
+	if (pkg && hasDep(pkg, "react-native")) {
+		return {
+			kind: "react-native",
+			platform: "native",
+			srcDir,
+			entryHint: exists(cwd, "App.tsx") ? "App.tsx" : "App.js",
+			label: "React Native (bare)",
+		};
+	}
+
 	if (pkg && hasDep(pkg, "next")) {
 		const appAt = exists(cwd, "src", "app") ? "src/app" : exists(cwd, "app") ? "app" : null;
 		const pagesAt = exists(cwd, "src", "pages") ? "src/pages" : exists(cwd, "pages") ? "pages" : null;
@@ -91,6 +139,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 		if (appAt) {
 			return {
 				kind: "next-app",
+				platform: "web",
 				srcDir: appAt.startsWith("src/"),
 				entryHint: `${appAt}/layout.tsx`,
 				label: `Next.js App Router${appAt.startsWith("src/") ? " (src/)" : ""}`,
@@ -99,6 +148,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 		if (pagesAt) {
 			return {
 				kind: "next-pages",
+				platform: "web",
 				srcDir: pagesAt.startsWith("src/"),
 				entryHint: `${pagesAt}/_app.tsx`,
 				label: `Next.js Pages Router${pagesAt.startsWith("src/") ? " (src/)" : ""}`,
@@ -107,6 +157,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 		// `next` declared but no app/ or pages/ on disk yet — likely a fresh
 		// install. Default to App Router (current Next.js default).
 		return {
+			platform: "web",
 			kind: "next-app",
 			srcDir,
 			entryHint: srcDir ? "src/app/layout.tsx" : "app/layout.tsx",
@@ -116,6 +167,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 
 	if (pkg && hasDep(pkg, "@craco/craco")) {
 		return {
+			platform: "web",
 			kind: "craco",
 			srcDir: true,
 			entryHint: "src/index.tsx",
@@ -125,6 +177,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 
 	if (pkg && hasDep(pkg, "react-scripts")) {
 		return {
+			platform: "web",
 			kind: "cra",
 			srcDir: true,
 			entryHint: "src/index.tsx",
@@ -134,6 +187,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 
 	if (pkg && (hasDep(pkg, "vite") || exists(cwd, "vite.config.ts") || exists(cwd, "vite.config.js"))) {
 		return {
+			platform: "web",
 			kind: "vite",
 			srcDir: true,
 			entryHint: exists(cwd, "src", "main.tsx") ? "src/main.tsx" : "src/main.jsx",
@@ -143,6 +197,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 
 	return {
 		kind: "unknown",
+		platform: "web",
 		srcDir,
 		entryHint: srcDir ? "src/index.tsx" : "index.tsx",
 		label: "Unknown framework",

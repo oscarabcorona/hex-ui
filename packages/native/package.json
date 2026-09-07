@@ -1,0 +1,107 @@
+{
+	"name": "@hex-core/native",
+	"version": "0.0.0",
+	"description": "React Native components for Hex Core — the web catalog's schemas, tokens and AI hints rendered with NativeWind and @rn-primitives.",
+	"keywords": [
+		"hex-core",
+		"react-native",
+		"expo",
+		"nativewind",
+		"components",
+		"design-system",
+		"ai-native"
+	],
+	"license": "MIT",
+	"author": "Oscar Corona <oabc4004@gmail.com>",
+	"homepage": "https://hex-core.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oscarabcorona/hex-core.git",
+		"directory": "packages/native"
+	},
+	"bugs": {
+		"url": "https://github.com/oscarabcorona/hex-core/issues"
+	},
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./schemas": {
+			"types": "./dist/schemas.d.ts",
+			"import": "./dist/schemas.js"
+		},
+		"./*": {
+			"types": "./dist/*.d.ts",
+			"import": "./dist/*.js"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsup",
+		"clean": "rm -rf dist",
+		"test": "jest",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@hex-core/registry": "workspace:^",
+		"@rn-primitives/alert-dialog": "^1.5.2",
+		"@rn-primitives/avatar": "^1.5.2",
+		"@rn-primitives/checkbox": "^1.5.2",
+		"@rn-primitives/dialog": "^1.5.2",
+		"@rn-primitives/hooks": "^1.5.2",
+		"@rn-primitives/label": "^1.5.2",
+		"@rn-primitives/popover": "^1.5.2",
+		"@rn-primitives/portal": "^1.5.3",
+		"@rn-primitives/progress": "^1.5.2",
+		"@rn-primitives/radio-group": "^1.5.2",
+		"@rn-primitives/select": "^1.5.2",
+		"@rn-primitives/separator": "^1.5.2",
+		"@rn-primitives/slot": "^1.5.2",
+		"@rn-primitives/switch": "^1.5.2",
+		"@rn-primitives/tabs": "^1.5.2",
+		"@rn-primitives/tooltip": "^1.5.2",
+		"@rn-primitives/types": "^1.5.2",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"mdast-util-from-markdown": "^2.0.3",
+		"mdast-util-gfm": "^3.1.0",
+		"micromark-extension-gfm": "^3.0.0",
+		"react-native-safe-area-context": "^5.7.0",
+		"tailwind-merge": "^3.6.0"
+	},
+	"devDependencies": {
+		"@hex-core/components": "workspace:^",
+		"@jest/globals": "^30.5.1",
+		"@react-native/babel-preset": "^0.86.3",
+		"@react-native/jest-preset": "^0.86.3",
+		"@testing-library/react-native": "^14.0.1",
+		"@types/jest": "^30.0.0",
+		"@types/react": "catalog:",
+		"babel-jest": "^30.5.1",
+		"fast-glob": "^3.3.3",
+		"jest": "^30.5.1",
+		"nativewind": "^4.2.6",
+		"react": "19.2.3",
+		"react-native": "^0.86.3",
+		"tailwindcss": "^3.4.0",
+		"test-renderer": "^1.2.0",
+		"tsup": "catalog:",
+		"typescript": "catalog:"
+	},
+	"peerDependencies": {
+		"nativewind": "^4.0.0",
+		"react": "^19.0.0",
+		"react-native": ">=0.78.0"
+	}
+}

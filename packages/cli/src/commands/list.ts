@@ -8,12 +8,32 @@ interface RecipeSummary {
 	summary: string;
 }
 
+/** One row of the registry index, as far as this command reads it. */
+interface IndexRow {
+	name: string;
+	description: string;
+	category: string;
+	/** Absent for web items — the emitted default. */
+	platform?: "web" | "native";
+}
+
+/** Options for {@link listComponents}. */
+export interface ListOptions {
+	/** Restrict the listing to one render target. Omit to list everything. */
+	platform?: "web" | "native";
+}
+
 /**
  * Print all available components grouped by category, then a recipes
  * section so users discover spec-driven blueprints (auth-form,
  * settings-page, ...) without hunting for a separate `hex recipe list`.
+ *
+ * The catalog holds two render targets, so `--platform` narrows it. Native
+ * items are named `native-<slug>`; a web project cannot use them and a
+ * React Native project cannot use the web ones.
+ * @param options - {@link ListOptions}
  */
-export async function listComponents() {
+export async function listComponents(options: ListOptions = {}) {
 	const indexPath = findRegistryIndex();
 	if (!indexPath) {
 		console.error("Could not find registry. Run from the hex-core project root.");
@@ -21,11 +41,16 @@ export async function listComponents() {
 	}
 
 	const registry = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
+	const allItems: IndexRow[] = registry.items;
+	const items = options.platform
+		? allItems.filter((item) => (item.platform ?? "web") === options.platform)
+		: allItems;
 
-	console.log("\nHex Core Components\n");
+	const heading = options.platform === "native" ? "Hex Core Components (React Native)" : "Hex Core Components";
+	console.log(`\n${heading}\n`);
 
 	const grouped: Record<string, Array<{ name: string; description: string }>> = {};
-	for (const item of registry.items) {
+	for (const item of items) {
 		const cat = item.category;
 		if (!grouped[cat]) grouped[cat] = [];
 		grouped[cat].push({ name: item.name, description: item.description });
@@ -39,7 +64,7 @@ export async function listComponents() {
 		console.log();
 	}
 
-	console.log(`Total: ${registry.items.length} components`);
+	console.log(`Total: ${items.length} components`);
 
 	const recipes = loadRecipes();
 	if (recipes.length > 0) {

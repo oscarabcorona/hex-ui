@@ -1,0 +1,137 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-card",
+  "displayName": "Card",
+  "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
+  "category": "component",
+  "subcategory": "layout",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional CSS classes on the root card"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Card content — use CardHeader, CardContent, CardFooter subcomponents",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/card.tsx",
+      "content": "import type { ComponentProps } from \"react\";\nimport { View } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\nimport { Text } from \"../../primitives/text/text.js\";\n\n/** Props for {@link Card} and its layout slots. */\nexport type CardProps = ComponentProps<typeof View>;\n\n/**\n * A bordered surface grouping related content.\n *\n * Compose it from the slots rather than passing content through props:\n * `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`.\n * @param props - {@link CardProps}\n * @returns The card container\n * @example\n * ```tsx\n * <Card>\n *   <CardHeader>\n *     <CardTitle>Storage</CardTitle>\n *     <CardDescription>94% of 10 GB used</CardDescription>\n *   </CardHeader>\n *   <CardContent><Progress value={94} aria-label=\"Storage used\" /></CardContent>\n * </Card>\n * ```\n */\nexport function Card({ className, ...props }: CardProps) {\n\treturn (\n\t\t<TextClassContext.Provider value=\"text-card-foreground\">\n\t\t\t<View\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"flex-col gap-6 rounded-xl border border-border bg-card py-6 shadow-sm shadow-black/5\",\n\t\t\t\t\tclassName,\n\t\t\t\t)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t</TextClassContext.Provider>\n\t);\n}\n\n/**\n * The card's heading area. Holds `CardTitle` and `CardDescription`.\n * @param props - {@link CardProps}\n * @returns The header container\n */\nexport function CardHeader({ className, ...props }: CardProps) {\n\treturn <View className={cn(\"flex-col gap-1.5 px-6\", className)} {...props} />;\n}\n\n/** Props for {@link CardTitle} and {@link CardDescription}. */\nexport type CardTextProps = ComponentProps<typeof Text>;\n\n/**\n * The card's title, announced as a heading.\n * @param props - {@link CardTextProps}\n * @returns The title text\n */\nexport function CardTitle({ className, ...props }: CardTextProps) {\n\treturn <Text variant=\"h4\" className={cn(\"leading-none\", className)} {...props} />;\n}\n\n/**\n * A muted line under the title.\n *\n * The muted colour is passed as a class rather than left to the `muted`\n * variant: the Card publishes `text-card-foreground` through\n * `TextClassContext`, and an inherited class outranks the variant. Only an\n * explicit `className` beats it.\n * @param props - {@link CardTextProps}\n * @returns The description text\n */\nexport function CardDescription({ className, ...props }: CardTextProps) {\n\treturn <Text variant=\"muted\" className={cn(\"text-muted-foreground\", className)} {...props} />;\n}\n\n/**\n * The card's main body.\n * @param props - {@link CardProps}\n * @returns The content container\n */\nexport function CardContent({ className, ...props }: CardProps) {\n\treturn <View className={cn(\"px-6\", className)} {...props} />;\n}\n\n/**\n * A row of actions at the bottom of the card.\n * @param props - {@link CardProps}\n * @returns The footer container\n */\nexport function CardFooter({ className, ...props }: CardProps) {\n\treturn <View className={cn(\"flex-row items-center px-6\", className)} {...props} />;\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "components/ui/text.tsx",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { Text as RNText } from \"react-native\";\nimport { useTextClass } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Typographic scale for native text.\n *\n * Mirrors the web docs' heading and body styles, minus anything that needs a\n * DOM: no `scroll-m-*`, no `text-balance`, no `select-text`.\n */\nexport const textVariants = cva(\"text-base text-foreground\", {\n\tvariants: {\n\t\tvariant: {\n\t\t\tdefault: \"\",\n\t\t\th1: \"text-4xl font-extrabold tracking-tight\",\n\t\t\th2: \"text-3xl font-semibold tracking-tight\",\n\t\t\th3: \"text-2xl font-semibold tracking-tight\",\n\t\t\th4: \"text-xl font-semibold tracking-tight\",\n\t\t\tp: \"leading-7\",\n\t\t\tlead: \"text-xl text-muted-foreground\",\n\t\t\tlarge: \"text-lg font-semibold\",\n\t\t\tsmall: \"text-sm font-medium leading-none\",\n\t\t\tmuted: \"text-sm text-muted-foreground\",\n\t\t\tcode: \"rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\tvariant: \"default\",\n\t},\n});\n\ntype TextVariant = NonNullable<VariantProps<typeof textVariants>[\"variant\"]>;\n\n/** Variants that read as headings to VoiceOver and TalkBack. */\nconst HEADING_VARIANTS: ReadonlySet<TextVariant> = new Set<TextVariant>([\"h1\", \"h2\", \"h3\", \"h4\"]);\n\n/**\n * Props for {@link Text}. `ref` comes with the React Native `Text` props and\n * reaches the host element (React 19 — no forwardRef).\n */\nexport type TextProps = ComponentProps<typeof RNText> & VariantProps<typeof textVariants>;\n\n/**\n * Themed text with a typographic scale and parent-driven class inheritance.\n *\n * React Native text does not inherit colour or size from a `View`, so\n * containers like `Button`, `Card` and `Badge` publish the classes they want\n * their labels to carry through `TextClassContext`; this component reads\n * them and lets an explicit `className` win.\n * @param props - {@link TextProps}\n * @returns A React Native `Text` element\n * @example\n * ```tsx\n * <Text variant=\"h2\">Settings</Text>\n * <Text variant=\"muted\">Manage your account preferences.</Text>\n * ```\n */\nexport function Text({ className, variant = \"default\", ...props }: TextProps) {\n\tconst inherited = useTextClass();\n\tconst isHeading = variant !== null && HEADING_VARIANTS.has(variant);\n\treturn (\n\t\t<RNText\n\t\t\tclassName={cn(textVariants({ variant }), inherited, className)}\n\t\t\trole={isHeading ? \"heading\" : undefined}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "lib/text-context",
+      "primitives/text/text"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "card",
+    "card-foreground",
+    "border",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Basic card",
+      "description": "Header, body and footer composed from the slots",
+      "code": "<Card>\n  <CardHeader>\n    <CardTitle>Storage</CardTitle>\n    <CardDescription>94% of 10 GB used</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <Progress value={94} aria-label=\"Storage used\" />\n  </CardContent>\n  <CardFooter className=\"justify-end\">\n    <Button variant=\"outline\" onPress={upgrade}>\n      <Text>Upgrade</Text>\n    </Button>\n  </CardFooter>\n</Card>",
+      "composition": [
+        "surface",
+        "settings"
+      ]
+    },
+    {
+      "title": "Header only",
+      "description": "Every slot is optional — omit what the card does not need",
+      "code": "<Card>\n  <CardHeader>\n    <CardTitle>No devices yet</CardTitle>\n    <CardDescription>Pair a device to see it here.</CardDescription>\n  </CardHeader>\n</Card>",
+      "composition": [
+        "surface",
+        "empty-state"
+      ]
+    },
+    {
+      "title": "Tappable card",
+      "description": "Wrap the whole card in a Pressable and name the action",
+      "code": "<Pressable\n  role=\"button\"\n  aria-label=\"Open billing settings\"\n  onPress={() => router.push(\"/billing\")}\n>\n  <Card>\n    <CardHeader>\n      <CardTitle>Billing</CardTitle>\n      <CardDescription>Visa ending 4242</CardDescription>\n    </CardHeader>\n  </Card>\n</Pressable>",
+      "composition": [
+        "surface",
+        "navigation"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use to group related content on a surface: a settings group, a summary panel, an item in a feed. Compose the slots rather than passing text through props.",
+    "whenNotToUse": "Don't nest a card inside a card — the borders stack and the hierarchy stops reading. Don't use one per row in a long list where a plain row with a separator is lighter. Don't use it as a modal surface (use Dialog).",
+    "commonMistakes": [
+      "Putting horizontal padding on the Card itself — each slot already pads to 24pt, so a padded root double-pads the content and the border sits away from the edge",
+      "Placing a bare string directly in CardContent instead of a Text element — React Native throws",
+      "Making a card tappable by putting a Pressable inside it rather than around it, so only part of the surface responds and the accessible name covers a fragment",
+      "Using CardTitle for a screen title — it renders as a fourth-level heading, which flattens the hierarchy when it stands in for the top-level one"
+    ],
+    "antiPatterns": [
+      {
+        "mistake": "Nesting a Card inside a Card to group sub-sections",
+        "insteadUse": "native-separator",
+        "why": "Two raised surfaces inside each other muddle the elevation model. Divide sections inside one Card with a Separator, or split into sibling Cards."
+      }
+    ],
+    "relatedComponents": [
+      "native-text",
+      "native-button",
+      "native-separator",
+      "native-badge"
+    ],
+    "accessibilityNotes": "CardTitle announces as a heading, so screen-reader users can jump between cards; keep exactly one title per card. The card is a passive container by default. To make it tappable, wrap the whole thing in a Pressable with role=\"button\" and an aria-label describing the destination, so the entire surface is one target rather than several fragments. The card and card-foreground tokens are contrast-audited in light and dark.",
+    "tokenBudget": 1378
+  },
+  "tags": [
+    "card",
+    "container",
+    "panel",
+    "layout",
+    "surface",
+    "native",
+    "react-native"
+  ]
+}

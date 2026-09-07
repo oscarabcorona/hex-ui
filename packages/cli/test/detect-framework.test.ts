@@ -101,3 +101,70 @@ describe("detectFramework", () => {
 		expect(result.kind).toBe("unknown");
 	});
 });
+
+describe("detectFramework — React Native", () => {
+	it("identifies an Expo Router app", () => {
+		writePkg({ expo: "^57.0.0", "expo-router": "^57.0.0", "react-native": "0.86.3" });
+		mkdir("app");
+		const result = detectFramework(tmpDir);
+		expect(result.kind).toBe("expo-router");
+		expect(result.platform).toBe("native");
+		expect(result.entryHint).toBe("app/_layout.tsx");
+		expect(result.label).toContain("expo-router");
+	});
+
+	it("identifies an Expo Router app with a src/ layout", () => {
+		writePkg({ expo: "^57.0.0", "expo-router": "^57.0.0" });
+		mkdir("src/app");
+		const result = detectFramework(tmpDir);
+		expect(result.kind).toBe("expo-router");
+		expect(result.srcDir).toBe(true);
+		expect(result.entryHint).toBe("src/app/_layout.tsx");
+	});
+
+	it("identifies a plain Expo app by its App entry", () => {
+		writePkg({ expo: "^57.0.0", "react-native": "0.86.3" });
+		fs.writeFileSync(path.join(tmpDir, "App.tsx"), "export default function App() {}");
+		const result = detectFramework(tmpDir);
+		expect(result.kind).toBe("expo");
+		expect(result.platform).toBe("native");
+		expect(result.entryHint).toBe("App.tsx");
+	});
+
+	it("identifies a bare React Native app", () => {
+		writePkg({ "react-native": "0.86.3" });
+		fs.writeFileSync(path.join(tmpDir, "App.tsx"), "export default function App() {}");
+		const result = detectFramework(tmpDir);
+		expect(result.kind).toBe("react-native");
+		expect(result.platform).toBe("native");
+	});
+
+	// An Expo Router app has an `app/` directory and declares react-native.
+	// Without the native branch running first, the Next.js check would claim
+	// it and the project would be scaffolded for the DOM.
+	it("prefers Expo over Next.js when an app/ directory is present", () => {
+		writePkg({ expo: "^57.0.0", "expo-router": "^57.0.0", next: "^16.0.0" });
+		mkdir("app");
+		expect(detectFramework(tmpDir).kind).toBe("expo-router");
+	});
+
+	it("prefers Expo over bare react-native when both are declared", () => {
+		writePkg({ expo: "^57.0.0", "react-native": "0.86.3" });
+		expect(detectFramework(tmpDir).kind).toBe("expo");
+	});
+
+	it("reports web for every non-native framework", () => {
+		writePkg({ next: "^16.0.0" });
+		mkdir("app");
+		expect(detectFramework(tmpDir).platform).toBe("web");
+
+		writePkg({ vite: "^7.0.0" });
+		expect(detectFramework(tmpDir).platform).toBe("web");
+	});
+
+	it("reports web for an unrecognised project", () => {
+		const result = detectFramework(tmpDir);
+		expect(result.kind).toBe("unknown");
+		expect(result.platform).toBe("web");
+	});
+});

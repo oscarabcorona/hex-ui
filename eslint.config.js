@@ -130,6 +130,15 @@ export default tseslint.config(
 		},
 	},
 	{
+		// CommonJS tooling config: Jest and Babel both load these through
+		// `require`, so `module` and `require` are the ambient globals.
+		files: ["**/*.cjs"],
+		languageOptions: {
+			sourceType: "commonjs",
+			globals: { module: "writable", require: "readonly", __dirname: "readonly" },
+		},
+	},
+	{
 		files: [
 			"packages/cli/**/*.ts",
 			"scripts/**/*.ts",
@@ -153,7 +162,7 @@ export default tseslint.config(
 		},
 	},
 	{
-		files: ["packages/components/**/*.tsx"],
+		files: ["packages/components/**/*.tsx", "packages/native/**/*.tsx"],
 		rules: {
 			"jsdoc/check-param-names": "off",
 			"jsdoc/require-param": "off",
@@ -226,6 +235,63 @@ export default tseslint.config(
 					],
 				},
 			],
+		},
+	},
+	{
+		/*
+		 * No DOM in the React Native package. The web package is React DOM
+		 * all the way down (Radix, react-dom, WAAPI motion), so nothing from
+		 * it may be imported at runtime — only the `/schemas` subpath, which
+		 * is pure data the native schemas derive from. Browser globals are
+		 * banned outright: `tsconfig` drops the DOM lib, and this catches
+		 * whatever React Native's own ambient types let through.
+		 */
+		files: ["packages/native/src/**/*.{ts,tsx}"],
+		rules: {
+			"no-restricted-globals": [
+				"error",
+				{ name: "document", message: "There is no DOM in React Native." },
+				{ name: "window", message: "There is no DOM in React Native. Use `Dimensions` or `useWindowDimensions`." },
+				{ name: "navigator", message: "There is no DOM in React Native." },
+				{ name: "localStorage", message: "There is no DOM in React Native. Use AsyncStorage or expo-secure-store in the consumer app." },
+			],
+			"no-restricted-imports": [
+				"error",
+				{
+					paths: [
+						{ name: "react-dom", message: "@hex-core/native renders with React Native, not React DOM." },
+						{ name: "@hex-core/motion", message: "@hex-core/motion is WAAPI-based. Use React Native `Animated` in v1." },
+					],
+					patterns: [
+						{
+							group: ["@radix-ui/*"],
+							message: "Radix is DOM-only. Use the matching @rn-primitives/* package.",
+						},
+						{
+							// A regex, not a glob: both the `!` negation and the
+							// extglob form failed to exempt the one subpath this rule
+							// exists to allow, so the exemption is spelled out.
+							regex: "^@hex-core/components(/(?!schemas$).*)?$",
+							message:
+								"Only `@hex-core/components/schemas` may be imported (schema data). Component bodies are React DOM — port them under packages/native instead.",
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		/*
+		 * The colour fence, applied to the native component layers exactly
+		 * as it is to the web ones. NativeWind resolves every colour token
+		 * through the same `hsl(var(--x))` bridge, so a literal here is just
+		 * as unreachable by the theme as it would be on the web. Repeats
+		 * BASE_SYNTAX for the reason given at the top of this file.
+		 */
+		files: ["packages/native/src/{primitives,components,ai}/**/*.tsx"],
+		ignores: ["**/*.test.tsx", "**/*.demo.tsx"],
+		rules: {
+			"no-restricted-syntax": ["error", ...BASE_SYNTAX, ...NO_COLOUR_LITERALS],
 		},
 	},
 );

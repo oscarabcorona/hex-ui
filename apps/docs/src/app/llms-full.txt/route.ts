@@ -7,6 +7,8 @@ import {
 	componentsByCategory,
 	installCommand,
 	listComponents,
+	listNativeComponents,
+	type RegistryIndexItem,
 } from "../../lib/registry";
 import { getRegistryItem } from "../../lib/registry.server";
 import { HEX_REGISTRY_NAMESPACE, HEX_REGISTRY_TEMPLATE, SITE_URL } from "../../lib/site";
@@ -22,7 +24,6 @@ export const dynamic = "force-static";
  * @returns Ordered category groups for the llms-full catalog section
  */
 async function loadCatalog(): Promise<LlmsCatalogGroup[]> {
-	const groups = componentsByCategory();
 	const covered = new Set<string>(CATEGORY_ORDER);
 	const missing = listComponents().filter((item) => !covered.has(item.category));
 	if (missing.length > 0) {
@@ -30,26 +31,52 @@ async function loadCatalog(): Promise<LlmsCatalogGroup[]> {
 			`CATEGORY_ORDER does not cover: ${[...new Set(missing.map((m) => m.category))].join(", ")}`,
 		);
 	}
+
+	/**
+	 * Expand index summaries into catalog rows, reading each item's
+	 * `whenToUse` from the full registry item.
+	 * @param items - Index entries to expand
+	 * @returns Catalog rows in the same order
+	 */
+	const expand = async (items: readonly RegistryIndexItem[]) =>
+		Promise.all(
+			items.map(async (summary) => {
+				const item = await getRegistryItem(summary.name);
+				if (!item) throw new Error(`Registry item failed to load: ${summary.name}`);
+				return {
+					name: item.name,
+					displayName: item.displayName,
+					description: item.description,
+					whenToUse: item.ai.whenToUse,
+				};
+			}),
+		);
+
 	const catalog: LlmsCatalogGroup[] = [];
+	const webGroups = componentsByCategory();
 	for (const category of CATEGORY_ORDER) {
-		const items = groups[category] ?? [];
+		const items = webGroups[category] ?? [];
 		if (items.length === 0) continue;
-		catalog.push({
-			label: CATEGORY_LABELS[category] ?? category,
-			items: await Promise.all(
-				items.map(async (summary) => {
-					const item = await getRegistryItem(summary.name);
-					if (!item) throw new Error(`Registry item failed to load: ${summary.name}`);
-					return {
-						name: item.name,
-						displayName: item.displayName,
-						description: item.description,
-						whenToUse: item.ai.whenToUse,
-					};
-				}),
-			),
-		});
+		catalog.push({ label: CATEGORY_LABELS[category] ?? category, items: await expand(items) });
 	}
+
+	// React Native items last and under their own heading. They share the
+	// `primitive` / `component` categories with the web catalog, so
+	// interleaving them would offer an agent building a web page a component
+	// that only renders on a device — and vice versa.
+	const native = listNativeComponents();
+	if (native.length > 0) {
+		const nativeGroups = componentsByCategory(native);
+		for (const category of CATEGORY_ORDER) {
+			const items = nativeGroups[category] ?? [];
+			if (items.length === 0) continue;
+			catalog.push({
+				label: `React Native — ${CATEGORY_LABELS[category] ?? category}`,
+				items: await expand(items),
+			});
+		}
+	}
+
 	return catalog;
 }
 

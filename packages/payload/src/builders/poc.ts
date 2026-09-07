@@ -4,7 +4,7 @@ import type { CatalogGraph } from "../graph/graph-schema.js";
 import { requiresClosure } from "../graph/graph-query.js";
 import { DEFAULT_ALIASES, rewriteRegistryImports } from "../lib/rewrite-imports.js";
 import { loadRegistryItem, type RegistryItem } from "../loaders/registry-loader.js";
-import type { Theme } from "@hex-core/registry";
+import { NATIVE_SLUG_PREFIX, type Theme } from "@hex-core/registry";
 import { generateGlobalsCss, getTheme } from "../loaders/theme-loader.js";
 import type { ApplicationMap, MapScreen } from "./map.js";
 import { stableStringifyMap } from "./map.js";
@@ -115,6 +115,28 @@ const KNOWN_NPM_VERSIONS: Record<string, string> = {
 	// (motion primitives and AI-kit hooks ship no source files).
 	"@hex-core/components": "^1.15.0",
 	"@hex-core/motion": "^0.3.1",
+	// React Native items (`native-*`). `hex poc` only generates Next.js apps
+	// today, so these are never installed by it — but the pins test walks
+	// every registry item regardless of platform, and a version pinned here
+	// is one that has actually been built against.
+	"@rn-primitives/alert-dialog": "^1.5.2",
+	"@rn-primitives/avatar": "^1.5.2",
+	"@rn-primitives/checkbox": "^1.5.2",
+	"@rn-primitives/dialog": "^1.5.2",
+	"@rn-primitives/label": "^1.5.2",
+	"@rn-primitives/popover": "^1.5.2",
+	"@rn-primitives/portal": "^1.5.3",
+	"@rn-primitives/progress": "^1.5.2",
+	"@rn-primitives/radio-group": "^1.5.2",
+	"@rn-primitives/select": "^1.5.2",
+	"@rn-primitives/separator": "^1.5.2",
+	"@rn-primitives/switch": "^1.5.2",
+	"@rn-primitives/tabs": "^1.5.2",
+	"@rn-primitives/tooltip": "^1.5.2",
+	"mdast-util-from-markdown": "^2.0.3",
+	"mdast-util-gfm": "^3.1.0",
+	"micromark-extension-gfm": "^3.0.0",
+	"react-native-safe-area-context": "^5.7.0",
 	"@hookform/resolvers": "^5.2.2",
 	"@radix-ui/react-accordion": "^1.2.20",
 	"@radix-ui/react-alert-dialog": "^1.1.23",
@@ -277,6 +299,13 @@ function buildExportIndexUncached(graph: CatalogGraph): Map<string, ExportOwner[
 	const index = new Map<string, ExportOwner[]>();
 	for (const node of graph.nodes) {
 		if (node.kind !== "item" || !node.exports) continue;
+		// React Native items export the same identifiers as their web
+		// counterparts (Button, SelectItem, TabsList, …), so indexing them
+		// here gives ~58 names two owners. `hex poc` only ever generates a
+		// Next.js app, so a native owner winning a collision writes a
+		// `react-native` component into it — and because native items ship
+		// unprefixed, the emitted import line looks correct either way.
+		if (node.slug.startsWith(NATIVE_SLUG_PREFIX)) continue;
 		for (const name of node.exports) {
 			// `exportPaths` tells us which module actually exports the name —
 			// `_shared/*` files are their own module, not the item's main one.

@@ -1,0 +1,152 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-bottom-sheet",
+  "displayName": "BottomSheet",
+  "description": "A modal panel that rises from the bottom edge. The React Native answer to a dropdown menu, an option list, or a short form — placed where a thumb can reach it.",
+  "category": "component",
+  "subcategory": "overlay",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled open state. Pair with onOpenChange."
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Initial open state when the sheet manages itself"
+    },
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "Called with the next open state, including when the scrim is tapped"
+    },
+    {
+      "name": "portalHost",
+      "type": "string",
+      "required": false,
+      "description": "Name of the PortalHost to render into. Only needed when the app mounts more than one."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes on the sheet panel"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "The sheet's content — a title, then options, a form, or actions",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/bottom-sheet.tsx",
+      "content": "import * as DialogPrimitive from \"@rn-primitives/dialog\";\nimport { type ComponentProps, useEffect, useRef } from \"react\";\nimport { Animated, useWindowDimensions } from \"react-native\";\nimport { useSafeAreaInsets } from \"react-native-safe-area-context\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** How long the sheet takes to slide in or out, in milliseconds. */\nconst SLIDE_DURATION = 220;\n\n/** Props for {@link BottomSheet}. */\nexport type BottomSheetProps = ComponentProps<typeof DialogPrimitive.Root>;\n\n/**\n * A panel that rises from the bottom of the screen.\n *\n * The native answer to a menu, an option list, or a short form — everything\n * a web app would hang in a dropdown or a popover, where a thumb cannot\n * comfortably reach. Built on the dialog primitive, so it is modal and needs\n * a `<PortalHost />` in the root layout.\n *\n * This has no web counterpart in the catalog: on a desktop the same job is\n * done by DropdownMenu, Popover or Dialog.\n * @param props - {@link BottomSheetProps}\n * @returns The sheet root\n * @example\n * ```tsx\n * <BottomSheet open={open} onOpenChange={setOpen}>\n *   <BottomSheetContent>\n *     <BottomSheetTitle>Sort by</BottomSheetTitle>\n *     <RadioGroup value={sort} onValueChange={setSort}>…</RadioGroup>\n *   </BottomSheetContent>\n * </BottomSheet>\n * ```\n */\nexport function BottomSheet(props: BottomSheetProps) {\n\treturn <DialogPrimitive.Root {...props} />;\n}\n\n/** Props for {@link BottomSheetTrigger}. */\nexport type BottomSheetTriggerProps = ComponentProps<typeof DialogPrimitive.Trigger>;\n\n/**\n * Opens the sheet.\n * @param props - {@link BottomSheetTriggerProps}\n * @returns The trigger\n */\nexport function BottomSheetTrigger(props: BottomSheetTriggerProps) {\n\treturn <DialogPrimitive.Trigger {...props} />;\n}\n\n/** Props for {@link BottomSheetContent}. */\nexport interface BottomSheetContentProps\n\textends ComponentProps<typeof DialogPrimitive.Content> {\n\t/** Name of the `PortalHost` to render into, when the app mounts more than one. */\n\tportalHost?: string;\n}\n\n/**\n * The sheet panel. Slides up from the bottom edge and pads itself past the\n * home indicator.\n * @param props - {@link BottomSheetContentProps}\n * @returns The portalled sheet\n */\nexport function BottomSheetContent({\n\tclassName,\n\tportalHost,\n\tchildren,\n\t...props\n}: BottomSheetContentProps) {\n\tconst insets = useSafeAreaInsets();\n\tconst { height } = useWindowDimensions();\n\tconst translateY = useRef(new Animated.Value(height)).current;\n\n\tuseEffect(() => {\n\t\tconst animation = Animated.timing(translateY, {\n\t\t\ttoValue: 0,\n\t\t\tduration: SLIDE_DURATION,\n\t\t\tuseNativeDriver: true,\n\t\t});\n\t\tanimation.start();\n\t\treturn () => {\n\t\t\tanimation.stop();\n\t\t};\n\t}, [translateY]);\n\n\treturn (\n\t\t<DialogPrimitive.Portal hostName={portalHost}>\n\t\t\t<DialogPrimitive.Overlay className=\"absolute inset-0 justify-end bg-black/50\">\n\t\t\t\t<DialogPrimitive.Content\n\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\"w-full gap-4 rounded-t-2xl border-t border-border bg-background px-6 pt-6\",\n\t\t\t\t\t\tclassName,\n\t\t\t\t\t)}\n\t\t\t\t\tstyle={{ transform: [{ translateY }], paddingBottom: insets.bottom + 24 }}\n\t\t\t\t\t{...props}\n\t\t\t\t>\n\t\t\t\t\t{children}\n\t\t\t\t</DialogPrimitive.Content>\n\t\t\t</DialogPrimitive.Overlay>\n\t\t</DialogPrimitive.Portal>\n\t);\n}\n\n/** Props for {@link BottomSheetTitle} and {@link BottomSheetDescription}. */\nexport type BottomSheetTextProps = ComponentProps<typeof DialogPrimitive.Title>;\n\n/**\n * The sheet's title. Announced when it opens, so always include one.\n * @param props - {@link BottomSheetTextProps}\n * @returns The title\n */\nexport function BottomSheetTitle({ className, ...props }: BottomSheetTextProps) {\n\treturn (\n\t\t<DialogPrimitive.Title\n\t\t\tclassName={cn(\"text-lg font-semibold text-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\n/**\n * A muted line under the title.\n * @param props - {@link BottomSheetTextProps}\n * @returns The description\n */\nexport function BottomSheetDescription({ className, ...props }: BottomSheetTextProps) {\n\treturn (\n\t\t<DialogPrimitive.Description\n\t\t\tclassName={cn(\"text-sm text-muted-foreground\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\n/** Props for {@link BottomSheetClose}. */\nexport type BottomSheetCloseProps = ComponentProps<typeof DialogPrimitive.Close>;\n\n/**\n * Dismisses the sheet. Wrap a Button with `asChild`.\n * @param props - {@link BottomSheetCloseProps}\n * @returns The close control\n */\nexport function BottomSheetClose(props: BottomSheetCloseProps) {\n\treturn <DialogPrimitive.Close {...props} />;\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/dialog",
+      "@rn-primitives/portal",
+      "react-native-safe-area-context",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "foreground",
+    "muted-foreground",
+    "border"
+  ],
+  "examples": [
+    {
+      "title": "Sort options",
+      "description": "The native shape of what a web app would put in a dropdown menu",
+      "code": "<BottomSheet open={open} onOpenChange={setOpen}>\n  <BottomSheetContent>\n    <BottomSheetTitle>Sort by</BottomSheetTitle>\n    <RadioGroup value={sort} onValueChange={setSort}>\n      <View className=\"flex-row items-center gap-2\">\n        <RadioGroupItem value=\"newest\" aria-labelledby=\"sort-newest\" />\n        <Label nativeID=\"sort-newest\">Newest first</Label>\n      </View>\n      <View className=\"flex-row items-center gap-2\">\n        <RadioGroupItem value=\"oldest\" aria-labelledby=\"sort-oldest\" />\n        <Label nativeID=\"sort-oldest\">Oldest first</Label>\n      </View>\n    </RadioGroup>\n  </BottomSheetContent>\n</BottomSheet>",
+      "composition": [
+        "overlay",
+        "menu"
+      ]
+    },
+    {
+      "title": "Short form",
+      "description": "A couple of fields plus a confirm, without pushing a screen",
+      "code": "<BottomSheet open={open} onOpenChange={setOpen}>\n  <BottomSheetContent>\n    <BottomSheetTitle>Add a note</BottomSheetTitle>\n    <Textarea aria-labelledby=\"note\" value={note} onChangeText={setNote} />\n    <Button onPress={save}>\n      <Text>Save</Text>\n    </Button>\n  </BottomSheetContent>\n</BottomSheet>",
+      "composition": [
+        "overlay",
+        "form"
+      ]
+    },
+    {
+      "title": "With an explicit close",
+      "description": "A visible dismiss, which the scrim alone does not give assistive tech",
+      "code": "<BottomSheet open={open} onOpenChange={setOpen}>\n  <BottomSheetContent>\n    <BottomSheetTitle>Share</BottomSheetTitle>\n    <BottomSheetDescription>Anyone with the link can view.</BottomSheetDescription>\n    <BottomSheetClose asChild>\n      <Button variant=\"secondary\">\n        <Text>Close</Text>\n      </Button>\n    </BottomSheetClose>\n  </BottomSheetContent>\n</BottomSheet>",
+      "composition": [
+        "overlay",
+        "share"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for a menu, an option list, or a short form on a phone — the native replacement for a dropdown or popover. Reach for it whenever a web design would open a panel anchored to a control near the top of the screen.",
+    "whenNotToUse": "Don't use it to confirm something irreversible (use AlertDialog, which will not dismiss on a scrim tap). Don't use it for a long or multi-step flow; push a screen so the user keeps the back gesture. Don't stack a sheet on a sheet.",
+    "commonMistakes": [
+      "Forgetting <PortalHost /> in the root layout — the sheet mounts but renders nothing",
+      "Omitting the safe-area padding when overriding the panel's className, so the last action sits under the home indicator and cannot be tapped",
+      "Using a sheet for a destructive confirmation, where a scrim tap dismisses the question instead of answering it",
+      "Putting a tall scrolling list in it without bounding the height, so the sheet covers the screen and the scrim can no longer be reached to dismiss",
+      "Omitting BottomSheetTitle, which leaves the sheet unnamed when it opens"
+    ],
+    "relatedComponents": [
+      "native-dialog",
+      "native-radio-group",
+      "native-button",
+      "native-text"
+    ],
+    "accessibilityNotes": "The panel is announced when it opens and the title names it, so always include a BottomSheetTitle. The sheet pads its bottom past the safe-area inset, keeping the last control clear of the home indicator. A scrim tap dismisses, but that is not discoverable to a screen-reader user — include a visible close or confirm control for anything longer than a short option list. Keep the panel under about half the screen so the scrim stays reachable.",
+    "tokenBudget": 1047
+  },
+  "tags": [
+    "bottom-sheet",
+    "sheet",
+    "overlay",
+    "menu",
+    "modal",
+    "native",
+    "react-native"
+  ]
+}
