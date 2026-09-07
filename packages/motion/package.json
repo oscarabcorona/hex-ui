@@ -61,7 +61,7 @@
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
 		"jsdom": "catalog:",
-		"react": "^19.0.0",
+		"react": "^19.2.8",
 		"react-dom": "^19.0.0",
 		"tsup": "catalog:",
 		"typescript": "catalog:",
