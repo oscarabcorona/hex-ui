@@ -6,13 +6,17 @@
 				"scripts/build-barrels.ts",
 				"scripts/lib/**",
 				"packages/components/src/**",
+				"packages/native/src/**",
 				"packages/motion/src/**",
 				"packages/themes/src/presets/_briefs/**"
 			],
 			"outputs": [
 				"packages/components/src/index.generated.ts",
 				"packages/components/src/schemas.generated.ts",
+				"packages/native/src/index.generated.ts",
+				"packages/native/src/schemas.generated.ts",
 				"apps/docs/src/lib/demos.generated.tsx",
+				"apps/native-playground/src/demos.generated.tsx",
 				"packages/themes/src/presets/briefs.generated.ts"
 			]
 		},
@@ -127,12 +131,33 @@
 				"test/**",
 				"vitest.config.ts",
 				"vitest.setup.ts",
+				"jest.config.cjs",
+				"babel.config.cjs",
+				"tsconfig.json",
 				"package.json"
 			],
-			"outputs": []
+			"outputs": [],
+			"env": [
+				"CI"
+			],
+			"passThroughEnv": [
+				"PLAYWRIGHT_PORT"
+			]
 		},
 		"clean": {
 			"cache": false
+		},
+		"typecheck": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"src/**",
+				"app/**",
+				"tsconfig.json",
+				"package.json"
+			],
+			"outputs": []
 		},
 		"lint": {}
 	}

@@ -57,6 +57,11 @@ export const GETTING_STARTED_NAV: readonly DocNavLink[] = [
 		description: "Timeline, clips, wrappers, and reduced-motion-safe animation.",
 	},
 	{
+		title: "React Native",
+		href: "/native",
+		description: "Expo and React Native catalog built on NativeWind and @rn-primitives.",
+	},
+	{
 		title: "FAQ",
 		href: "/docs/faq",
 		description: "Common questions about licensing, frameworks, and compatibility.",

@@ -11,7 +11,7 @@
  */
 
 import type { Recipe } from "../loaders/recipe-loader.js";
-import { internalDepToSlug, type RegistryItem } from "../loaders/registry-loader.js";
+import { resolveInternalDepForPlatform, type RegistryItem } from "../loaders/registry-loader.js";
 
 /**
  * One token entry: a value plus a category type for non-color tokens.
@@ -77,6 +77,17 @@ export interface AppContextInput {
 	overrides?: Record<string, string>;
 	/** Density preset spliced into the `:root {}` rule of `globals.css`. */
 	density?: AppContextDensity;
+	/**
+	 * Whether a given item name is in the catalog. Used to resolve each item's
+	 * internal deps against the platform that declared them, so a native
+	 * component's "Depends on" list names `native-text` rather than the React
+	 * DOM `text`.
+	 *
+	 * Defaults to accepting every name, which keeps a web payload's dep list
+	 * exactly as it was before platform resolution existed. Pass a real
+	 * catalog predicate to have unresolvable deps drop out instead.
+	 */
+	itemExists?: (name: string) => boolean;
 }
 
 const HIGHLIGHTED_TOKENS = [
@@ -365,13 +376,40 @@ function buildTailwindConfig(palette: Record<string, AppContextToken>): string {
  *   Studio will catch up on its next sync.
  * @param componentSlugs - Slugs the agent should consider in scope; an empty
  *   list renders an "(none selected)" placeholder
+ * @param platform - Render target the components belong to
  * @returns Multi-line prompt body (no surrounding `## Context prompt` header)
  */
-function buildContextPrompt(componentSlugs: string[]): string {
+function buildContextPrompt(componentSlugs: string[], platform: "web" | "native"): string {
 	const inScope =
 		componentSlugs.length > 0
 			? componentSlugs.join(", ")
-			: "(none selected — pull components on demand via `npx @hex-core/cli@latest add <slug>`)";
+			: platform === "native"
+				? "(none selected — pull components on demand via `npx @hex-core/cli@latest add <slug>`)"
+				: "(none selected — pull components on demand via `npx @hex-core/cli@latest add <slug>`)";
+
+	// A React Native component set handed the Next.js rules produced an agent
+	// that reached for Server Components, focus rings and plain HTML fallbacks
+	// on a platform that has none of them.
+	if (platform === "native") {
+		return [
+			"You are building a React Native app (Expo) using @hex-core native components.",
+			"",
+			"Rules you must follow:",
+			"",
+			"1. Use the exact tokens defined in `global.css` above. Do not introduce new colors or spacing values that aren't in the token set.",
+			"2. Use the installed `@/components/ui/*` primitives — never re-implement Button / Card / Dialog / etc. from raw `View` and `Text`.",
+			"3. Every string must live inside a `<Text>`; React Native throws on a bare string child. Import `Text` from the Hex components, not from `react-native`, so it inherits the colour its parent publishes.",
+			"4. Honor the AI guidance in each component's schema — `whenToUse`, `whenNotToUse`, `commonMistakes`, `accessibilityNotes`.",
+			"5. Handlers are `onPress`, not `onClick`. There is no `hover` and no focus ring; press feedback goes through `active:` classes.",
+			"6. Mount `<PortalHost />` from `@rn-primitives/portal` once in the root layout, or Dialog, AlertDialog, Popover, Tooltip and Select will render nothing.",
+			"7. For layout use `View` with flex and gap utilities. There is no CSS grid and no `space-y-*`.",
+			"",
+			`Components in scope for this app: ${inScope}.`,
+			"",
+			'Now: <your ask here, e.g. "build me a settings screen with a switch and a select">.',
+		].join("\n");
+	}
+
 	return [
 		"You are building a Next.js 16 (App Router, Turbopack) app using @hex-core components.",
 		"",
@@ -398,6 +436,18 @@ function buildContextPrompt(componentSlugs: string[]): string {
  */
 export function buildAppContext(input: AppContextInput): string {
 	const lines: string[] = [];
+
+	// Resolved up front because the theme section renders before the component
+	// section but has to know the target: the globals.css and Tailwind blocks
+	// it emits are web-only surfaces.
+	const found = input.components.filter((c) => c.item !== null);
+	const itemExists = input.itemExists ?? (() => true);
+	// One payload describes one app, and an app has one renderer. A set that
+	// mixes the two is a caller error worth naming rather than rendering one
+	// platform's rules over both.
+	const nativeCount = found.filter((c) => (c.item as RegistryItem).platform === "native").length;
+	const platform: "web" | "native" = nativeCount > 0 && nativeCount === found.length ? "native" : "web";
+	const mixedPlatforms = nativeCount > 0 && nativeCount < found.length;
 
 	lines.push("# App context — Hex Core");
 	lines.push("");
@@ -459,27 +509,42 @@ export function buildAppContext(input: AppContextInput): string {
 			input.density,
 		);
 
-		lines.push("## globals.css");
-		lines.push("");
-		lines.push(
-			"Replace your `app/globals.css` (or paste this into it) so every component reads the tokens above.",
-		);
-		lines.push("");
-		lines.push("```css");
-		lines.push(buildGlobalsCss(mergedLight, input.theme.resolved.tokens.dark));
-		lines.push("```");
-		lines.push("");
+		if (platform === "native") {
+			// Both blocks below are the web token surfaces: a `:root` rule with
+			// `var()` chains, and a Tailwind v4-shaped config. React Native
+			// resolves no `var()` chain and NativeWind is built on Tailwind v3,
+			// so emitting them here would hand the agent a stylesheet that
+			// silently produces no colour at all. `hex init --platform native`
+			// writes the resolved-triplet versions of exactly these files.
+			lines.push("## global.css and tailwind.config.js");
+			lines.push("");
+			lines.push(
+				"Generated for you — run `npx @hex-core/cli@latest init --platform native` in the project. It writes `global.css` with the palette above resolved to literal HSL triplets (React Native has no cascade for a `var()` chain), plus the NativeWind Tailwind config, Metro config and Babel config.",
+			);
+			lines.push("");
+		} else {
+			lines.push("## globals.css");
+			lines.push("");
+			lines.push(
+				"Replace your `app/globals.css` (or paste this into it) so every component reads the tokens above.",
+			);
+			lines.push("");
+			lines.push("```css");
+			lines.push(buildGlobalsCss(mergedLight, input.theme.resolved.tokens.dark));
+			lines.push("```");
+			lines.push("");
 
-		lines.push("## tailwind.config.ts");
-		lines.push("");
-		lines.push(
-			"Add to your `theme.extend` so utility classes like `p-4` resolve to your tokens:",
-		);
-		lines.push("");
-		lines.push("```ts");
-		lines.push(buildTailwindConfig(mergedLight));
-		lines.push("```");
-		lines.push("");
+			lines.push("## tailwind.config.ts");
+			lines.push("");
+			lines.push(
+				"Add to your `theme.extend` so utility classes like `p-4` resolve to your tokens:",
+			);
+			lines.push("");
+			lines.push("```ts");
+			lines.push(buildTailwindConfig(mergedLight));
+			lines.push("```");
+			lines.push("");
+		}
 
 		// Design brief — surfaces non-token guidance (typography, motion,
 		// composition, anti-patterns) so the LLM can apply brand intent at
@@ -497,7 +562,6 @@ export function buildAppContext(input: AppContextInput): string {
 	}
 
 	// ─── Components ───
-	const found = input.components.filter((c) => c.item !== null);
 	const missing = input.components.filter((c) => c.item === null).map((c) => c.slug);
 	lines.push(`## Components (${found.length})`);
 	lines.push("");
@@ -505,16 +569,25 @@ export function buildAppContext(input: AppContextInput): string {
 		lines.push(`> Missing: ${missing.map((s) => `\`${s}\``).join(", ")}.`);
 		lines.push("");
 	}
+	if (mixedPlatforms) {
+		lines.push(
+			"> **Mixed platforms.** This list contains both web and React Native components. They cannot run in the same app — the setup and prompt below describe the web target. Request one platform at a time.",
+		);
+		lines.push("");
+	}
 	for (const slot of found) {
 		const item = slot.item as RegistryItem;
 		lines.push(`### ${item.displayName} \`${item.name}\``);
 		lines.push("");
 		lines.push(item.description);
-		// Resolve raw dep paths ("components/popover/popover") to clean slugs
-		// ("popover"). Non-component deps like "lib/utils" return null and drop
-		// out so the LLM context lists only navigable component slugs.
+		// Resolve raw dep paths ("components/popover/popover") to the item that
+		// actually satisfies them. Internal deps name a source path, which is
+		// identical inside a native item and a web one, so the bare slug sends
+		// a reader of a native card to the React DOM Text. Non-component deps
+		// like "lib/utils" resolve to null and drop out, leaving only
+		// navigable item names.
 		const internal = (item.dependencies?.internal ?? [])
-			.map((d) => internalDepToSlug(d))
+			.map((d) => resolveInternalDepForPlatform(d, item.platform === "native" ? "native" : "web", itemExists))
 			.filter((s): s is string => s !== null);
 		if (internal.length > 0) {
 			lines.push("");
@@ -563,7 +636,10 @@ export function buildAppContext(input: AppContextInput): string {
 	lines.push("## Install");
 	lines.push("");
 	lines.push("```bash");
-	lines.push("npx @hex-core/cli@latest init");
+	// `init` without `--platform native` takes the web branch, so a native
+	// component set was told to scaffold a Next.js project and then install
+	// React Native components into it.
+	lines.push(platform === "native" ? "npx @hex-core/cli@latest init --platform native" : "npx @hex-core/cli@latest init");
 	if (installSlugs.length > 0) {
 		lines.push(`npx @hex-core/cli@latest add ${installSlugs.join(" ")}`);
 	}
@@ -573,7 +649,7 @@ export function buildAppContext(input: AppContextInput): string {
 	lines.push("");
 	lines.push("## Context prompt");
 	lines.push("");
-	lines.push(buildContextPrompt(installSlugs));
+	lines.push(buildContextPrompt(installSlugs, platform));
 
 	return lines.join("\n");
 }

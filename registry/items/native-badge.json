@@ -1,0 +1,176 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-badge",
+  "displayName": "Badge",
+  "description": "A small status indicator with multiple style variants. Used for tags, statuses, and categorization.",
+  "category": "primitive",
+  "subcategory": "display",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "Visual style",
+      "enumValues": [
+        "default",
+        "secondary",
+        "destructive",
+        "outline"
+      ]
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    }
+  ],
+  "variants": [
+    {
+      "name": "variant",
+      "description": "Visual style variants",
+      "values": [
+        {
+          "value": "default",
+          "description": "Primary colored badge"
+        },
+        {
+          "value": "secondary",
+          "description": "Muted background badge"
+        },
+        {
+          "value": "destructive",
+          "description": "Red/danger badge"
+        },
+        {
+          "value": "outline",
+          "description": "Bordered badge, no fill"
+        }
+      ],
+      "default": "default"
+    }
+  ],
+  "slots": [
+    {
+      "name": "children",
+      "description": "Badge content text",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/badge.tsx",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { View } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Container styles per variant. */\nexport const badgeVariants = cva(\n\t\"shrink-0 flex-row items-center justify-center gap-1 overflow-hidden rounded-full border border-border px-2 py-0.5\",\n\t{\n\t\tvariants: {\n\t\t\tvariant: {\n\t\t\t\tdefault: \"border-transparent bg-primary\",\n\t\t\t\tsecondary: \"border-transparent bg-secondary\",\n\t\t\t\tdestructive: \"border-transparent bg-destructive\",\n\t\t\t\toutline: \"\",\n\t\t\t},\n\t\t},\n\t\tdefaultVariants: {\n\t\t\tvariant: \"default\",\n\t\t},\n\t},\n);\n\n/** Label styles per variant, published through `TextClassContext`. */\nexport const badgeTextVariants = cva(\"text-xs font-medium\", {\n\tvariants: {\n\t\tvariant: {\n\t\t\tdefault: \"text-primary-foreground\",\n\t\t\tsecondary: \"text-secondary-foreground\",\n\t\t\tdestructive: \"text-destructive-foreground\",\n\t\t\toutline: \"text-foreground\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\tvariant: \"default\",\n\t},\n});\n\n/** Props for {@link Badge}. */\nexport type BadgeProps = ComponentProps<typeof View> & VariantProps<typeof badgeVariants>;\n\n/**\n * A compact status, count or category chip.\n *\n * Purely visual by default. For a badge whose text changes in response to\n * something (a live count, a job status), pass `role=\"status\"` so screen\n * readers announce the update.\n * @param props - {@link BadgeProps}\n * @returns A React Native `View` wrapping the label\n * @example\n * ```tsx\n * <Badge><Text>New</Text></Badge>\n * <Badge variant=\"destructive\"><Text>Failed</Text></Badge>\n * ```\n */\nexport function Badge({ className, variant, ...props }: BadgeProps) {\n\treturn (\n\t\t<TextClassContext.Provider value={badgeTextVariants({ variant })}>\n\t\t\t<View className={cn(badgeVariants({ variant }), className)} {...props} />\n\t\t</TextClassContext.Provider>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "lib/text-context"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "border",
+    "destructive",
+    "destructive-foreground",
+    "foreground",
+    "primary",
+    "primary-foreground",
+    "secondary",
+    "secondary-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Basic usage",
+      "description": "A default badge with a Text label",
+      "code": "<Badge>\n  <Text>New</Text>\n</Badge>",
+      "composition": [
+        "status"
+      ]
+    },
+    {
+      "title": "Variants",
+      "description": "Each variant colours its label automatically",
+      "code": "<View className=\"flex-row flex-wrap gap-2\">\n  <Badge><Text>Default</Text></Badge>\n  <Badge variant=\"secondary\"><Text>Beta</Text></Badge>\n  <Badge variant=\"destructive\"><Text>Failed</Text></Badge>\n  <Badge variant=\"outline\"><Text>Draft</Text></Badge>\n</View>",
+      "composition": [
+        "showcase"
+      ]
+    },
+    {
+      "title": "Next to a heading",
+      "description": "Marking a section as beta",
+      "code": "<View className=\"flex-row items-center gap-2\">\n  <Text variant=\"h3\">API Keys</Text>\n  <Badge variant=\"secondary\"><Text>Beta</Text></Badge>\n</View>",
+      "composition": [
+        "screen-header"
+      ]
+    },
+    {
+      "title": "Live status",
+      "description": "A badge whose text changes needs both accessible and role=\"status\" — the role alone is not enough on React Native, because a plain View is not an accessibility element and is never announced",
+      "code": "<Badge accessible role=\"status\" variant={job.failed ? \"destructive\" : \"secondary\"}>\n  <Text>{job.state}</Text>\n</Badge>",
+      "composition": [
+        "status",
+        "live"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for status indicators, tags, counts and categories. Place next to headings, in list rows, or inside a Card header. Put the label in a Text child so it picks up the variant colour.",
+    "whenNotToUse": "Don't use for tappable actions (use Button, which gives a real touch target). Don't use for long text — a badge is a chip, not a paragraph. Don't use as the only signal of an error state.",
+    "commonMistakes": [
+      "Passing a bare string child — React Native throws 'Text strings must be rendered within a <Text> component'; wrap the label in Text",
+      "Wrapping a Badge in a Pressable to make it tappable — the 20pt height is far below the touch-target minimum; use a Button with size='sm' instead",
+      "Passing role='status' without accessible — unlike the DOM, a React Native View with a role but no accessible flag is not an accessibility element, so VoiceOver and TalkBack never announce the change; pass both",
+      "Using variant='destructive' for a neutral count — reserve it for genuine failure states"
+    ],
+    "relatedComponents": [
+      "native-text",
+      "native-button",
+      "native-card"
+    ],
+    "accessibilityNotes": "Decorative by default: the label is read as ordinary text in reading order. For a badge whose content updates, pass both accessible and role=\"status\" — React Native only exposes a View to assistive tech when accessible is set, so the role by itself announces nothing. Colour alone never carries the meaning; the label text always states it. Every variant's label token is contrast-audited against its background in light and dark.",
+    "tokenBudget": 483
+  },
+  "tags": [
+    "badge",
+    "tag",
+    "status",
+    "label",
+    "indicator",
+    "native",
+    "react-native"
+  ]
+}

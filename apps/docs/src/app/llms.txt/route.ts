@@ -9,7 +9,7 @@ export const dynamic = "force-static";
 /**
  * The llmstxt.org agent index: what Hex is, where the docs are, which
  * machine endpoints exist, and the recipe list. Deliberately compact — the
- * 187-item catalog lives at `/registry.json` and `/llms-full.txt`.
+ * 213-item catalog lives at `/registry.json` and `/llms-full.txt`.
  * @returns llms.txt as `text/plain`
  */
 export function GET(): Response {

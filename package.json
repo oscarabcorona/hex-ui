@@ -22,7 +22,9 @@
 		"clean": "turbo clean",
 		"changeset": "changeset",
 		"version": "changeset version && pnpm install --lockfile-only",
-		"release": "changeset publish"
+		"release": "changeset publish",
+		"smoke:native": "./scripts/smoke-native.sh",
+		"native:screens": "tsx scripts/native-screens.ts"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.11.3",
@@ -42,6 +44,8 @@
 		"jsdom": "catalog:",
 		"playwright": "^1.62.1",
 		"prettier": "^3.8.3",
+		"react": "19.2.5",
+		"react-dom": "19.2.5",
 		"tsx": "catalog:",
 		"turbo": "^2.3.0",
 		"typescript": "catalog:",

@@ -461,6 +461,20 @@ export async function migrateProject(options: MigrateOptions): Promise<void> {
 	}
 
 	const framework = detectFramework(cwd);
+
+	// shadcn/ui is a React DOM library, and every replacement this command
+	// writes is a web component. Running it inside an Expo or React Native
+	// project would file-replace `components/ui/*.tsx` with markup that does
+	// not render there, which Metro reports as a wall of unrelated errors.
+	if (framework.platform === "native") {
+		console.error(`Detected ${framework.label}, and hex migrate only converts React DOM projects.`);
+		console.error("shadcn/ui has no React Native build, so there is nothing here to convert from.");
+		console.error("To set up this project instead:");
+		console.error("  hex init --platform native");
+		console.error("  hex add button");
+		process.exit(1);
+	}
+
 	const shadcn = detectShadcn(cwd, framework);
 	const pm = detectPackageManager(cwd);
 

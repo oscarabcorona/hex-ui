@@ -9,19 +9,23 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 // while every comment claimed the three agreed. Naming it is what makes the
 // claim survive the next major.
 import { encode } from "gpt-tokenizer/encoding/cl100k_base";
+import { defaultTheme } from "@hex-core/tokens";
 import {
 	componentSchemaDefinition,
 	recipeSchemaDefinition,
+	isNativeSlug,
+	toNativeSlug,
 	type ComponentSchemaDefinition,
+	type Platform,
 	type RecipeChecklistItem,
 } from "@hex-core/registry";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const COMPONENTS_SRC = path.join(ROOT, "packages/components/src");
+const NATIVE_SRC = path.join(ROOT, "packages/native/src");
 const REGISTRY_OUT = path.join(ROOT, "registry");
 const ITEMS_OUT = path.join(REGISTRY_OUT, "items");
-const LIB_DIR = path.join(COMPONENTS_SRC, "lib");
 const RECIPES_SRC = path.join(ROOT, "packages/registry/src/recipes");
 const RECIPES_OUT = path.join(REGISTRY_OUT, "recipes");
 
@@ -31,16 +35,34 @@ fs.mkdirSync(RECIPES_OUT, { recursive: true });
 
 interface SchemaFile {
 	category: string;
+	/**
+	 * The directory name — the unprefixed slug. This is also the file name
+	 * the item ships as (`components/ui/<name>.tsx`), for web and native
+	 * alike: a native project has no web `button.tsx` to collide with, and
+	 * `rewriteRegistryImports` resolves `../button/button.js` to
+	 * `@/components/ui/button` either way. Only the registry item's `name`
+	 * carries the `native-` prefix.
+	 */
 	name: string;
+	platform: Platform;
 	schemaPath: string;
 	/** `null` for schema-only roots whose runtime ships from a sibling npm package. */
 	componentPath: string | null;
+	/** Shared `lib/*.ts` files every item from this root bundles. */
+	libFiles: RegistryFile[];
 }
 
 /**
- * Discover all component schema files across category directories.
- * @returns An array of schema file descriptors with category, name, and file paths
+ * A package whose `src/<category>/<slug>/` folders each hold a
+ * `<slug>.schema.ts` and a `<slug>.tsx` the registry copies into consumers.
  */
+interface SourceRoot {
+	src: string;
+	platform: Platform;
+	/** Filesystem directory → category key. */
+	categories: Record<string, string>;
+}
+
 /**
  * Filesystem-directory → category-key map for the components package
  * (each entry is a per-component subdirectory containing `<name>.schema.ts`
@@ -54,6 +76,27 @@ const CATEGORY_DIR_TO_KEY = {
 	ai: "ai",
 	artifacts: "artifact",
 } as const;
+
+/**
+ * The native package ships primitives, components and AI Kit ports. Blocks
+ * and artifacts stay web-only: the former compose page sections around DOM
+ * layout, the latter drive canvas and terminal APIs.
+ */
+const NATIVE_CATEGORY_DIR_TO_KEY = {
+	primitives: "primitive",
+	components: "component",
+	ai: "ai",
+} as const;
+
+/**
+ * Every root the registry scans, in emit order. A root that does not exist
+ * on disk is skipped, so the native package can land after this script
+ * already knows about it.
+ */
+const SOURCE_ROOTS: SourceRoot[] = [
+	{ src: COMPONENTS_SRC, platform: "web", categories: CATEGORY_DIR_TO_KEY },
+	{ src: NATIVE_SRC, platform: "native", categories: NATIVE_CATEGORY_DIR_TO_KEY },
+];
 
 /**
  * Schema-only roots — packages that ship their runtime as a publishable
@@ -73,30 +116,42 @@ const SCHEMA_ONLY_ROOTS: Array<{ dir: string; category: string }> = [
 	{ dir: path.join(COMPONENTS_SRC, "hooks/schemas"), category: "hook" },
 ];
 
+/**
+ * Discover all component schema files across every source root and the
+ * schema-only roots.
+ * @returns An array of schema file descriptors with category, name, platform and file paths
+ */
 function findSchemaFiles(): SchemaFile[] {
 	const results: SchemaFile[] = [];
 
 	// Component roots — each schema has a sibling .tsx the registry copies.
-	for (const [dirName, categoryKey] of Object.entries(CATEGORY_DIR_TO_KEY)) {
-		const categoryDir = path.join(COMPONENTS_SRC, dirName);
-		if (!fs.existsSync(categoryDir)) continue;
+	for (const root of SOURCE_ROOTS) {
+		if (!fs.existsSync(root.src)) continue;
+		const libFiles = readLibFiles(path.join(root.src, "lib"));
 
-		// Sorted: readdir order is filesystem-dependent (APFS vs ext4), and
-		// this order reaches the committed registry/. CI diffs that artifact.
-		for (const componentDir of fs.readdirSync(categoryDir).sort()) {
-			const fullDir = path.join(categoryDir, componentDir);
-			if (!fs.statSync(fullDir).isDirectory()) continue;
+		for (const [dirName, categoryKey] of Object.entries(root.categories)) {
+			const categoryDir = path.join(root.src, dirName);
+			if (!fs.existsSync(categoryDir)) continue;
 
-			const schemaFile = path.join(fullDir, `${componentDir}.schema.ts`);
-			const componentFile = path.join(fullDir, `${componentDir}.tsx`);
+			// Sorted: readdir order is filesystem-dependent (APFS vs ext4), and
+			// this order reaches the committed registry/. CI diffs that artifact.
+			for (const componentDir of fs.readdirSync(categoryDir).sort()) {
+				const fullDir = path.join(categoryDir, componentDir);
+				if (!fs.statSync(fullDir).isDirectory()) continue;
 
-			if (fs.existsSync(schemaFile) && fs.existsSync(componentFile)) {
-				results.push({
-					category: categoryKey,
-					name: componentDir,
-					schemaPath: schemaFile,
-					componentPath: componentFile,
-				});
+				const schemaFile = path.join(fullDir, `${componentDir}.schema.ts`);
+				const componentFile = path.join(fullDir, `${componentDir}.tsx`);
+
+				if (fs.existsSync(schemaFile) && fs.existsSync(componentFile)) {
+					results.push({
+						category: categoryKey,
+						name: componentDir,
+						platform: root.platform,
+						schemaPath: schemaFile,
+						componentPath: componentFile,
+						libFiles,
+					});
+				}
 			}
 		}
 	}
@@ -110,8 +165,10 @@ function findSchemaFiles(): SchemaFile[] {
 			results.push({
 				category: root.category,
 				name,
+				platform: "web",
 				schemaPath: path.join(root.dir, file),
 				componentPath: null,
+				libFiles: [],
 			});
 		}
 	}
@@ -216,18 +273,87 @@ function deriveTokenBudget(
 }
 
 /**
- * Read all TypeScript lib files from the shared lib directory.
+ * Colour-ish token names, longest first so `primary-foreground` is matched
+ * before `primary`. Read from the live theme rather than hardcoded, and
+ * filtered to the tokens that appear as Tailwind colour utilities — spacing,
+ * font and duration scales are consumed as `p-4` / `text-sm`, which say
+ * nothing about which semantic colour a component paints with.
+ */
+const COLOUR_TOKENS: string[] = Object.entries(defaultTheme.tokens.light)
+	.filter(([, token]) => extractTokenType(token) === "color")
+	.map(([key]) => key)
+	.sort((a, b) => b.length - a.length);
+
+/** Utility prefixes that take a colour token in Tailwind. */
+const COLOUR_UTILITIES = ["bg", "text", "border", "from", "via", "to", "fill", "stroke", "ring", "shadow", "decoration", "outline", "accent", "caret", "divide", "placeholder"];
+
+/**
+ * Read the `type` off a theme token without asserting its shape.
+ * @param token - A token value from a theme's token set
+ * @returns The token's declared type, when it has one
+ */
+function extractTokenType(token: unknown): string | undefined {
+	if (typeof token === "object" && token !== null && "type" in token) {
+		const { type } = token;
+		return typeof type === "string" ? type : undefined;
+	}
+	return undefined;
+}
+
+/**
+ * Derive the semantic colour tokens a component actually paints with, by
+ * reading its source.
+ *
+ * Only used for React Native items. `deriveNativeSchema` inherits
+ * `tokensUsed` from the web schema by default, and every derived schema took
+ * it verbatim — so 13 native items advertised the `ring` token that no native
+ * file uses (there is no focus ring on touch), while `native-message`
+ * advertised `accent` and omitted the `primary` its user bubble is painted
+ * with. A themer following that list leaves the real tokens undefined.
+ *
+ * Deliberately NOT applied to web items: their lists are hand-curated, and
+ * re-deriving them would rewrite the committed web catalog.
+ * @param files - The item's emitted files
+ * @returns Sorted token names the source references
+ */
+function deriveTokensUsed(files: readonly RegistryFile[]): string[] {
+	const source = files
+		.filter((f) => f.type !== "lib" && /\.tsx?$/.test(f.path))
+		.map((f) => f.content)
+		.join("\n");
+	const found = new Set<string>();
+	for (const token of COLOUR_TOKENS) {
+		for (const utility of COLOUR_UTILITIES) {
+			// A trailing `\b` is NOT enough: the boundary between `d` and `-`
+			// is a word boundary, so `\btext-muted\b` matches inside
+			// `text-muted-foreground` and five items shipped a `muted` they
+			// never paint with. The negated class is what actually stops the
+			// prefix match, and it also keeps `shadow-black/5` from matching.
+			if (new RegExp(`\\b${utility}-${token}(?![\\w-])`).test(source)) {
+				found.add(token);
+				break;
+			}
+		}
+		// Direct CSS-variable reads, e.g. inside a style object.
+		if (new RegExp(`--${token}(?![\\w-])`).test(source)) found.add(token);
+	}
+	return [...found].sort();
+}
+
+/**
+ * Read all TypeScript lib files from a source root's shared lib directory.
+ * @param libDir - Absolute path to the root's `lib/` directory
  * @returns An array of file descriptors with relative path, content, and type "lib"
  */
-function readLibFiles(): Array<{ path: string; content: string; type: string }> {
-	const files: Array<{ path: string; content: string; type: string }> = [];
-	if (!fs.existsSync(LIB_DIR)) return files;
+function readLibFiles(libDir: string): RegistryFile[] {
+	const files: RegistryFile[] = [];
+	if (!fs.existsSync(libDir)) return files;
 
-	for (const file of fs.readdirSync(LIB_DIR).sort()) {
+	for (const file of fs.readdirSync(libDir).sort()) {
 		if (file.endsWith(".ts") || file.endsWith(".tsx")) {
 			files.push({
 				path: `lib/${file}`,
-				content: fs.readFileSync(path.join(LIB_DIR, file), "utf-8"),
+				content: fs.readFileSync(path.join(libDir, file), "utf-8"),
 				type: "lib",
 			});
 		}
@@ -499,7 +625,6 @@ function resolveSourceFile(fromDir: string, spec: string): string | null {
 console.log("Building Hex Core registry...\n");
 
 const schemaFiles = findSchemaFiles();
-const libFiles = readLibFiles();
 
 interface RegistryIndexItem {
 	name: string;
@@ -507,6 +632,8 @@ interface RegistryIndexItem {
 	description: string;
 	category: string;
 	subcategory?: string;
+	/** Present only for native items; web is the default and stays unemitted. */
+	platform?: Platform;
 	tags: string[];
 	internalDeps: string[];
 	tokenBudget?: number;
@@ -546,6 +673,26 @@ for (const sf of schemaFiles) {
 	}
 	const schema: ComponentSchemaDefinition = parsed.data;
 
+	// The folder decides the platform and the item name follows from it:
+	// `packages/native/src/primitives/button/` must export `native-button`.
+	// Anything else is a schema copied between packages without its name
+	// or platform updated, which would silently overwrite the web item.
+	const expectedName = sf.platform === "native" ? toNativeSlug(sf.name) : sf.name;
+	if (schema.name !== expectedName) {
+		console.error(
+			`  ERROR: ${path.relative(ROOT, sf.schemaPath)} exports name "${schema.name}" but its folder requires "${expectedName}"`,
+		);
+		continue;
+	}
+	// Absent means web — the same rule the emitted JSON follows.
+	const declaredPlatform: Platform = schema.platform ?? "web";
+	if (declaredPlatform !== sf.platform) {
+		console.error(
+			`  ERROR: ${path.relative(ROOT, sf.schemaPath)} declares platform "${declaredPlatform}" but lives in a "${sf.platform}" root`,
+		);
+		continue;
+	}
+
 	// Schema-only items (motion) ship no source files — the runtime lives in
 	// a sibling npm package declared via `dependencies.npm`. Component-source
 	// items copy their `.tsx` plus discovered dependency files plus libs.
@@ -566,11 +713,16 @@ for (const sf of schemaFiles) {
 							type: "component",
 						},
 						...dependencyFiles,
-						...libFiles,
+						...sf.libFiles,
 					];
 				})();
 
 	const ai = { ...schema.ai, tokenBudget: deriveTokenBudget(itemFiles, schema.ai.tokenBudget) };
+
+	// `platform` is emitted only when it is not the default, so every
+	// existing web item stays byte-identical. Readers of the raw JSON treat
+	// a missing field as "web"; the Zod schema fills the default on parse.
+	const platformField = declaredPlatform === "native" ? { platform: declaredPlatform } : {};
 
 	// Build the registry item
 	const registryItem = {
@@ -582,19 +734,23 @@ for (const sf of schemaFiles) {
 		subcategory: schema.subcategory,
 		version: "0.1.0",
 		framework: "react" as const,
+		...platformField,
 		props: schema.props,
 		variants: schema.variants,
 		slots: schema.slots,
 		files: itemFiles,
 		dependencies: schema.dependencies,
-		tokensUsed: schema.tokensUsed,
+		// Native items derive this from their own source; see deriveTokensUsed.
+		tokensUsed: declaredPlatform === "native" && itemFiles.length > 0 ? deriveTokensUsed(itemFiles) : schema.tokensUsed,
 		examples: schema.examples,
 		ai,
 		tags: schema.tags,
 	};
 
-	// Write individual registry item
-	const itemPath = path.join(ITEMS_OUT, `${sf.name}.json`);
+	// Write individual registry item, keyed by the item name (which carries
+	// the `native-` prefix) rather than the folder name, so `native-button`
+	// and `button` never share a file.
+	const itemPath = path.join(ITEMS_OUT, `${schema.name}.json`);
 	fs.writeFileSync(itemPath, JSON.stringify(registryItem, null, 2));
 	console.log(`  → ${path.relative(ROOT, itemPath)}`);
 
@@ -604,6 +760,7 @@ for (const sf of schemaFiles) {
 		description: schema.description,
 		category: schema.category,
 		subcategory: schema.subcategory,
+		...platformField,
 		tags: schema.tags,
 		internalDeps: schema.dependencies.internal,
 		tokenBudget: ai.tokenBudget,
@@ -741,6 +898,14 @@ if (fs.existsSync(RECIPES_SRC)) {
 			}
 		}
 
+		// Derived, not declared: a recipe's platform is a fact about the items
+		// it installs, and asking an author to keep a second copy of that in
+		// sync is how the two drift. Emitted only when native, so every
+		// existing web recipe file stays byte-identical.
+		const recipePlatform = referencedSlugs.length > 0 && referencedSlugs.every(isNativeSlug)
+			? ("native" as const)
+			: undefined;
+
 		const compiled = {
 			$schema: "https://hex-core.dev/schema/recipe.json",
 			slug: recipe.slug,
@@ -757,6 +922,7 @@ if (fs.existsSync(RECIPES_SRC)) {
 			checklist: [...recipe.checklist, ...derived],
 			example: recipe.example,
 			tokenBudget: recipe.tokenBudget,
+			platform: recipePlatform,
 		};
 
 		const outPath = path.join(RECIPES_OUT, `${recipe.slug}.json`);
@@ -772,6 +938,7 @@ if (fs.existsSync(RECIPES_SRC)) {
 			tags: recipe.tags,
 			components: referencedSlugs,
 			tokenBudget: recipe.tokenBudget,
+			platform: recipePlatform,
 		});
 	}
 }

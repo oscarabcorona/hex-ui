@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseMap, type RegistryItem } from "@hex-core/payload";
-import { internalDepToSlug, SLUG_REGEX } from "@hex-core/registry";
+import { resolveInternalDepForPlatform, SLUG_REGEX } from "@hex-core/registry";
 import pc from "picocolors";
 import { z } from "zod";
 import {
@@ -9,8 +9,10 @@ import {
 	promptHeavyPeers,
 	type PendingHeavyPeer,
 } from "../lib/heavy-peer-prompt.js";
+import type { PlatformKind } from "../lib/detect-framework.js";
 import { detectPackageManager } from "../lib/package-manager.js";
 import { printSkillsHint } from "../lib/post-install.js";
+import { resolvePlatform, resolveSlugForPlatform } from "../lib/resolve-platform.js";
 import { resolveAlias } from "../lib/resolve-alias.js";
 import { type AliasConfig, DEFAULT_ALIASES, rewriteRegistryImports } from "../lib/rewrite-imports.js";
 import { findRegistryDir } from "../lib/registry-dir.js";
@@ -21,6 +23,24 @@ import { withSpinner } from "../lib/spinner.js";
  * Layout primitives covered by `hex add --pack layout` and used by the post-install nudge to detect whether the consumer has at least one composition primitive installed. Strict subset of the `app-shell` recipe (`packages/registry/src/recipes/app-shell.recipe.ts`) — six primitives most projects need, while the recipe is the wider 12-primitive blueprint. Kept inline (not a registry field) so the CLI can decide its UX surface independently of any one schema.
  */
 const LAYOUT_PACK = ["container", "stack", "cluster", "grid", "spacer", "empty"] as const;
+
+/**
+ * The `components/ui/*` path a registry item writes, rooted at the project.
+ *
+ * Read from the item, never composed from its slug: the two diverge on
+ * native, where `native-text` installs `components/ui/text.tsx`.
+ * @param ctx - Shared add context, for the registry dir and alias resolution
+ * @param slug - A registry item name
+ * @returns The cwd-relative path, or null when the item has no component file
+ */
+function mainComponentPathFor(ctx: Context, slug: string): string | null {
+	const item = readItem(path.join(ctx.registryDir, "items"), slug) as
+		| { files?: { path: string }[] }
+		| null;
+	const file = item?.files?.find((f) => f.path.startsWith("components/ui/"));
+	if (!file) return null;
+	return path.relative(ctx.cwd, resolveWritePath(ctx.cwd, ctx.aliases, file.path));
+}
 
 /**
  * Slugs already on disk under the consumer's `components/ui/` alias.
@@ -110,13 +130,26 @@ function printRelatedPrimitivesHint(ctx: Context, runSlugs: Iterable<string>): v
 			// Validate the candidate is a real registry slug. A schema typo
 			// would otherwise reach the user as `hex add stacks` and error
 			// on the very next command they run.
-			if (!readItem(itemsDir, candidate)) continue;
+			const item = readItem(itemsDir, candidate) as { platform?: string } | null;
+			if (!item) continue;
+			// And a real slug *for this project*. A web item's related list is
+			// full of web slugs, so a refused `hex add data-table` in an Expo
+			// app was following its own error with "try `hex add pagination`",
+			// which is refused for exactly the same reason.
+			if ((item.platform ?? "web") !== ctx.platform) continue;
 			suggestions.add(candidate);
 		}
 	}
 	const onDisk = listInstalledSlugs(ctx);
 	for (const slug of runSet) suggestions.delete(slug);
-	for (const slug of onDisk) suggestions.delete(slug);
+	// Native items ship unprefixed (`text.tsx`), so the on-disk slug is
+	// `text` while the registry name is `native-text`. Deleting only the bare
+	// slug left the component the user had just installed sitting in its own
+	// "you might want next" list.
+	for (const slug of onDisk) {
+		suggestions.delete(slug);
+		if (ctx.platform === "native") suggestions.delete(`native-${slug}`);
+	}
 	if (suggestions.size === 0) return;
 	const ordered = [...suggestions].sort();
 	const capped = ordered.slice(0, 8);
@@ -132,6 +165,9 @@ function printRelatedPrimitivesHint(ctx: Context, runSlugs: Iterable<string>): v
  * project has stack/grid/container, the nudge stays quiet forever.
  */
 function printLayoutPackNudge(ctx: Context, runSlugs: Iterable<string>): void {
+	// The layout pack is web-only — a React Native app composes with `View`
+	// and gap classes, and none of these six have a native port to suggest.
+	if (ctx.platform === "native") return;
 	const runSet = new Set(runSlugs);
 	const onDisk = listInstalledSlugs(ctx);
 	const haveLayout = LAYOUT_PACK.some((slug) => runSet.has(slug) || onDisk.has(slug));
@@ -166,6 +202,11 @@ export interface AddOptions {
 	dryRun?: boolean;
 	/** Optional path to a `hex.components.json`-style manifest. If set, the manifest's `components` array seeds the queue. */
 	from?: string;
+	/**
+	 * Force a render target instead of asking the project. Without it the
+	 * platform comes from `hex.config.json`, then from framework detection.
+	 */
+	platform?: PlatformKind;
 }
 
 const ManifestSchema = z
@@ -190,6 +231,8 @@ interface Context {
 	pendingHeavyPeers: Map<string, PendingHeavyPeer>;
 	/** Files that would be written (in dry-run) or were written. Cwd-relative for stable display. */
 	plannedWrites: string[];
+	/** Render target for this run; items of the other platform are refused. */
+	platform: PlatformKind;
 }
 
 /**
@@ -299,6 +342,25 @@ function installOne(name: string, ctx: Context): string[] | null {
 		console.error(`Component "${name}" not found.`);
 		return null;
 	}
+
+	// Refuse to write a component built for the other renderer. Without this,
+	// asking a React Native project for a component with no native port
+	// installs the React DOM one — it copies cleanly, then fails at runtime
+	// with an error pointing at the component rather than at this decision.
+	const itemPlatform = item.platform ?? "web";
+	if (itemPlatform !== ctx.platform) {
+		const other = ctx.platform === "native" ? "web" : "React Native";
+		console.error(
+			`Component "${name}" is a ${other} component; this project is ${ctx.platform === "native" ? "React Native" : "web"}.`,
+		);
+		console.error(
+			ctx.platform === "native"
+				? `  No native port exists yet. Run \`hex list --platform native\` to see what does.`
+				: `  Pass --platform native if this really is a React Native project.`,
+		);
+		return null;
+	}
+
 	console.log(`\nAdding ${pc.bold(item.displayName)}...`);
 
 	const cwdPrefix = ctx.cwd.endsWith(path.sep) ? ctx.cwd : ctx.cwd + path.sep;
@@ -413,12 +475,23 @@ function installOne(name: string, ctx: Context): string[] | null {
 	// state means `--no-deps` warnings stay accurate across re-runs and also
 	// matches what `verify_checklist` reports.
 	const internalSlugs: string[] = [];
+	const itemsDir = path.join(ctx.registryDir, "items");
 	for (const dep of (deps.internal ?? []) as string[]) {
-		const depSlug = internalDepToSlug(dep);
+		// Resolve against the DECLARING item's platform, not the project's.
+		// Internal deps name a source path, which is identical inside a native
+		// item and a web one, so the bare slug would point at the wrong
+		// renderer's component.
+		const depSlug = resolveInternalDepForPlatform(
+			dep,
+			item.platform === "native" ? "native" : "web",
+			(name) => readItem(itemsDir, name) !== null,
+		);
 		if (!depSlug) {
-			// `lib/utils` is the conventional ref to the shared util module, not
-			// a component slug — exempt so the warning stays signal, not noise.
-			if (dep && dep !== "lib/utils") {
+			// A `lib/` ref names a shared module (`lib/utils`, and on native
+			// `lib/text-context`), not a component slug. Those ship as
+			// `type: "lib"` files alongside the item, so there is nothing to
+			// resolve — exempt the whole prefix and keep the warning signal.
+			if (dep && !dep.startsWith("lib/")) {
 				console.warn(
 					`  Warning: ignoring unrecognized internal dep "${dep}" — expected "primitives/<slug>/<slug>", "components/<slug>/<slug>", or "blocks/<slug>/<slug>".`,
 				);
@@ -459,12 +532,36 @@ export async function addComponents(components: string[], options: AddOptions): 
 		console.error("Pass either positional component names or --from <manifest>, not both.");
 		process.exit(1);
 	}
-	const queue: string[] = options.from ? readManifest(cwd, options.from) : [...components];
+	const requested: string[] = options.from ? readManifest(cwd, options.from) : [...components];
+
+	// A React Native project holds one platform, so `hex add button` there
+	// means `native-button`. Internal deps are declared as *source paths*
+	// (`primitives/text/text`), which resolve to the unprefixed slug, so the
+	// same mapping has to run again on every transitive dep below.
+	const { platform, source, label } = resolvePlatform(cwd, options.platform);
+	const itemsDir = path.join(registryDir, "items");
+	const itemExists = (name: string): boolean => readItem(itemsDir, name) !== null;
+	const queue: string[] = [];
+	const rewrites: Array<{ from: string; to: string }> = [];
+	for (const name of requested) {
+		const resolved = resolveSlugForPlatform(name, platform, itemExists);
+		queue.push(resolved.slug);
+		if (resolved.rewritten) rewrites.push({ from: name, to: resolved.slug });
+	}
+	if (rewrites.length > 0) {
+		const detail = source === "flag" ? "--platform native" : source === "config" ? "hex.config.json" : label;
+		console.log(
+			pc.dim(`Native project (${detail}) — installing ${rewrites.map((r) => r.to).join(", ")}.`),
+		);
+	}
+
 	// Snapshot of the direct asks for post-install nudges. Transitive deps
 	// arrive via the queue walker and end up in `ctx.visited`, but the
-	// "Related primitives" + layout-pack hints should reflect what the
-	// user typed (or the manifest declared), not the dep graph.
+	// "Related primitives" + layout-pack hints should reflect what the user
+	// asked for (after platform resolution), not the dep graph.
 	const directAsks = new Set(queue);
+
+
 
 	const ctx: Context = {
 		registryDir,
@@ -476,16 +573,25 @@ export async function addComponents(components: string[], options: AddOptions): 
 		postInstallHints: new Set(),
 		pendingHeavyPeers: new Map(),
 		plannedWrites: [],
+		platform,
 	};
 
 	const pendingDeps: string[] = [];
+	// Items the user asked for by name that could not be installed — unknown
+	// slug, or built for the other renderer. Printing the reason and then
+	// exiting 0 made `hex add a && hex add b` march straight past a refusal,
+	// and any CI step wrapping the command saw a success.
+	const failedAsks: string[] = [];
 
 	while (queue.length > 0) {
 		const name = queue.shift();
 		if (!name) continue;
 
 		const internalDeps = installOne(name, ctx);
-		if (internalDeps === null) continue;
+		if (internalDeps === null) {
+			if (directAsks.has(name)) failedAsks.push(name);
+			continue;
+		}
 
 		if (options.deps) {
 			// Transitive install: queue missing internal deps for the same pass.
@@ -501,10 +607,14 @@ export async function addComponents(components: string[], options: AddOptions): 
 		// Disk-aware filter at warning time: the user only wants to know about
 		// deps that aren't already present in their project. installOne returned
 		// the full registry list; now we narrow to actually-missing slugs.
-		const componentsRoot = resolveAlias(ctx.cwd, ctx.aliases.components);
 		const missingOnDisk = Array.from(new Set(pendingDeps)).filter((slug) => {
-			const p = path.join(componentsRoot, "ui", `${slug}.tsx`);
-			return !fs.existsSync(p);
+			// The registry NAME is `native-text`; the file it writes is
+			// `text.tsx`. Composing the path from the slug meant `hex add card`
+			// warned that `native-text` was "not yet installed" on the very run
+			// that wrote it — and would keep saying so forever.
+			const relative = mainComponentPathFor(ctx, slug);
+			if (!relative) return false;
+			return !fs.existsSync(path.join(ctx.cwd, relative));
 		});
 		if (missingOnDisk.length > 0) {
 			console.log(
@@ -588,6 +698,13 @@ export async function addComponents(components: string[], options: AddOptions): 
 	if (options.dryRun) {
 		console.log(`\n${pc.cyan(`Dry-run summary:`)} ${ctx.plannedWrites.length} file${ctx.plannedWrites.length === 1 ? "" : "s"} would be written, ${ctx.pendingNpmDeps.size} dep${ctx.pendingNpmDeps.size === 1 ? "" : "s"} would be installed.`);
 		console.log(pc.dim(`(Re-run without --dry-run to apply.)`));
+	}
+
+	// Exit non-zero when something the user named could not be installed.
+	// Deliberately last, so the hints above still print and the user sees
+	// what to do next rather than a bare failure.
+	if (failedAsks.length > 0) {
+		process.exit(1);
 	}
 }
 

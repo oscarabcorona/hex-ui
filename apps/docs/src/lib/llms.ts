@@ -119,7 +119,7 @@ export function buildLlmsFullTxt(input: LlmsFullInput): string {
 	push("## Catalog");
 	push();
 	push(
-		`Install any item with \`${input.installCommand("<slug>")}\` or \`npx shadcn@latest add ${input.namespace}/<slug>\`. Component docs live at ${input.siteUrl}/docs/components/<slug>.`,
+		`Install any item with \`${input.installCommand("<slug>")}\` or \`npx shadcn@latest add ${input.namespace}/<slug>\`. Web component docs live at ${input.siteUrl}/docs/components/<slug>. Items in the "React Native" groups below are documented at ${input.siteUrl}/native/<name>, using the full \`native-\` prefixed name — they do not render in a browser.`,
 	);
 	for (const group of input.catalog) {
 		push();

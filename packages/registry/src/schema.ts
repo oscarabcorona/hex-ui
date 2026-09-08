@@ -186,6 +186,29 @@ export const categoryEnum = z.enum([
 
 export type Category = z.infer<typeof categoryEnum>;
 
+// ─── Platform Enum ───
+
+/**
+ * Render target of a registry item.
+ *
+ * `framework` answers "which UI framework" (React, and one day maybe
+ * others); `platform` answers "which renderer" — React DOM or React Native.
+ * A native item is still React, so `framework` stays `"react"` and only
+ * this axis changes.
+ *
+ * Defaults to `"web"`, and the registry build **omits** the field from the
+ * emitted JSON when it is the default, so the existing web catalog is
+ * byte-identical. Parse through the Zod schema to get the default filled;
+ * consumers reading raw JSON must treat a missing field as `"web"`.
+ *
+ * Native items are named `native-<slug>` — the name is the key every
+ * consumer already uses, and the prefix keeps `native-button` from
+ * colliding with `button` without teaching any of them a compound key.
+ */
+export const platformEnum = z.enum(["web", "native"]);
+
+export type Platform = z.infer<typeof platformEnum>;
+
 // ─── Registry Item (the core schema) ───
 
 export const registryItemSchema = z.object({
@@ -197,6 +220,7 @@ export const registryItemSchema = z.object({
 	subcategory: z.string().optional(),
 	version: z.string().default("0.1.0"),
 	framework: z.enum(["react", "vue", "svelte"]).default("react"),
+	platform: platformEnum.default("web"),
 
 	// Machine-readable component spec
 	props: z.array(propSchema).default([]),
@@ -243,6 +267,7 @@ export const registryIndexItemSchema = z.object({
 	description: z.string(),
 	category: categoryEnum,
 	subcategory: z.string().optional(),
+	platform: platformEnum.default("web"),
 	tags: z.array(z.string()),
 	internalDeps: z.array(z.string()).default([]),
 	tokenBudget: z.number().optional(),
@@ -666,6 +691,14 @@ export const componentSchemaDefinition = z.object({
 	description: z.string(),
 	category: categoryEnum,
 	subcategory: z.string().optional(),
+	/**
+	 * Render target. `.optional()` rather than `.default("web")` on purpose:
+	 * every existing `.schema.ts` annotates itself with the *output* type
+	 * {@link ComponentSchemaDefinition}, where a defaulted field is required,
+	 * so defaulting here would force `platform: "web"` into 159 web schemas
+	 * to say what absence already says. Read it as `platform ?? "web"`.
+	 */
+	platform: platformEnum.optional(),
 	props: z.array(propSchema).default([]),
 	variants: z.array(variantSchema).default([]),
 	slots: z.array(slotSchema).default([]),

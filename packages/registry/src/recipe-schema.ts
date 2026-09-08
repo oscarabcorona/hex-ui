@@ -26,6 +26,43 @@ export function internalDepToSlug(dep: string): string | null {
 }
 
 /**
+ * Resolve an internal dependency to the item that satisfies it **for the
+ * platform of the item that declared it**.
+ *
+ * Internal deps name a *source path* (`primitives/text/text`), which is the
+ * same inside a native item as inside a web one — so
+ * {@link internalDepToSlug} alone yields the unprefixed slug and every
+ * caller then looks up the wrong item. On a native owner that is either a
+ * miss (`text` does not exist) or, worse, a hit on the React DOM component
+ * of the same name.
+ *
+ * Every consumer of a registry item's `dependencies.internal` must go
+ * through this: the CLI installer, the graph builder, and the MCP tools
+ * that report install closures.
+ * @param dep - Raw internal dependency path from a registry item
+ * @param ownerPlatform - Platform of the item that declared the dep
+ * @param exists - Whether a given item name is in the catalog
+ * @returns The item name to install, or null when the dep names no item
+ */
+export function resolveInternalDepForPlatform(
+	dep: string,
+	ownerPlatform: "web" | "native",
+	exists: (name: string) => boolean,
+): string | null {
+	const slug = internalDepToSlug(dep);
+	if (slug === null) return null;
+	if (ownerPlatform === "native") {
+		const native = `native-${slug}`;
+		if (exists(native)) return native;
+		// Fall through to the bare slug only when it really is in the
+		// catalog — a native item depending on a web-only component is a
+		// packaging error, and returning null lets the caller report it.
+		return exists(slug) ? slug : null;
+	}
+	return exists(slug) ? slug : null;
+}
+
+/**
  * One ordered step inside a recipe. Each step points at an existing component
  * slug in the registry; the resolver rejects recipes that reference unknown
  * slugs so a compiled recipe can never drift from the component catalog.
@@ -166,6 +203,12 @@ export const recipeSchema = z.object({
 	checklist: z.array(recipeChecklistItemSchema),
 	example: z.string().optional(),
 	tokenBudget: z.number().optional(),
+	/**
+	 * Render target, derived from the steps by the registry build. Optional
+	 * and omitted when `"web"`, so the existing recipe files stay
+	 * byte-identical.
+	 */
+	platform: z.enum(["web", "native"]).optional(),
 });
 
 export type Recipe = z.infer<typeof recipeSchema>;
@@ -185,6 +228,8 @@ export const recipeIndexItemSchema = z.object({
 	tags: z.array(z.string()),
 	components: z.array(z.string()),
 	tokenBudget: z.number().optional(),
+	/** Render target; omitted for web recipes. See {@link recipeSchema}. */
+	platform: z.enum(["web", "native"]).optional(),
 });
 
 export type RecipeIndexItem = z.infer<typeof recipeIndexItemSchema>;

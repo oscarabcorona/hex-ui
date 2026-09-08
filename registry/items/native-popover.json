@@ -1,0 +1,124 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-popover",
+  "displayName": "Popover",
+  "description": "A small panel anchored to the control that opened it. Uncontrolled on native — the trigger owns the open state — and it renders through a PortalHost, closing on an outside tap.",
+  "category": "component",
+  "subcategory": "overlay",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "onOpenChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback on open state change: (open: boolean) => void"
+    },
+    {
+      "name": "portalHost",
+      "type": "string",
+      "required": false,
+      "description": "Name of the PortalHost to render into. Only needed when the app mounts more than one."
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "PopoverTrigger + PopoverContent",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/popover.tsx",
+      "content": "import * as PopoverPrimitive from \"@rn-primitives/popover\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Popover}. */\nexport type PopoverProps = ComponentProps<typeof PopoverPrimitive.Root>;\n\n/**\n * A small panel anchored to the control that opened it.\n *\n * Needs a `<PortalHost />` in the root layout. On a phone, prefer this only\n * for genuinely small content — anything list-shaped or taller than a few\n * rows belongs in a sheet.\n * @param props - {@link PopoverProps}\n * @returns The popover root\n * @example\n * ```tsx\n * <Popover>\n *   <PopoverTrigger asChild>\n *     <Button variant=\"outline\"><Text>Filters</Text></Button>\n *   </PopoverTrigger>\n *   <PopoverContent>\n *     <Text>Filter options</Text>\n *   </PopoverContent>\n * </Popover>\n * ```\n */\nexport function Popover(props: PopoverProps) {\n\treturn <PopoverPrimitive.Root {...props} />;\n}\n\n/** Props for {@link PopoverTrigger}. */\nexport type PopoverTriggerProps = ComponentProps<typeof PopoverPrimitive.Trigger>;\n\n/**\n * The control the panel is anchored to.\n * @param props - {@link PopoverTriggerProps}\n * @returns The trigger\n */\nexport function PopoverTrigger(props: PopoverTriggerProps) {\n\treturn <PopoverPrimitive.Trigger {...props} />;\n}\n\n/** Props for {@link PopoverContent}. */\nexport interface PopoverContentProps extends ComponentProps<typeof PopoverPrimitive.Content> {\n\t/** Name of the `PortalHost` to render into, when the app mounts more than one. */\n\tportalHost?: string;\n}\n\n/**\n * The panel. Renders through the portal host, over an invisible scrim that\n * closes it on an outside tap.\n * @param props - {@link PopoverContentProps}\n * @returns The portalled panel\n */\nexport function PopoverContent({ className, portalHost, ...props }: PopoverContentProps) {\n\treturn (\n\t\t<PopoverPrimitive.Portal hostName={portalHost}>\n\t\t\t<PopoverPrimitive.Overlay className=\"absolute inset-0\">\n\t\t\t\t<PopoverPrimitive.Content\n\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\"w-72 gap-2 rounded-lg border border-border bg-popover p-4 shadow-md shadow-black/10\",\n\t\t\t\t\t\tclassName,\n\t\t\t\t\t)}\n\t\t\t\t\t{...props}\n\t\t\t\t/>\n\t\t\t</PopoverPrimitive.Overlay>\n\t\t</PopoverPrimitive.Portal>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/popover",
+      "@rn-primitives/portal",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "border",
+    "popover"
+  ],
+  "examples": [
+    {
+      "title": "Anchored panel",
+      "description": "A short filter panel hung off a button",
+      "code": "<Popover>\n  <PopoverTrigger asChild>\n    <Button variant=\"outline\"><Text>Filters</Text></Button>\n  </PopoverTrigger>\n  <PopoverContent>\n    <Text variant=\"small\">Sort</Text>\n    <RadioGroup value={sort} onValueChange={setSort}>\n      <View className=\"flex-row items-center gap-2\">\n        <RadioGroupItem value=\"new\" aria-labelledby=\"sort-new\" />\n        <Label nativeID=\"sort-new\">Newest</Label>\n      </View>\n    </RadioGroup>\n  </PopoverContent>\n</Popover>",
+      "composition": [
+        "overlay",
+        "filter"
+      ]
+    },
+    {
+      "title": "Reacting to open state",
+      "description": "Observe the panel with onOpenChange when something else needs to know",
+      "code": "<Popover onOpenChange={setFiltersOpen}>\n  <PopoverTrigger asChild>\n    <Button variant=\"ghost\" aria-label=\"Help\"><Text>?</Text></Button>\n  </PopoverTrigger>\n  <PopoverContent>\n    <Text>Rates refresh every 15 minutes.</Text>\n  </PopoverContent>\n</Popover>",
+      "composition": [
+        "overlay",
+        "help"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for a small amount of secondary content anchored to a control: a short filter set, a help note, a compact form of two or three fields. Keep it to what fits without scrolling.",
+    "whenNotToUse": "Don't use for a list of choices on a phone — a sheet or Select is easier to reach with a thumb. Don't use for anything that needs scrolling. Don't use it as a tooltip for plain text hints. Don't use it to hold a primary flow; push a screen.",
+    "commonMistakes": [
+      "Forgetting <PortalHost /> in the root layout — the panel mounts but renders nothing",
+      "Putting a scrolling list inside it, which collides with the outside-tap scrim and traps the gesture",
+      "Anchoring it to a control near the bottom of the screen, where the panel opens under the thumb or off-screen — a sheet is the better shape there",
+      "Relying on the outside tap alone to dismiss it, which is invisible to a screen-reader user; include a close control for anything with more than a line of text"
+    ],
+    "relatedComponents": [
+      "native-button",
+      "native-text",
+      "native-dialog"
+    ],
+    "accessibilityNotes": "The trigger keeps its own accessible name and reports its expanded state, so assistive tech knows the panel opened. Dismissal by outside tap is not discoverable, so anything beyond a single line should carry an explicit close control. The panel anchors to a measured trigger position, so it appears only after the trigger has laid out. Keep the panel short: content that scrolls inside a popover is hard to reach and hard to escape on a touch device.",
+    "tokenBudget": 525
+  },
+  "tags": [
+    "popover",
+    "overlay",
+    "floating",
+    "inline",
+    "anchored",
+    "native",
+    "react-native"
+  ]
+}

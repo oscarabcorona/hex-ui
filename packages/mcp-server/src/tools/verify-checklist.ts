@@ -3,13 +3,28 @@ import * as fs from "node:fs";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import {
-	internalDepToSlug,
 	loadRecipe,
 	loadRegistryItem,
 	type RegistryItem,
+	resolveInternalDepForPlatform,
 	SLUG_REGEX,
 } from "@hex-core/payload";
 import { TOOL } from "../tool-names.js";
+
+/**
+ * The `components/ui/*` file a registry item installs.
+ *
+ * Read from the item rather than composed from its slug, because the two
+ * differ on native: `native-button` ships `components/ui/button.tsx`.
+ * @param slug - A registry item name
+ * @returns The project-relative path, or null when the item has no component file
+ */
+function mainComponentPath(slug: string): string | null {
+	const item = loadRegistryItem(slug);
+	if (!item) return null;
+	const file = item.files.find((f) => f.path.startsWith("components/ui/"));
+	return file?.path ?? null;
+}
 
 /**
  * Register the `verify-checklist` tool.
@@ -67,7 +82,14 @@ export function register(server: McpServer): void {
 				const deps = item.dependencies?.internal ?? [];
 				const missingSlugs: string[] = [];
 				for (const dep of deps) {
-					const depSlug = internalDepToSlug(dep);
+					// Platform-aware: without it a correctly installed native app
+					// is told it is missing `text` (the web slug) forever, so the
+					// tool whose job is to say "you're done" never can.
+					const depSlug = resolveInternalDepForPlatform(
+						dep,
+						item.platform ?? "web",
+						(name) => loadRegistryItem(name) !== null,
+					);
 					if (!depSlug) continue;
 					if (!installed.has(depSlug)) missingSlugs.push(depSlug);
 				}
@@ -109,7 +131,15 @@ export function register(server: McpServer): void {
 					}
 					if (resolvedRoot) {
 						for (const slug of installed) {
-							const candidate = path.resolve(resolvedRoot, "components", "ui", `${slug}.tsx`);
+							// The registry NAME carries the platform prefix
+							// (`native-button`); the file it installs does not
+							// (`components/ui/button.tsx`). Deriving the path from
+							// the slug reported every correctly-installed native
+							// component as missing, so this tool could never return
+							// a pass on a React Native project.
+							const relative = mainComponentPath(slug);
+							if (!relative) continue;
+							const candidate = path.resolve(resolvedRoot, relative);
 							if (!candidate.startsWith(`${resolvedRoot}${path.sep}`)) continue;
 							if (fs.existsSync(candidate)) {
 								filesPresent.push(path.relative(resolvedRoot, candidate));

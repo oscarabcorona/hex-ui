@@ -1,0 +1,201 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-input",
+  "displayName": "Input",
+  "description": "A single-line text field. Reports edits through onChangeText with the string itself, and picks its keyboard through keyboardType rather than an input type.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "description": "Placeholder text shown when the input is empty"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled input value"
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Default value for uncontrolled usage"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    },
+    {
+      "name": "onChangeText",
+      "type": "function",
+      "required": false,
+      "description": "Called with the new string on every edit. Replaces the web onChange — there is no event object."
+    },
+    {
+      "name": "keyboardType",
+      "type": "enum",
+      "required": false,
+      "default": "default",
+      "description": "Which on-screen keyboard to raise. Replaces the web input type for numeric, email and phone entry.",
+      "enumValues": [
+        "default",
+        "number-pad",
+        "decimal-pad",
+        "numeric",
+        "email-address",
+        "phone-pad",
+        "url"
+      ]
+    },
+    {
+      "name": "secureTextEntry",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Mask the text for password entry. Replaces type=\"password\"."
+    },
+    {
+      "name": "editable",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Set false to make the field read-only and dimmed. Replaces the web disabled prop."
+    },
+    {
+      "name": "autoCapitalize",
+      "type": "enum",
+      "required": false,
+      "default": "sentences",
+      "description": "Autocapitalisation behaviour. Set to \"none\" for emails, usernames and passwords.",
+      "enumValues": [
+        "none",
+        "sentences",
+        "words",
+        "characters"
+      ]
+    },
+    {
+      "name": "autoComplete",
+      "type": "string",
+      "required": false,
+      "description": "Hint for the OS password manager and autofill, e.g. \"email\", \"password\", \"one-time-code\"."
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/input.tsx",
+      "content": "import type { ComponentProps } from \"react\";\nimport { TextInput } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Input}. */\nexport type InputProps = ComponentProps<typeof TextInput>;\n\n/**\n * A single-line text field.\n *\n * React Native reports edits through `onChangeText`, which hands you the\n * string directly — there is no event object and no `event.target.value`.\n * Disable the field with `editable={false}` rather than a `disabled` prop.\n * @param props - {@link InputProps}\n * @returns A React Native `TextInput`\n * @example\n * ```tsx\n * <Label nativeID=\"email\">Email</Label>\n * <Input\n *   aria-labelledby=\"email\"\n *   value={email}\n *   onChangeText={setEmail}\n *   keyboardType=\"email-address\"\n *   autoCapitalize=\"none\"\n * />\n * ```\n */\nexport function Input({ className, editable = true, ...props }: InputProps) {\n\treturn (\n\t\t<TextInput\n\t\t\teditable={editable}\n\t\t\t// React Native maps `editable` to native editability only, so a\n\t\t\t// read-only field dimmed visually but still announced as an\n\t\t\t// ordinary text field: the user double-taps, no keyboard appears,\n\t\t\t// and nothing explains why.\n\t\t\taria-disabled={!editable}\n\t\t\taccessibilityState={{ disabled: !editable }}\n\t\t\tclassName={cn(\n\t\t\t\t\"h-10 w-full flex-row items-center rounded-md border border-input bg-background px-3 py-1 text-base leading-5 text-foreground\",\n\t\t\t\t\"placeholder:text-muted-foreground\",\n\t\t\t\teditable === false && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "foreground",
+    "input",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Labelled email field",
+      "description": "The keyboard, capitalisation and autofill hints all matter on a phone",
+      "code": "<View className=\"gap-1.5\">\n  <Label nativeID=\"email\">Email</Label>\n  <Input\n    aria-labelledby=\"email\"\n    value={email}\n    onChangeText={setEmail}\n    keyboardType=\"email-address\"\n    autoCapitalize=\"none\"\n    autoComplete=\"email\"\n    placeholder=\"you@example.com\"\n  />\n</View>",
+      "composition": [
+        "form",
+        "field"
+      ]
+    },
+    {
+      "title": "Password field",
+      "description": "secureTextEntry replaces the web password type",
+      "code": "<Input\n  aria-labelledby=\"password\"\n  secureTextEntry\n  autoCapitalize=\"none\"\n  autoComplete=\"password\"\n  value={password}\n  onChangeText={setPassword}\n/>",
+      "composition": [
+        "form",
+        "auth"
+      ]
+    },
+    {
+      "title": "Read-only field",
+      "description": "editable={false} is the React Native equivalent of disabled",
+      "code": "<Input aria-labelledby=\"plan\" editable={false} value=\"Enterprise\" />",
+      "composition": [
+        "form",
+        "disabled"
+      ]
+    },
+    {
+      "title": "Field with an error message",
+      "description": "Point aria-describedby at the message so it is announced with the field",
+      "code": "<View className=\"gap-1.5\">\n  <Label nativeID=\"email\">Email</Label>\n  <Input\n    aria-labelledby=\"email\"\n    aria-describedby=\"email-error\"\n    aria-invalid={!!error}\n    className={error ? \"border-destructive\" : undefined}\n    value={email}\n    onChangeText={setEmail}\n  />\n  {error ? (\n    <Text nativeID=\"email-error\" variant=\"small\" className=\"text-destructive\">\n      {error}\n    </Text>\n  ) : null}\n</View>",
+      "composition": [
+        "form",
+        "validation"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for single-line entry: names, emails, passwords, search, numbers. Always pair with a Label, and set keyboardType, autoCapitalize and autoComplete so the phone raises the right keyboard and autofill works.",
+    "whenNotToUse": "Don't use for multi-line text (use Textarea). Don't use for choosing among fixed options (use Select). Don't use it as a search trigger that opens another screen; render a Pressable row that looks like a field instead.",
+    "commonMistakes": [
+      "Wiring onChange and reading event.target.value — React Native passes the string straight to onChangeText, so the web handler shape silently never fires",
+      "Passing disabled — TextInput has no such prop; the field stays fully editable. Use editable={false}",
+      "Using type=\"email\" or type=\"number\" — those are DOM attributes; on native the keyboard comes from keyboardType and masking from secureTextEntry",
+      "Leaving autoCapitalize at its default on an email or username field, so the phone capitalises the first letter and the value is wrong",
+      "Relying on the placeholder as the field's name — it vanishes on first keystroke and is not a reliable accessible name"
+    ],
+    "relatedComponents": [
+      "native-label",
+      "native-text",
+      "native-button"
+    ],
+    "accessibilityNotes": "Name the field by pairing a Label's nativeID with aria-labelledby here; a placeholder is not a name. Attach helper and error copy with aria-describedby and set aria-invalid when validation fails, so VoiceOver reads the problem with the field. The 40pt height meets the touch-target minimum. Keep the field visible above the keyboard by wrapping the form in a KeyboardAvoidingView — an input hidden behind the keyboard is unusable regardless of its markup.",
+    "tokenBudget": 370
+  },
+  "tags": [
+    "input",
+    "text",
+    "form",
+    "field",
+    "text-field",
+    "native",
+    "react-native"
+  ]
+}

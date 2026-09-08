@@ -1,9 +1,12 @@
 export {
 	generateGlobalsCss,
+	generateGlobalsCssNative,
 	generateThemeCssV4,
+	type NativeTheme,
 	type ScopedRuntimeCssOptions,
 	themeToCss,
 	themeToFlatJson,
+	themeToNativeTheme,
 	themeToScopedRuntimeCss,
 	themeToTailwindConfig,
 } from "./transformer.js";

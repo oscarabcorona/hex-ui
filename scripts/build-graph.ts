@@ -1,7 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { internalDepToSlug } from "@hex-core/registry";
+import {
+	internalDepToSlug,
+	NATIVE_SLUG_PREFIX,
+	resolveInternalDepForPlatform,
+	toNativeSlug,
+} from "@hex-core/registry";
 import { compareStrings } from "../packages/payload/src/lib/compare.js";
 import { titleFromSlug } from "../packages/payload/src/lib/slug.js";
 import {
@@ -40,9 +45,30 @@ interface IndexItem {
 	displayName: string;
 	category: string;
 	subcategory?: string;
+	/** Absent for web items — the emitted default. */
+	platform?: "web" | "native";
 	tags: string[];
 	internalDeps: string[];
 	tokenBudget?: number;
+}
+
+/**
+ * The file an item's own module ships as.
+ *
+ * Native items are *named* `native-button` so they never collide with the
+ * web item in a shared catalog, but they *ship* as `components/ui/button.tsx`
+ * — a React Native project has only one platform, and the cross-component
+ * imports the CLI rewrites (`../text/text.js` → `@/components/ui/text`)
+ * resolve against the unprefixed name.
+ * @param item - A registry index entry
+ * @returns The path of the item's entry module inside `files[]`
+ */
+function mainFileFor(item: IndexItem): string {
+	const slug =
+		item.platform === "native" && item.name.startsWith(NATIVE_SLUG_PREFIX)
+			? item.name.slice(NATIVE_SLUG_PREFIX.length)
+			: item.name;
+	return `components/ui/${slug}.tsx`;
 }
 
 interface RawItemFile {
@@ -186,11 +212,29 @@ function scanExports(files: RawItemFile[]): { names: string[]; paths: Record<str
  * copies no files for them.
  * @param dep - Raw internal dependency path from the registry index
  * @param itemNames - Set of every item slug in the registry
+ * @param ownerPlatform - Platform of the item that declared the dep
  * @returns The target item slug, or null when the entry names no item
  */
-function resolveInternalDep(dep: string, itemNames: Set<string>): string | null {
-	const viaPath = internalDepToSlug(dep);
-	if (viaPath && itemNames.has(viaPath)) return viaPath;
+function resolveInternalDep(
+	dep: string,
+	itemNames: Set<string>,
+	ownerPlatform: "web" | "native",
+): string | null {
+	const exists = (name: string): boolean => itemNames.has(name);
+	// Platform-aware first: a native item's `primitives/text/text` names
+	// `native-text`, and resolving it to the bare slug would either drop the
+	// edge or point it at the React DOM component of the same name.
+	const viaPath = resolveInternalDepForPlatform(dep, ownerPlatform, exists);
+	if (viaPath) return viaPath;
+	// The flat-name fallback covers deps declared as a bare slug ("motion",
+	// "dnd", "presence"), which the path resolver rejects. It has to honour
+	// the platform too, or the first native item to declare one gets a hard
+	// `requires` edge to the WEB component of that name.
+	if (ownerPlatform === "native") {
+		const native = toNativeSlug(dep);
+		if (itemNames.has(native)) return native;
+		return itemNames.has(dep) ? dep : null;
+	}
 	if (itemNames.has(dep)) return dep;
 	return null;
 }
@@ -256,7 +300,7 @@ for (const item of registryIndex.items) {
 	// scanExports resolves collisions by file order, so the item's own module
 	// must come first; build-registry.ts guarantees it and this catches a
 	// regression there instead of silently mis-routing an import.
-	const mainFile = `components/ui/${item.name}.tsx`;
+	const mainFile = mainFileFor(item);
 	const mainIndex = raw.files.findIndex((f) => f.path === mainFile);
 	// `findIndex` returns -1 when the main module is absent, and `-1 > 0` is
 	// false — which would silently retire this whole invariant.
@@ -345,8 +389,19 @@ for (const recipe of compiledRecipes) {
 // `requires` — hard install edges from internal deps (mirrors `hex add` semantics).
 for (const item of registryIndex.items) {
 	for (const dep of item.internalDeps) {
-		const target = resolveInternalDep(dep, itemNames);
-		if (!target) continue; // lib/utils and friends — utilities, not items
+		const target = resolveInternalDep(dep, itemNames, item.platform ?? "web");
+		if (!target) {
+			// `lib/utils` and friends are utilities, not items — expected.
+			// A 3-segment dep that names no item is a packaging error, and
+			// dropping it silently is what let the native items ship with no
+			// `requires` edges at all.
+			if (internalDepToSlug(dep) !== null) {
+				errors.push(
+					`item ${item.name}: internal dep "${dep}" resolves to no item (platform "${item.platform ?? "web"}")`,
+				);
+			}
+			continue;
+		}
 		addEdge(
 			{
 				source: `item:${item.name}`,

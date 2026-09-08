@@ -16,6 +16,7 @@ export {
 	numberTokenSchema,
 	opacityTokenSchema,
 	paletteSchema,
+	platformEnum,
 	propSchema,
 	radiusTokenSchema,
 	registryIndexItemSchema,
@@ -61,6 +62,7 @@ export type {
 	NumberToken,
 	Palette,
 	OpacityToken,
+	Platform,
 	Prop,
 	RadiusToken,
 	RegistryFile,
@@ -85,6 +87,15 @@ export type {
 } from "./schema.js";
 
 export {
+	deriveNativeSchema,
+	isNativeSlug,
+	NATIVE_SLUG_PREFIX,
+	toNativeSlug,
+} from "./derive-native.js";
+
+export type { NativeSchemaOverrides } from "./derive-native.js";
+
+export {
 	shadcnRegistryFileSchema,
 	shadcnRegistryItemSchema,
 	toShadcnRegistryItem,
@@ -105,6 +116,7 @@ export {
 	recipeSchema,
 	recipeSchemaDefinition,
 	recipeStepSchema,
+	resolveInternalDepForPlatform,
 	SLUG_REGEX,
 } from "./recipe-schema.js";
 

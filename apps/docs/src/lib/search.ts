@@ -1,5 +1,5 @@
 import FlexSearch, { type Document } from "flexsearch";
-import { listComponents, type RegistryIndexItem } from "./registry";
+import { listComponents, listNativeComponents, type RegistryIndexItem } from "./registry";
 
 /** Consumer-facing hit shape. `href` is derived at read time. */
 export interface SearchResult {
@@ -50,7 +50,9 @@ function buildIndex(): DocsIndex {
 		},
 		tokenize: "forward",
 	});
-	for (const item of listComponents()) {
+	// Both catalogs. The native pages were reachable only by knowing the URL:
+	// nothing in ⌘K, and no inbound link until the sidebar learned about them.
+	for (const item of [...listComponents(), ...listNativeComponents()]) {
 		idx.add(toIndexDoc(item));
 	}
 	return idx;
@@ -74,12 +76,15 @@ function isIndexDoc(value: unknown): value is IndexDoc {
 }
 
 function toResult(item: { name: string; displayName: string; description: string; category: string }): SearchResult {
+	// Native items live under `/native/<name>`; sending them to
+	// `/docs/components/<name>` would make every hit a 404.
+	const isNative = item.name.startsWith("native-");
 	return {
 		name: item.name,
-		displayName: item.displayName,
+		displayName: isNative ? `${item.displayName} (React Native)` : item.displayName,
 		description: item.description,
 		category: item.category,
-		href: `/docs/components/${item.name}`,
+		href: isNative ? `/native/${item.name}` : `/docs/components/${item.name}`,
 	};
 }
 

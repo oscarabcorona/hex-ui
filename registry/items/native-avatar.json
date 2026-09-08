@@ -1,0 +1,139 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-avatar",
+  "displayName": "Avatar",
+  "description": "A circular user image with an initials fallback for when there is no image or the image fails. The alt text is declared once on the root and applied to whichever of the two is showing.",
+  "category": "primitive",
+  "subcategory": "display",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "What assistive tech announces. Declared once on the root and applied to whichever of AvatarImage / AvatarFallback is currently rendered, e.g. \"Ada Lovelace's profile picture\"."
+    },
+    {
+      "name": "source",
+      "type": "object",
+      "required": false,
+      "description": "Passed to AvatarImage — a React Native image source such as { uri: user.avatarUrl }"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "AvatarImage + AvatarFallback",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/avatar.tsx",
+      "content": "import * as AvatarPrimitive from \"@rn-primitives/avatar\";\nimport type { ComponentProps } from \"react\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Avatar}. */\nexport type AvatarProps = ComponentProps<typeof AvatarPrimitive.Root>;\n\n/**\n * A circular user image with a fallback for when the image is missing or\n * still loading.\n *\n * `alt` is required by the primitive and is what assistive tech announces,\n * so it belongs on the root rather than on the image.\n * @param props - {@link AvatarProps}\n * @returns The avatar root\n * @example\n * ```tsx\n * <Avatar alt=\"Ada Lovelace's profile picture\">\n *   <AvatarImage source={{ uri: user.avatarUrl }} />\n *   <AvatarFallback><Text>AL</Text></AvatarFallback>\n * </Avatar>\n * ```\n */\nexport function Avatar({ className, ...props }: AvatarProps) {\n\treturn (\n\t\t<AvatarPrimitive.Root\n\t\t\t// `bg-muted` sits on the ROOT, not only on the fallback. The\n\t\t\t// primitive's Fallback renders nothing until the image errors, so\n\t\t\t// while a remote image is still loading neither child is on screen\n\t\t\t// — and with the placeholder colour on the fallback alone that was\n\t\t\t// a completely blank hole rather than a muted circle.\n\t\t\tclassName={cn(\n\t\t\t\t\"relative size-10 shrink-0 overflow-hidden rounded-full bg-muted\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\n/** Props for {@link AvatarImage}. */\nexport type AvatarImageProps = ComponentProps<typeof AvatarPrimitive.Image>;\n\n/**\n * The avatar's image. Renders nothing until the source loads, which is what\n * lets the root's muted background show through in the meantime.\n * @param props - {@link AvatarImageProps}\n * @returns The avatar image\n */\nexport function AvatarImage({ className, ...props }: AvatarImageProps) {\n\treturn <AvatarPrimitive.Image className={cn(\"aspect-square size-full\", className)} {...props} />;\n}\n\n/** Props for {@link AvatarFallback}. */\nexport type AvatarFallbackProps = ComponentProps<typeof AvatarPrimitive.Fallback>;\n\n/**\n * Shown when there is no source or the image fails — NOT while it loads.\n *\n * The primitive mounts this only in the error state, so it is the\n * no-picture affordance, not a loading placeholder. The root carries the\n * muted background that covers the loading window.\n * @param props - {@link AvatarFallbackProps}\n * @returns The avatar fallback\n */\nexport function AvatarFallback({ className, ...props }: AvatarFallbackProps) {\n\treturn (\n\t\t<TextClassContext.Provider value=\"text-sm font-medium text-muted-foreground\">\n\t\t\t<AvatarPrimitive.Fallback\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"size-full flex-row items-center justify-center rounded-full bg-muted\",\n\t\t\t\t\tclassName,\n\t\t\t\t)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t</TextClassContext.Provider>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/avatar",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "lib/text-context"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "muted",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Image with initials fallback",
+      "description": "The image renders when the source is valid; the fallback takes over when there is no source or the load fails",
+      "code": "<Avatar alt=\"Ada Lovelace's profile picture\">\n  <AvatarImage source={{ uri: user.avatarUrl }} />\n  <AvatarFallback>\n    <Text>AL</Text>\n  </AvatarFallback>\n</Avatar>",
+      "composition": [
+        "user"
+      ]
+    },
+    {
+      "title": "In a list row",
+      "description": "Avatar plus name and subtitle, the standard conversation row",
+      "code": "<View className=\"flex-row items-center gap-3\">\n  <Avatar alt={`${user.name}'s profile picture`}>\n    <AvatarImage source={{ uri: user.avatarUrl }} />\n    <AvatarFallback><Text>{user.initials}</Text></AvatarFallback>\n  </Avatar>\n  <View className=\"flex-1\">\n    <Text numberOfLines={1}>{user.name}</Text>\n    <Text variant=\"muted\" numberOfLines={1}>{user.lastMessage}</Text>\n  </View>\n</View>",
+      "composition": [
+        "list-row",
+        "user"
+      ]
+    },
+    {
+      "title": "Sizing",
+      "description": "Override the default 40pt square with size classes on the root",
+      "code": "<Avatar alt=\"Ada Lovelace's profile picture\" className=\"size-16\">\n  <AvatarImage source={{ uri: user.avatarUrl }} />\n  <AvatarFallback><Text variant=\"large\">AL</Text></AvatarFallback>\n</Avatar>",
+      "composition": [
+        "sizing"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for user profile images in headers, comment threads and user lists. Always include an AvatarFallback with initials so there is something to show while the image loads or if it fails.",
+    "whenNotToUse": "Don't use for decorative icons (render an icon component). Don't use for product or brand imagery (use a plain Image with the right aspect ratio). Don't use it as a button — wrap it in a Pressable or Button if it needs to be tappable.",
+    "commonMistakes": [
+      "Omitting AvatarFallback — with no fallback the avatar is an empty circle whenever the source is missing or the request fails, and it has no accessible name either",
+      "Expecting the fallback to cover the loading window — it renders when the image is absent or errored, not while bytes are in flight; render a Skeleton in the same circle for the loading state",
+      "Passing alt to AvatarImage instead of the Avatar root — the root distributes it to whichever child is showing, so setting it lower down leaves the fallback unnamed",
+      "Putting a bare string in AvatarFallback instead of a Text element — React Native throws",
+      "Using an img-style URL string for source — React Native needs an object, { uri: url }, not a bare string"
+    ],
+    "relatedComponents": [
+      "native-badge",
+      "native-card",
+      "native-text",
+      "native-skeleton"
+    ],
+    "accessibilityNotes": "The root's alt is the accessible name, and the primitive applies it to whichever child is rendered: the image gets alt, the fallback gets role=\"img\" plus the same label. Write it as a description of the person, not \"avatar\". Keep the fallback initials meaningful, since they are also visible text. While an avatar list loads, render a Skeleton in the same 40pt circle so nothing shifts. The muted fallback background and its foreground token are contrast-audited in light and dark.",
+    "tokenBudget": 634
+  },
+  "tags": [
+    "avatar",
+    "profile",
+    "user",
+    "image",
+    "display",
+    "native",
+    "react-native"
+  ]
+}

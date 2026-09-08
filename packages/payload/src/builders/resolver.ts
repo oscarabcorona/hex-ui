@@ -223,6 +223,17 @@ export interface ResolverOptions {
 	limit?: number;
 	registry?: RegistryIndex;
 	recipes?: RecipeIndex;
+	/**
+	 * Which render target the brief is for. Defaults to `"web"`.
+	 *
+	 * The two catalogs share vocabulary — a "checkbox" is a checkbox on both —
+	 * so without this filter a plain web brief ranked `native-checkbox`
+	 * alongside `checkbox`, and `hex poc` then wrote React Native source into
+	 * a Next.js project. Native items also ship UNPREFIXED file paths, so a
+	 * `native-select` that outranks `select` claims
+	 * `components/ui/select.tsx` outright.
+	 */
+	platform?: "web" | "native";
 }
 
 /**
@@ -244,6 +255,7 @@ export function resolveSpec(brief: string, options: ResolverOptions = {}): Resol
 	const registry = options.registry ?? loadRegistry();
 	const recipes = options.recipes ?? loadRecipes();
 	const limit = options.limit ?? 8;
+	const platform = options.platform ?? "web";
 
 	// Score first, WITHOUT touching the AI meta. Reading it here meant loading
 	// the full item JSON for every candidate that scored above zero — on a
@@ -259,6 +271,10 @@ export function resolveSpec(brief: string, options: ResolverOptions = {}): Resol
 	}
 	const componentScored: ScoredComponent[] = [];
 	for (const item of registry.items) {
+		// Filter before scoring, not after: a native item that outranks its
+		// web twin would otherwise consume a slot in the `limit` slice and
+		// push the component the caller can actually use off the list.
+		if ((item.platform ?? "web") !== platform) continue;
 		const { score, reasons } = scoreComponent(item, tokens);
 		if (score <= 0) continue;
 		componentScored.push({ item, score, reasons });
@@ -285,6 +301,10 @@ export function resolveSpec(brief: string, options: ResolverOptions = {}): Resol
 
 	const recipeScored: RecipeMatch[] = [];
 	for (const recipe of recipes.items) {
+		// `chatbot` and `chatbot-native` describe the same product for two
+		// renderers and score almost identically, so a web brief was offered
+		// the Expo one as its runner-up.
+		if ((recipe.platform ?? "web") !== platform) continue;
 		const { score, reasons } = scoreRecipe(recipe, tokens);
 		if (score <= 0) continue;
 		recipeScored.push({

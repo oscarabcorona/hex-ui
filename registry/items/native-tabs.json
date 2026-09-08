@@ -1,0 +1,133 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-tabs",
+  "displayName": "Tabs",
+  "description": "A tabbed panel switcher. Controlled only on native — pass value and onValueChange — with each trigger matched to a panel by a shared value.",
+  "category": "component",
+  "subcategory": "navigation",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled active tab value"
+    },
+    {
+      "name": "onValueChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback: (value: string) => void"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    }
+  ],
+  "variants": [],
+  "slots": [
+    {
+      "name": "children",
+      "description": "TabsList + TabsContent elements",
+      "required": true,
+      "acceptedTypes": [
+        "ReactNode"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "components/ui/tabs.tsx",
+      "content": "import * as TabsPrimitive from \"@rn-primitives/tabs\";\nimport type { ComponentProps } from \"react\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Tabs}. */\nexport type TabsProps = ComponentProps<typeof TabsPrimitive.Root>;\n\n/**\n * A tabbed panel switcher.\n *\n * Controlled only: pass `value` and `onValueChange`. Each `TabsTrigger` and\n * `TabsContent` pair is matched by a shared `value`.\n * @param props - {@link TabsProps}\n * @returns The tabs root\n * @example\n * ```tsx\n * <Tabs value={tab} onValueChange={setTab}>\n *   <TabsList>\n *     <TabsTrigger value=\"account\"><Text>Account</Text></TabsTrigger>\n *     <TabsTrigger value=\"billing\"><Text>Billing</Text></TabsTrigger>\n *   </TabsList>\n *   <TabsContent value=\"account\"><Text>Account settings</Text></TabsContent>\n *   <TabsContent value=\"billing\"><Text>Billing settings</Text></TabsContent>\n * </Tabs>\n * ```\n */\nexport function Tabs({ className, ...props }: TabsProps) {\n\treturn <TabsPrimitive.Root className={cn(\"flex-col gap-2\", className)} {...props} />;\n}\n\n/** Props for {@link TabsList}. */\nexport type TabsListProps = ComponentProps<typeof TabsPrimitive.List>;\n\n/**\n * The row of triggers.\n * @param props - {@link TabsListProps}\n * @returns The tab list\n */\nexport function TabsList({ className, ...props }: TabsListProps) {\n\treturn (\n\t\t<TabsPrimitive.List\n\t\t\tclassName={cn(\"flex-row items-center rounded-lg bg-muted p-1\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\n/** Props for {@link TabsTrigger}. */\nexport type TabsTriggerProps = ComponentProps<typeof TabsPrimitive.Trigger>;\n\n/**\n * One tab. Selected state is derived from the root's `value`.\n * @param props - {@link TabsTriggerProps}\n * @returns The trigger\n */\nexport function TabsTrigger({ className, value, ...props }: TabsTriggerProps) {\n\tconst { value: selected } = TabsPrimitive.useRootContext();\n\tconst active = selected === value;\n\treturn (\n\t\t<TextClassContext.Provider\n\t\t\tvalue={cn(\"text-sm font-medium\", active ? \"text-foreground\" : \"text-muted-foreground\")}\n\t\t>\n\t\t\t<TabsPrimitive.Trigger\n\t\t\t\tvalue={value}\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"flex-1 flex-row items-center justify-center rounded-md px-3 py-1.5\",\n\t\t\t\t\tactive && \"bg-background shadow-sm shadow-black/5\",\n\t\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\t\tclassName,\n\t\t\t\t)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t</TextClassContext.Provider>\n\t);\n}\n\n/** Props for {@link TabsContent}. */\nexport type TabsContentProps = ComponentProps<typeof TabsPrimitive.Content>;\n\n/**\n * The panel for one tab. Only the panel matching the root's `value` renders.\n * @param props - {@link TabsContentProps}\n * @returns The panel\n */\nexport function TabsContent({ className, ...props }: TabsContentProps) {\n\treturn <TabsPrimitive.Content className={className} {...props} />;\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/tabs",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "lib/text-context"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "foreground",
+    "muted",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Two panels",
+      "description": "Triggers and content matched by value",
+      "code": "<Tabs value={tab} onValueChange={setTab}>\n  <TabsList>\n    <TabsTrigger value=\"account\"><Text>Account</Text></TabsTrigger>\n    <TabsTrigger value=\"billing\"><Text>Billing</Text></TabsTrigger>\n  </TabsList>\n  <TabsContent value=\"account\">\n    <Text>Account settings</Text>\n  </TabsContent>\n  <TabsContent value=\"billing\">\n    <Text>Billing settings</Text>\n  </TabsContent>\n</Tabs>",
+      "composition": [
+        "navigation",
+        "panel"
+      ]
+    },
+    {
+      "title": "Inside a card",
+      "description": "Tabs scoped to one surface rather than the whole screen",
+      "code": "<Card>\n  <CardContent className=\"pt-6\">\n    <Tabs value={range} onValueChange={setRange}>\n      <TabsList>\n        <TabsTrigger value=\"7d\"><Text>7 days</Text></TabsTrigger>\n        <TabsTrigger value=\"30d\"><Text>30 days</Text></TabsTrigger>\n      </TabsList>\n      <TabsContent value=\"7d\"><Chart range=\"7d\" /></TabsContent>\n      <TabsContent value=\"30d\"><Chart range=\"30d\" /></TabsContent>\n    </Tabs>\n  </CardContent>\n</Card>",
+      "composition": [
+        "card",
+        "panel"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use to switch between a small number of sibling panels inside one screen — two to four, all of comparable importance. Keep the state in the parent and pass value plus onValueChange.",
+    "whenNotToUse": "Don't use for navigating between screens — that is the router's job, and a phone user expects a bottom tab bar or a stack push. Don't use for more than about four tabs; the row gets too cramped to hit. Don't use to reveal a single optional section (that is a collapsible).",
+    "commonMistakes": [
+      "Rendering it uncontrolled — the native primitive needs value and onValueChange, and defaultValue does not exist here, so the tabs never change",
+      "Reaching for the orientation, dir or activationMode props from the web component — all three are web-only on the primitive and do nothing on a device",
+      "Using tabs as app-level navigation instead of the router's tab navigator, which loses the back stack, deep links and the native tab bar",
+      "Putting a scrolling list inside TabsContent without a fixed height, so the panel and the outer scroll view fight over the gesture",
+      "Passing a bare string as a trigger's child instead of wrapping it in Text"
+    ],
+    "relatedComponents": [
+      "native-text",
+      "native-card",
+      "native-separator"
+    ],
+    "accessibilityNotes": "Each trigger is a Pressable whose label comes from its Text child; the selected one is styled with the foreground token while the rest stay muted, so state is visible rather than colour-coded alone. Only the matching panel is mounted, which keeps the accessibility tree honest about what is on screen. Triggers stretch to fill the row, so each stays a comfortable touch target; keep labels to one or two words so they do not truncate.",
+    "tokenBudget": 689
+  },
+  "tags": [
+    "tabs",
+    "navigation",
+    "panel",
+    "tabbed",
+    "sections",
+    "native",
+    "react-native"
+  ]
+}

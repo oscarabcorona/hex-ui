@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { GETTING_STARTED_NAV } from "../lib/docs-nav";
-import { listComponents } from "../lib/registry";
+import { listComponents, listNativeComponents } from "../lib/registry";
 import { SITE_URL } from "../lib/site";
 
 /** Pinned once per build so crawlers see a stable `lastModified` per deploy. */
@@ -39,5 +39,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		changeFrequency: "weekly",
 		priority: 0.8,
 	}));
-	return [...staticRoutes, ...componentRoutes];
+	// The React Native pages live under `/native/<name>`, not
+	// `/docs/components/<name>`, so listing only the web catalog left all 26
+	// of them out of a sitemap whose docstring promises one entry per
+	// registry component.
+	const nativeRoutes: MetadataRoute.Sitemap = listNativeComponents().map((item) => ({
+		url: `${SITE_URL}/native/${item.name}`,
+		lastModified: BUILD_TIME,
+		changeFrequency: "weekly",
+		priority: 0.7,
+	}));
+	return [...staticRoutes, ...componentRoutes, ...nativeRoutes];
 }

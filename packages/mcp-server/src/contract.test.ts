@@ -60,6 +60,7 @@ function pass(message: string): void {
 interface SearchRow {
 	name: string;
 	category: string;
+	platform?: string;
 }
 
 /**
@@ -81,7 +82,7 @@ async function searchAll(
 ): Promise<SearchRow[]> {
 	const raw = await client.callTool({
 		name: TOOL.SEARCH_COMPONENTS,
-		arguments: { ...args, limit: 200 },
+		arguments: { ...args, limit: 500 },
 	});
 	const text = (raw.content as Array<{ text?: string }>)[0]?.text ?? "";
 	let parsed: { total: number; returned: number; results: SearchRow[] };
@@ -832,6 +833,49 @@ async function main(): Promise<void> {
 			fail(`scaffold_poc(landing-page) is ${pocTokens} tokens, ceiling ${CEILINGS.scaffoldPocRecipe}`);
 		}
 		pass(`scaffold_poc(recipe) returns a runnable file tree with generated routes (${pocTokens} tokens)`);
+
+		// ─── 12b. Platform facet — native items are discoverable and separable ───
+		//
+		// `platform` is an additive optional input, so the tool set is
+		// unchanged; what must hold is that the filter partitions the catalog
+		// cleanly and that every native row is named `native-*`. An agent
+		// building an Expo app filters on this, and a web item reaching it
+		// would be a component that cannot render on the device.
+		const nativeRows = await searchAll(client, { platform: "native" });
+		if (nativeRows.length === 0) {
+			fail("search_components(platform:native) returned nothing — the native catalog is missing");
+		}
+		const misnamedNative = nativeRows.filter((r) => !r.name.startsWith("native-"));
+		if (misnamedNative.length > 0) {
+			fail(`search_components(platform:native) returned non-prefixed rows: ${misnamedNative.map((r) => r.name).join(", ")}`);
+		}
+		const mislabelledNative = nativeRows.filter((r) => r.platform !== "native");
+		if (mislabelledNative.length > 0) {
+			fail(`search_components(platform:native) rows missing platform:"native": ${mislabelledNative.map((r) => r.name).join(", ")}`);
+		}
+
+		const webRows = await searchAll(client, { platform: "web" });
+		const nativeLeakedIntoWeb = webRows.filter((r) => r.name.startsWith("native-"));
+		if (nativeLeakedIntoWeb.length > 0) {
+			fail(`search_components(platform:web) leaked native items: ${nativeLeakedIntoWeb.map((r) => r.name).join(", ")}`);
+		}
+		// Web rows omit the field entirely — that is the wire-cost rule the
+		// registry follows, and the tool description states it.
+		if (webRows.some((r) => r.platform !== undefined)) {
+			fail("search_components(platform:web) emitted a platform field on a web row");
+		}
+
+		// Unfiltered search must still cover the whole catalog, so an agent
+		// that does not know about the facet is never shown a partial one.
+		const allRows = await searchAll(client, {});
+		if (allRows.length !== webRows.length + nativeRows.length) {
+			fail(
+				`platform filters do not partition the catalog: ${webRows.length} web + ${nativeRows.length} native != ${allRows.length} total`,
+			);
+		}
+		pass(
+			`search_components(platform:*) partitions the catalog (${webRows.length} web / ${nativeRows.length} native)`,
+		);
 
 	} finally {
 		// ─── 13. Clean disposal — close should not throw ───

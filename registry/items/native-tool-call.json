@@ -1,0 +1,165 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-tool-call",
+  "displayName": "ToolCall",
+  "description": "A collapsible record of one tool invocation — name, status, and the arguments and result behind a tap. Collapsed by default so a transcript stays scannable on a phone.",
+  "category": "ai",
+  "subcategory": "agent",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "required": true,
+      "description": "Tool / function name (e.g. searchDocs, getWeather)."
+    },
+    {
+      "name": "args",
+      "type": "object",
+      "required": false,
+      "description": "JSON-stringifiable input passed to the tool."
+    },
+    {
+      "name": "result",
+      "type": "object",
+      "required": false,
+      "description": "JSON-stringifiable output returned by the tool. May be a string for plain-text results."
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Start expanded. Default collapsed to keep the chat clean."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    },
+    {
+      "name": "state",
+      "type": "enum",
+      "required": true,
+      "description": "Where the invocation is in its lifecycle. Drives the status label and its colour.",
+      "enumValues": [
+        "pending",
+        "running",
+        "success",
+        "error"
+      ]
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/tool-call.tsx",
+      "content": "import { type ComponentProps, useState } from \"react\";\nimport { Pressable, View } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\nimport { Text } from \"../../primitives/text/text.js\";\n\n/** Lifecycle of a tool invocation. */\nexport type ToolCallState = \"pending\" | \"running\" | \"success\" | \"error\";\n\n/** Short status label per state. */\nconst STATE_LABEL: Record<ToolCallState, string> = {\n\tpending: \"Queued\",\n\trunning: \"Running\",\n\tsuccess: \"Done\",\n\terror: \"Failed\",\n};\n\n/** Status colour per state. */\nconst STATE_CLASS: Record<ToolCallState, string> = {\n\tpending: \"text-muted-foreground\",\n\trunning: \"text-muted-foreground\",\n\tsuccess: \"text-foreground\",\n\terror: \"text-destructive\",\n};\n\n/** Props for {@link ToolCall}. */\nexport interface ToolCallProps extends ComponentProps<typeof View> {\n\t/** The tool's name, as the model called it. */\n\tname: string;\n\t/** Where the invocation is in its lifecycle. */\n\tstate: ToolCallState;\n\t/** Arguments the model passed, shown when expanded. */\n\targs?: unknown;\n\t/** What the tool returned, shown when expanded. */\n\tresult?: unknown;\n\t/** Start expanded. Collapsed by default so a transcript stays scannable. */\n\tdefaultOpen?: boolean;\n}\n\n/**\n * Serialise a value for display, tolerating anything the model produced.\n * @param value - Arguments or a result\n * @returns Pretty-printed JSON, or the string form when that fails\n */\nfunction format(value: unknown): string {\n\tif (typeof value === \"string\") return value;\n\ttry {\n\t\treturn JSON.stringify(value, null, 2);\n\t} catch {\n\t\treturn String(value);\n\t}\n}\n\n/**\n * The name-and-status row, pressable only when there is something to reveal.\n *\n * A `Pressable` with `disabled` announces itself as a disabled button, which\n * is wrong for a call that simply took no arguments — nothing is unavailable,\n * there is just nothing to expand. A plain `View` carries no button semantics\n * and no `aria-expanded` at all.\n * @param props - Row configuration\n * @param props.expandable - Whether there is detail to disclose\n * @param props.open - Current disclosure state\n * @param props.label - Accessible name, carrying both tool name and status\n * @param props.onToggle - Flip the disclosure\n * @param props.children - The row's visible content\n * @returns The header row\n */\nfunction ToolCallHeader({\n\texpandable,\n\topen,\n\tlabel,\n\tonToggle,\n\tchildren,\n}: {\n\texpandable: boolean;\n\topen: boolean;\n\tlabel: string;\n\tonToggle: () => void;\n\tchildren: React.ReactNode;\n}) {\n\tif (!expandable) {\n\t\treturn <View className=\"flex-row items-center justify-between gap-3\">{children}</View>;\n\t}\n\treturn (\n\t\t<Pressable\n\t\t\trole=\"button\"\n\t\t\taria-label={label}\n\t\t\taria-expanded={open}\n\t\t\tonPress={onToggle}\n\t\t\tclassName=\"flex-row items-center justify-between gap-3\"\n\t\t>\n\t\t\t{children}\n\t\t</Pressable>\n\t);\n}\n\n/**\n * A collapsible record of one tool invocation.\n *\n * Collapsed to a single row by default: a transcript full of expanded JSON\n * is unreadable on a phone, and the arguments matter only when someone is\n * debugging a turn.\n * @param props - {@link ToolCallProps}\n * @returns The tool-call row\n * @example\n * ```tsx\n * <ToolCall name=\"search_flights\" state=\"success\" args={args} result={result} />\n * ```\n */\nexport function ToolCall({\n\tclassName,\n\tname,\n\tstate,\n\targs,\n\tresult,\n\tdefaultOpen = false,\n\t...props\n}: ToolCallProps) {\n\tconst [open, setOpen] = useState(defaultOpen);\n\tconst hasDetail = args !== undefined || result !== undefined;\n\n\treturn (\n\t\t<View\n\t\t\tclassName={cn(\"gap-2 rounded-xl border border-border bg-card p-3\", className)}\n\t\t\t{...props}\n\t\t>\n\t\t\t{/*\n\t\t\t * A call with nothing to expand is a plain row, not a disabled\n\t\t\t * button. `disabled` sets accessibilityState.disabled, so a\n\t\t\t * perfectly normal argument-free tool call was announced as\n\t\t\t * \"disabled button\", and it carried an aria-expanded for a\n\t\t\t * disclosure that does not exist.\n\t\t\t */}\n\t\t\t<ToolCallHeader\n\t\t\t\texpandable={hasDetail}\n\t\t\t\topen={open}\n\t\t\t\tlabel={`${name}, ${STATE_LABEL[state]}`}\n\t\t\t\tonToggle={() => {\n\t\t\t\t\tsetOpen((current) => !current);\n\t\t\t\t}}\n\t\t\t>\n\t\t\t\t<Text variant=\"small\" className=\"flex-1 font-mono text-card-foreground\" numberOfLines={1}>\n\t\t\t\t\t{name}\n\t\t\t\t</Text>\n\t\t\t\t<Text variant=\"small\" className={STATE_CLASS[state]}>\n\t\t\t\t\t{STATE_LABEL[state]}\n\t\t\t\t</Text>\n\t\t\t</ToolCallHeader>\n\n\t\t\t{open && hasDetail ? (\n\t\t\t\t<View className=\"gap-2 border-t border-border pt-2\">\n\t\t\t\t\t{args !== undefined ? (\n\t\t\t\t\t\t<View className=\"gap-1\">\n\t\t\t\t\t\t\t<Text variant=\"muted\">Arguments</Text>\n\t\t\t\t\t\t\t<Text variant=\"code\" selectable>\n\t\t\t\t\t\t\t\t{format(args)}\n\t\t\t\t\t\t\t</Text>\n\t\t\t\t\t\t</View>\n\t\t\t\t\t) : null}\n\t\t\t\t\t{result !== undefined ? (\n\t\t\t\t\t\t<View className=\"gap-1\">\n\t\t\t\t\t\t\t<Text variant=\"muted\">Result</Text>\n\t\t\t\t\t\t\t<Text variant=\"code\" selectable>\n\t\t\t\t\t\t\t\t{format(result)}\n\t\t\t\t\t\t\t</Text>\n\t\t\t\t\t\t</View>\n\t\t\t\t\t) : null}\n\t\t\t\t</View>\n\t\t\t) : null}\n\t\t</View>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "components/ui/text.tsx",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { Text as RNText } from \"react-native\";\nimport { useTextClass } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Typographic scale for native text.\n *\n * Mirrors the web docs' heading and body styles, minus anything that needs a\n * DOM: no `scroll-m-*`, no `text-balance`, no `select-text`.\n */\nexport const textVariants = cva(\"text-base text-foreground\", {\n\tvariants: {\n\t\tvariant: {\n\t\t\tdefault: \"\",\n\t\t\th1: \"text-4xl font-extrabold tracking-tight\",\n\t\t\th2: \"text-3xl font-semibold tracking-tight\",\n\t\t\th3: \"text-2xl font-semibold tracking-tight\",\n\t\t\th4: \"text-xl font-semibold tracking-tight\",\n\t\t\tp: \"leading-7\",\n\t\t\tlead: \"text-xl text-muted-foreground\",\n\t\t\tlarge: \"text-lg font-semibold\",\n\t\t\tsmall: \"text-sm font-medium leading-none\",\n\t\t\tmuted: \"text-sm text-muted-foreground\",\n\t\t\tcode: \"rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\tvariant: \"default\",\n\t},\n});\n\ntype TextVariant = NonNullable<VariantProps<typeof textVariants>[\"variant\"]>;\n\n/** Variants that read as headings to VoiceOver and TalkBack. */\nconst HEADING_VARIANTS: ReadonlySet<TextVariant> = new Set<TextVariant>([\"h1\", \"h2\", \"h3\", \"h4\"]);\n\n/**\n * Props for {@link Text}. `ref` comes with the React Native `Text` props and\n * reaches the host element (React 19 — no forwardRef).\n */\nexport type TextProps = ComponentProps<typeof RNText> & VariantProps<typeof textVariants>;\n\n/**\n * Themed text with a typographic scale and parent-driven class inheritance.\n *\n * React Native text does not inherit colour or size from a `View`, so\n * containers like `Button`, `Card` and `Badge` publish the classes they want\n * their labels to carry through `TextClassContext`; this component reads\n * them and lets an explicit `className` win.\n * @param props - {@link TextProps}\n * @returns A React Native `Text` element\n * @example\n * ```tsx\n * <Text variant=\"h2\">Settings</Text>\n * <Text variant=\"muted\">Manage your account preferences.</Text>\n * ```\n */\nexport function Text({ className, variant = \"default\", ...props }: TextProps) {\n\tconst inherited = useTextClass();\n\tconst isHeading = variant !== null && HEADING_VARIANTS.has(variant);\n\treturn (\n\t\t<RNText\n\t\t\tclassName={cn(textVariants({ variant }), inherited, className)}\n\t\t\trole={isHeading ? \"heading\" : undefined}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils",
+      "primitives/text/text"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "border",
+    "card",
+    "card-foreground",
+    "destructive",
+    "foreground",
+    "muted",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "A completed call",
+      "description": "Name and status on one row; details open on tap",
+      "code": "<ToolCall\n  name=\"search_flights\"\n  state=\"success\"\n  args={{ from: \"LHR\", to: \"JFK\" }}\n  result={{ count: 12 }}\n/>",
+      "composition": [
+        "chat",
+        "agent"
+      ]
+    },
+    {
+      "title": "In flight",
+      "description": "Show the call as soon as it starts, before a result exists",
+      "code": "<ToolCall name=\"search_flights\" state=\"running\" args={args} />",
+      "composition": [
+        "chat",
+        "streaming"
+      ]
+    },
+    {
+      "title": "A failure",
+      "description": "The error state colours the status and keeps the detail available",
+      "code": "<ToolCall\n  name=\"book_flight\"\n  state=\"error\"\n  args={args}\n  result={error.message}\n  defaultOpen\n/>",
+      "composition": [
+        "chat",
+        "error"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use in a transcript to show that the model called a tool and how it went. Render it as soon as the call starts, then update the state as the result arrives.",
+    "whenNotToUse": "Don't use it for the model's prose (use Message). Don't use it for a progress bar over a long job (use Progress). Don't expand every call by default; a screen of JSON hides the conversation.",
+    "commonMistakes": [
+      "Leaving the state at 'pending' after the call finishes, so a completed tool reads as still queued",
+      "Passing defaultOpen on every call, which buries the conversation under argument dumps",
+      "Rendering it only after the result arrives, which hides the fact that anything is happening during the slowest part of a turn",
+      "Passing a value that cannot be serialised and expecting it to render — the component falls back to the string form, which is rarely useful; format it yourself first"
+    ],
+    "relatedComponents": [
+      "native-message",
+      "native-message-list",
+      "native-text"
+    ],
+    "accessibilityNotes": "The header row is a button whose accessible name carries both the tool name and its status, so a screen-reader user hears \"search_flights, Done\" without needing the colour. It reports its expanded state, and is disabled outright when there is nothing to expand. The error state pairs the destructive colour with the word Failed, so the status never rests on colour alone. Argument and result blocks are selectable for copying.",
+    "tokenBudget": 1880
+  },
+  "tags": [
+    "ai",
+    "agent",
+    "tool-call",
+    "function-call",
+    "collapsible",
+    "transparency",
+    "native",
+    "react-native"
+  ]
+}

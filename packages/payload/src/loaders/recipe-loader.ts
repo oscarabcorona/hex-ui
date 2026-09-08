@@ -48,6 +48,8 @@ export interface Recipe {
 	checklist: RecipeChecklistItem[];
 	example?: string;
 	tokenBudget?: number;
+	/** Render target; absent for web recipes. Derived by the registry build. */
+	platform?: "web" | "native";
 }
 
 export interface RecipeIndexItem {
@@ -59,6 +61,8 @@ export interface RecipeIndexItem {
 	tags: string[];
 	components: string[];
 	tokenBudget?: number;
+	/** Render target; absent for web recipes. Derived by the registry build. */
+	platform?: "web" | "native";
 }
 
 export interface RecipeIndex {

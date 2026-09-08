@@ -1,0 +1,167 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-textarea",
+  "displayName": "Textarea",
+  "description": "A multi-line text field. Reports edits through onChangeText, and grows from a 80pt minimum rather than using a rows attribute.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "description": "Placeholder text"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Controlled textarea value"
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Default value for uncontrolled usage"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    },
+    {
+      "name": "onChangeText",
+      "type": "function",
+      "required": false,
+      "description": "Called with the new string on every edit. Replaces the web onChange."
+    },
+    {
+      "name": "numberOfLines",
+      "type": "number",
+      "required": false,
+      "description": "Preferred visible line count. Replaces the web rows attribute; advisory on iOS, honoured on Android."
+    },
+    {
+      "name": "editable",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Set false to make the field read-only and dimmed. Replaces the web disabled prop."
+    },
+    {
+      "name": "submitBehavior",
+      "type": "enum",
+      "required": false,
+      "default": "newline",
+      "description": "What Return does. Keep the newline default for prose; use \"submit\" only for a single-line-style composer.",
+      "enumValues": [
+        "newline",
+        "submit",
+        "blurAndSubmit"
+      ]
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/textarea.tsx",
+      "content": "import type { ComponentProps } from \"react\";\nimport { TextInput } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Textarea}. */\nexport type TextareaProps = ComponentProps<typeof TextInput>;\n\n/**\n * A multi-line text field.\n *\n * The same `TextInput` as `Input` with `multiline` set, which changes two\n * defaults worth knowing: text starts vertically centred on iOS unless\n * `textAlignVertical` is set, and Return inserts a newline rather than\n * submitting.\n * @param props - {@link TextareaProps}\n * @returns A multi-line React Native `TextInput`\n * @example\n * ```tsx\n * <Textarea\n *   aria-labelledby=\"notes\"\n *   value={notes}\n *   onChangeText={setNotes}\n *   numberOfLines={4}\n * />\n * ```\n */\nexport function Textarea({ className, editable = true, ...props }: TextareaProps) {\n\treturn (\n\t\t<TextInput\n\t\t\tmultiline\n\t\t\teditable={editable}\n\t\t\t// See Input: `editable` alone is not announced, so a read-only\n\t\t\t// field reads as an ordinary one that mysteriously ignores taps.\n\t\t\taria-disabled={!editable}\n\t\t\taccessibilityState={{ disabled: !editable }}\n\t\t\ttextAlignVertical=\"top\"\n\t\t\tclassName={cn(\n\t\t\t\t\"min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base leading-5 text-foreground\",\n\t\t\t\t\"placeholder:text-muted-foreground\",\n\t\t\t\teditable === false && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "foreground",
+    "input",
+    "muted-foreground"
+  ],
+  "examples": [
+    {
+      "title": "Labelled notes field",
+      "description": "Four visible lines with the label wired for assistive tech",
+      "code": "<View className=\"gap-1.5\">\n  <Label nativeID=\"notes\">Notes</Label>\n  <Textarea\n    aria-labelledby=\"notes\"\n    value={notes}\n    onChangeText={setNotes}\n    numberOfLines={4}\n    placeholder=\"Anything we should know?\"\n  />\n</View>",
+      "composition": [
+        "form",
+        "field"
+      ]
+    },
+    {
+      "title": "Character counter",
+      "description": "Cap the length and show the remaining count",
+      "code": "<View className=\"gap-1.5\">\n  <Textarea\n    aria-labelledby=\"bio\"\n    value={bio}\n    onChangeText={setBio}\n    maxLength={280}\n  />\n  <Text variant=\"muted\" className=\"self-end\">{280 - bio.length} left</Text>\n</View>",
+      "composition": [
+        "form",
+        "validation"
+      ]
+    },
+    {
+      "title": "Read-only",
+      "description": "editable={false} is the React Native equivalent of disabled",
+      "code": "<Textarea aria-labelledby=\"terms\" editable={false} value={termsText} />",
+      "composition": [
+        "form",
+        "disabled"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for multi-line entry: notes, descriptions, feedback, message bodies. Pair with a Label, and set numberOfLines so the field opens at a sensible height.",
+    "whenNotToUse": "Don't use for single-line values (use Input, which raises the right keyboard and submits on Return). Don't use for rich text. Don't use it as a chat composer on its own — that needs send handling and keyboard avoidance.",
+    "commonMistakes": [
+      "Wiring onChange and reading event.target.value — React Native hands the string to onChangeText, so the web handler never fires",
+      "Leaving textAlignVertical unset when overriding the height — on iOS the text then floats in the vertical centre of the box instead of starting at the top",
+      "Setting submitBehavior=\"submit\" on a prose field, which turns Return into a submit and leaves the user unable to type a paragraph",
+      "Placing it low in a scroll view without a KeyboardAvoidingView, so the keyboard covers the field the moment it is focused"
+    ],
+    "relatedComponents": [
+      "native-input",
+      "native-label",
+      "native-text"
+    ],
+    "accessibilityNotes": "Name it by pairing a Label's nativeID with aria-labelledby, and attach helper or error copy with aria-describedby. The 80pt minimum height gives a comfortable touch target. Keyboard avoidance matters more here than for a single-line input, because a multi-line field is usually further down a form: wrap the form in a KeyboardAvoidingView so the field stays visible while typing.",
+    "tokenBudget": 347
+  },
+  "tags": [
+    "textarea",
+    "text",
+    "form",
+    "multiline",
+    "input",
+    "native",
+    "react-native"
+  ]
+}

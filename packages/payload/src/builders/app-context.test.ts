@@ -55,6 +55,31 @@ const fakeCard: RegistryItem = {
 	tags: ["layout"],
 };
 
+/**
+ * A native item whose internal dep names the same source path a web item
+ * would (`primitives/text/text`). Resolving that path without the owner's
+ * platform sends a reader to the React DOM `text`, which is the bug this
+ * fixture locks.
+ */
+const fakeNativeCard: RegistryItem = {
+	name: "native-card",
+	displayName: "Card",
+	description: "Surface with header, body, and footer slots.",
+	category: "component",
+	version: "1.0.0",
+	framework: "react",
+	platform: "native",
+	props: [],
+	variants: [],
+	slots: [],
+	files: [],
+	dependencies: { internal: ["primitives/text/text", "lib/utils"], npm: [] },
+	tokensUsed: [],
+	examples: [],
+	ai: {},
+	tags: ["layout", "native"],
+};
+
 const fakeRecipe: Recipe = {
 	slug: "settings-page",
 	title: "Settings page",
@@ -456,6 +481,69 @@ const CASES: Case[] = [
 				recipes: [{ slug: "ghost-recipe", recipe: null }],
 			}),
 		expected: EXPECTED_RECIPES_ALL_MISSING,
+	},
+	{
+		name: "native item resolves its internal deps to the native catalog",
+		build: () =>
+			buildAppContext({
+				theme: { requested: "default", resolved: fakeTheme },
+				components: [{ slug: "native-card", item: fakeNativeCard }],
+				recipes: [],
+				itemExists: (name) => name === "native-text",
+			}),
+		contains: ["Depends on: `native-text`."],
+		// The bare slug is what the platform-blind resolver used to emit, and
+		// it points at the React DOM component of the same name.
+		excludes: ["`text`.", "lib/utils"],
+	},
+	{
+		name: "an all-native component set gets the React Native prompt, not the Next.js one",
+		build: () =>
+			buildAppContext({
+				theme: { requested: "default", resolved: fakeTheme },
+				components: [{ slug: "native-card", item: fakeNativeCard }],
+				recipes: [],
+				itemExists: (name) => name === "native-text",
+			}),
+		contains: [
+			"React Native app (Expo)",
+			"init --platform native",
+			"<PortalHost />",
+			"onPress`, not `onClick",
+		],
+		// The web rules describe a platform this app does not run on, and the
+		// emitted globals.css would be a var() chain React Native cannot
+		// resolve — worse than absent, because it silently yields no colour.
+		excludes: [
+			"Next.js 16 (App Router, Turbopack)",
+			"React Server Components",
+			"focus-visible:ring-2",
+			"## tailwind.config.ts",
+		],
+	},
+	{
+		name: "a mixed-platform set is called out rather than rendered as one",
+		build: () =>
+			buildAppContext({
+				theme: { requested: "default", resolved: fakeTheme },
+				components: [
+					{ slug: "card", item: fakeCard },
+					{ slug: "native-card", item: fakeNativeCard },
+				],
+				recipes: [],
+			}),
+		contains: ["Mixed platforms", "Next.js 16 (App Router, Turbopack)"],
+	},
+	{
+		name: "web item keeps bare slugs when no catalog predicate is supplied",
+		build: () =>
+			buildAppContext({
+				theme: { requested: "default", resolved: fakeTheme },
+				components: [{ slug: "button", item: fakeButton }],
+				recipes: [],
+			}),
+		contains: ["Depends on: `popover`."],
+		excludes: ["native-popover"],
 	},
 	{
 		// Substring assertions instead of full snapshot — keeps the override case

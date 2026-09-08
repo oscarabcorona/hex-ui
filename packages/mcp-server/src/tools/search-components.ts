@@ -20,12 +20,17 @@ const DEFAULT_LIMIT = 20;
  * Ceiling on `limit`.
  *
  * Set above the catalog size on purpose: full enumeration stays POSSIBLE, it
- * just stops being what you get by accident. The defect was never that 187
+ * just stops being what you get by accident. The defect was never that the
  * rows can be asked for — the contract test legitimately needs them for its
  * all-items sweep — it was that not passing an argument returned them. An
- * explicit `limit: 200` is a caller deciding to spend the tokens.
+ * explicit high `limit` is a caller deciding to spend the tokens.
+ *
+ * Raised from 200 to 500 when the React Native catalog took the total past
+ * 200 and the contract test's own truncation guard fired. Keep it ahead of
+ * the catalog: a ceiling that sits below the item count silently turns the
+ * enumeration path into a partial one.
  */
-const MAX_LIMIT = 200;
+const MAX_LIMIT = 500;
 
 /**
  * Does any word in `haystack` match this query token?
@@ -60,7 +65,7 @@ export function register(server: McpServer): void {
 		TOOL.SEARCH_COMPONENTS,
 		{
 			description:
-				"Search for Hex Core components by name, description, category, or tags. Returns lightweight summaries for discovery, paginated: {total, returned, results}. Query words match on word-prefix boundaries, so 'butt' finds button but 'and' does not find command.",
+				"Search for Hex Core components by name, description, category, tags, or platform. Returns lightweight summaries for discovery, paginated: {total, returned, results}. Query words match on word-prefix boundaries, so 'butt' finds button but 'and' does not find command. React Native items are named `native-<slug>` and carry `platform: \"native\"`; a result with no `platform` field is a web (React DOM) component. Pass `platform` to search one target only — do that when the user is building an Expo or React Native app, since web items will not run there.",
 			inputSchema: z
 				.object({
 					query: z
@@ -81,6 +86,12 @@ export function register(server: McpServer): void {
 						])
 						.optional()
 						.describe("Filter by category"),
+					platform: z
+						.enum(["web", "native"])
+						.optional()
+						.describe(
+							"Filter by render target: 'web' for React DOM, 'native' for React Native (Expo). Omit to search both.",
+						),
 					tags: z.array(z.string()).optional().describe("Filter by tags (matches any)"),
 					limit: z
 						.number()
@@ -92,11 +103,17 @@ export function register(server: McpServer): void {
 				})
 				.strict(),
 		},
-		async ({ query, category, tags, limit }) => {
+		async ({ query, category, platform, tags, limit }) => {
 			let items = registry.items;
 
 			if (category) {
 				items = items.filter((item) => item.category === category);
+			}
+
+			// `platform` is omitted from the emitted JSON for web items (the
+			// default), so a missing field means web.
+			if (platform) {
+				items = items.filter((item) => (item.platform ?? "web") === platform);
 			}
 
 			if (tags && tags.length > 0) {
@@ -134,6 +151,11 @@ export function register(server: McpServer): void {
 				description: item.description,
 				category: item.category,
 				subcategory: item.subcategory,
+				// Emitted only for native items, matching the rule the registry
+				// itself follows. A constant `"platform":"web"` on all 187 web
+				// rows is pure wire cost on the highest-traffic tool, and the
+				// description already tells the model that absence means web.
+				...(item.platform === "native" ? { platform: item.platform } : {}),
 				tags: item.tags,
 				tokenBudget: item.tokenBudget,
 			}));

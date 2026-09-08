@@ -2,9 +2,9 @@
   "$schema": "https://hex-core.dev/schema/graph.json",
   "version": 1,
   "meta": {
-    "itemCount": 187,
-    "recipeCount": 25,
-    "edgeCount": 946,
+    "itemCount": 213,
+    "recipeCount": 26,
+    "edgeCount": 1042,
     "hubs": [
       "button",
       "motion",
@@ -4190,6 +4190,961 @@
       }
     },
     {
+      "id": "item:native-alert-dialog",
+      "slug": "native-alert-dialog",
+      "label": "Alert Dialog",
+      "kind": "item",
+      "category": "component",
+      "subcategory": "overlay",
+      "community": "component/overlay",
+      "communityName": "Overlay components",
+      "tags": [
+        "alert-dialog",
+        "confirm",
+        "destructive",
+        "modal",
+        "native",
+        "overlay",
+        "react-native"
+      ],
+      "compositionTags": [
+        "confirm",
+        "destructive",
+        "overlay"
+      ],
+      "tokenBudget": 911,
+      "degree": 3,
+      "exports": [
+        "AlertDialog",
+        "AlertDialogAction",
+        "AlertDialogCancel",
+        "AlertDialogContent",
+        "AlertDialogDescription",
+        "AlertDialogTitle",
+        "AlertDialogTrigger"
+      ],
+      "exportPaths": {
+        "AlertDialog": "ui/alert-dialog",
+        "AlertDialogAction": "ui/alert-dialog",
+        "AlertDialogCancel": "ui/alert-dialog",
+        "AlertDialogContent": "ui/alert-dialog",
+        "AlertDialogDescription": "ui/alert-dialog",
+        "AlertDialogTitle": "ui/alert-dialog",
+        "AlertDialogTrigger": "ui/alert-dialog"
+      }
+    },
+    {
+      "id": "item:native-avatar",
+      "slug": "native-avatar",
+      "label": "Avatar",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "display",
+      "community": "primitive/display",
+      "communityName": "Display primitives",
+      "tags": [
+        "avatar",
+        "display",
+        "image",
+        "native",
+        "profile",
+        "react-native",
+        "user"
+      ],
+      "compositionTags": [
+        "list-row",
+        "sizing",
+        "user"
+      ],
+      "tokenBudget": 634,
+      "degree": 5,
+      "exports": [
+        "Avatar",
+        "AvatarFallback",
+        "AvatarImage"
+      ],
+      "exportPaths": {
+        "Avatar": "ui/avatar",
+        "AvatarFallback": "ui/avatar",
+        "AvatarImage": "ui/avatar"
+      }
+    },
+    {
+      "id": "item:native-badge",
+      "slug": "native-badge",
+      "label": "Badge",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "display",
+      "community": "primitive/display",
+      "communityName": "Display primitives",
+      "tags": [
+        "badge",
+        "indicator",
+        "label",
+        "native",
+        "react-native",
+        "status",
+        "tag"
+      ],
+      "compositionTags": [
+        "live",
+        "screen-header",
+        "showcase",
+        "status"
+      ],
+      "tokenBudget": 483,
+      "degree": 8,
+      "exports": [
+        "Badge",
+        "badgeTextVariants",
+        "badgeVariants"
+      ],
+      "exportPaths": {
+        "Badge": "ui/badge",
+        "badgeTextVariants": "ui/badge",
+        "badgeVariants": "ui/badge"
+      }
+    },
+    {
+      "id": "item:native-bottom-sheet",
+      "slug": "native-bottom-sheet",
+      "label": "BottomSheet",
+      "kind": "item",
+      "category": "component",
+      "subcategory": "overlay",
+      "community": "component/overlay",
+      "communityName": "Overlay components",
+      "tags": [
+        "bottom-sheet",
+        "menu",
+        "modal",
+        "native",
+        "overlay",
+        "react-native",
+        "sheet"
+      ],
+      "compositionTags": [
+        "form",
+        "menu",
+        "overlay",
+        "share"
+      ],
+      "tokenBudget": 1237,
+      "degree": 5,
+      "exports": [
+        "BottomSheet",
+        "BottomSheetClose",
+        "BottomSheetContent",
+        "BottomSheetDescription",
+        "BottomSheetTitle",
+        "BottomSheetTrigger"
+      ],
+      "exportPaths": {
+        "BottomSheet": "ui/bottom-sheet",
+        "BottomSheetClose": "ui/bottom-sheet",
+        "BottomSheetContent": "ui/bottom-sheet",
+        "BottomSheetDescription": "ui/bottom-sheet",
+        "BottomSheetTitle": "ui/bottom-sheet",
+        "BottomSheetTrigger": "ui/bottom-sheet"
+      }
+    },
+    {
+      "id": "item:native-button",
+      "slug": "native-button",
+      "label": "Button",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "actions",
+      "community": "primitive/actions",
+      "communityName": "Actions primitives",
+      "tags": [
+        "action",
+        "button",
+        "click",
+        "cta",
+        "form",
+        "interactive",
+        "native",
+        "react-native"
+      ],
+      "compositionTags": [
+        "async",
+        "form",
+        "form-action",
+        "icon-only",
+        "navigation",
+        "showcase",
+        "toolbar"
+      ],
+      "tokenBudget": 993,
+      "degree": 13,
+      "exports": [
+        "Button",
+        "buttonTextVariants",
+        "buttonVariants"
+      ],
+      "exportPaths": {
+        "Button": "ui/button",
+        "buttonTextVariants": "ui/button",
+        "buttonVariants": "ui/button"
+      }
+    },
+    {
+      "id": "item:native-card",
+      "slug": "native-card",
+      "label": "Card",
+      "kind": "item",
+      "category": "component",
+      "subcategory": "layout",
+      "community": "component/layout",
+      "communityName": "Layout components",
+      "tags": [
+        "card",
+        "container",
+        "layout",
+        "native",
+        "panel",
+        "react-native",
+        "surface"
+      ],
+      "compositionTags": [
+        "empty-state",
+        "navigation",
+        "settings",
+        "surface"
+      ],
+      "tokenBudget": 1378,
+      "degree": 12,
+      "exports": [
+        "Card",
+        "CardContent",
+        "CardDescription",
+        "CardFooter",
+        "CardHeader",
+        "CardTitle",
+        "Text",
+        "textVariants"
+      ],
+      "exportPaths": {
+        "Card": "ui/card",
+        "CardContent": "ui/card",
+        "CardDescription": "ui/card",
+        "CardFooter": "ui/card",
+        "CardHeader": "ui/card",
+        "CardTitle": "ui/card",
+        "Text": "ui/text",
+        "textVariants": "ui/text"
+      }
+    },
+    {
+      "id": "item:native-checkbox",
+      "slug": "native-checkbox",
+      "label": "Checkbox",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "forms",
+      "community": "primitive/forms",
+      "communityName": "Forms primitives",
+      "tags": [
+        "boolean",
+        "check",
+        "checkbox",
+        "form",
+        "native",
+        "react-native",
+        "toggle"
+      ],
+      "compositionTags": [
+        "disabled",
+        "field",
+        "form",
+        "list"
+      ],
+      "tokenBudget": 315,
+      "degree": 7,
+      "exports": [
+        "Checkbox"
+      ],
+      "exportPaths": {
+        "Checkbox": "ui/checkbox"
+      }
+    },
+    {
+      "id": "item:native-composer",
+      "slug": "native-composer",
+      "label": "Composer",
+      "kind": "item",
+      "category": "ai",
+      "subcategory": "input",
+      "community": "ai/input",
+      "communityName": "Input AI components",
+      "tags": [
+        "ai",
+        "chat",
+        "composer",
+        "form",
+        "input",
+        "native",
+        "react-native",
+        "textarea"
+      ],
+      "compositionTags": [
+        "chat",
+        "screen",
+        "streaming"
+      ],
+      "tokenBudget": 1464,
+      "degree": 5,
+      "exports": [
+        "Composer",
+        "Text",
+        "textVariants"
+      ],
+      "exportPaths": {
+        "Composer": "ui/composer",
+        "Text": "ui/text",
+        "textVariants": "ui/text"
+      }
+    },
+    {
+      "id": "item:native-dialog",
+      "slug": "native-dialog",
+      "label": "Dialog",
+      "kind": "item",
+      "category": "component",
+      "subcategory": "overlay",
+      "community": "component/overlay",
+      "communityName": "Overlay components",
+      "tags": [
+        "dialog",
+        "form",
+        "modal",
+        "native",
+        "overlay",
+        "popup",
+        "react-native"
+      ],
+      "compositionTags": [
+        "confirm",
+        "form",
+        "overlay",
+        "setup"
+      ],
+      "tokenBudget": 816,
+      "degree": 8,
+      "exports": [
+        "Dialog",
+        "DialogClose",
+        "DialogContent",
+        "DialogDescription",
+        "DialogTitle",
+        "DialogTrigger"
+      ],
+      "exportPaths": {
+        "Dialog": "ui/dialog",
+        "DialogClose": "ui/dialog",
+        "DialogContent": "ui/dialog",
+        "DialogDescription": "ui/dialog",
+        "DialogTitle": "ui/dialog",
+        "DialogTrigger": "ui/dialog"
+      }
+    },
+    {
+      "id": "item:native-input",
+      "slug": "native-input",
+      "label": "Input",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "forms",
+      "community": "primitive/forms",
+      "communityName": "Forms primitives",
+      "tags": [
+        "field",
+        "form",
+        "input",
+        "native",
+        "react-native",
+        "text",
+        "text-field"
+      ],
+      "compositionTags": [
+        "auth",
+        "disabled",
+        "field",
+        "form",
+        "validation"
+      ],
+      "tokenBudget": 370,
+      "degree": 7,
+      "exports": [
+        "Input"
+      ],
+      "exportPaths": {
+        "Input": "ui/input"
+      }
+    },
+    {
+      "id": "item:native-label",
+      "slug": "native-label",
+      "label": "Label",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "forms",
+      "community": "primitive/forms",
+      "communityName": "Forms primitives",
+      "tags": [
+        "accessibility",
+        "form",
+        "label",
+        "native",
+        "react-native",
+        "text"
+      ],
+      "compositionTags": [
+        "disabled",
+        "field",
+        "form",
+        "settings-row"
+      ],
+      "tokenBudget": 660,
+      "degree": 10,
+      "exports": [
+        "Label"
+      ],
+      "exportPaths": {
+        "Label": "ui/label"
+      }
+    },
+    {
+      "id": "item:native-markdown",
+      "slug": "native-markdown",
+      "label": "Markdown",
+      "kind": "item",
+      "category": "ai",
+      "subcategory": "content",
+      "community": "ai/content",
+      "communityName": "Content AI components",
+      "tags": [
+        "ai",
+        "content",
+        "markdown",
+        "native",
+        "react-native",
+        "renderer",
+        "slots",
+        "streaming"
+      ],
+      "compositionTags": [
+        "chat",
+        "document",
+        "streaming"
+      ],
+      "tokenBudget": 3255,
+      "degree": 6,
+      "exports": [
+        "Markdown",
+        "Text",
+        "textVariants"
+      ],
+      "exportPaths": {
+        "Markdown": "ui/markdown",
+        "Text": "ui/text",
+        "textVariants": "ui/text"
+      }
+    },
+    {
+      "id": "item:native-message",
+      "slug": "native-message",
+      "label": "Message",
+      "kind": "item",
+      "category": "ai",
+      "subcategory": "chat",
+      "community": "ai/chat",
+      "communityName": "Chat AI components",
+      "tags": [
+        "ai",
+        "chat",
+        "conversation",
+        "message",
+        "native",
+        "react-native",
+        "turn"
+      ],
+      "compositionTags": [
+        "chat",
+        "streaming",
+        "system"
+      ],
+      "tokenBudget": 787,
+      "degree": 9,
+      "exports": [
+        "Message",
+        "messageTextVariants",
+        "messageVariants"
+      ],
+      "exportPaths": {
+        "Message": "ui/message",
+        "messageTextVariants": "ui/message",
+        "messageVariants": "ui/message"
+      }
+    },
+    {
+      "id": "item:native-message-list",
+      "slug": "native-message-list",
+      "label": "MessageList",
+      "kind": "item",
+      "category": "ai",
+      "subcategory": "chat",
+      "community": "ai/chat",
+      "communityName": "Chat AI components",
+      "tags": [
+        "ai",
+        "chat",
+        "native",
+        "react-native",
+        "scroll",
+        "streaming",
+        "viewport"
+      ],
+      "compositionTags": [
+        "chat",
+        "screen",
+        "streaming"
+      ],
+      "tokenBudget": 974,
+      "degree": 8,
+      "exports": [
+        "MessageList"
+      ],
+      "exportPaths": {
+        "MessageList": "ui/message-list"
+      }
+    },
+    {
+      "id": "item:native-popover",
+      "slug": "native-popover",
+      "label": "Popover",
+      "kind": "item",
+      "category": "component",
+      "subcategory": "overlay",
+      "community": "component/overlay",
+      "communityName": "Overlay components",
+      "tags": [
+        "anchored",
+        "floating",
+        "inline",
+        "native",
+        "overlay",
+        "popover",
+        "react-native"
+      ],
+      "compositionTags": [
+        "filter",
+        "help",
+        "overlay"
+      ],
+      "tokenBudget": 525,
+      "degree": 4,
+      "exports": [
+        "Popover",
+        "PopoverContent",
+        "PopoverTrigger"
+      ],
+      "exportPaths": {
+        "Popover": "ui/popover",
+        "PopoverContent": "ui/popover",
+        "PopoverTrigger": "ui/popover"
+      }
+    },
+    {
+      "id": "item:native-progress",
+      "slug": "native-progress",
+      "label": "Progress",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "feedback",
+      "community": "primitive/feedback",
+      "communityName": "Feedback primitives",
+      "tags": [
+        "bar",
+        "determinate",
+        "feedback",
+        "loading",
+        "native",
+        "progress",
+        "react-native"
+      ],
+      "compositionTags": [
+        "async",
+        "feedback",
+        "form",
+        "threshold",
+        "wizard"
+      ],
+      "tokenBudget": 677,
+      "degree": 4,
+      "exports": [
+        "Progress"
+      ],
+      "exportPaths": {
+        "Progress": "ui/progress"
+      }
+    },
+    {
+      "id": "item:native-radio-group",
+      "slug": "native-radio-group",
+      "label": "Radio Group",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "forms",
+      "community": "primitive/forms",
+      "communityName": "Forms primitives",
+      "tags": [
+        "choice",
+        "form",
+        "mutually-exclusive",
+        "native",
+        "radio",
+        "radio-group",
+        "react-native"
+      ],
+      "compositionTags": [
+        "description",
+        "disabled",
+        "field",
+        "form"
+      ],
+      "tokenBudget": 505,
+      "degree": 5,
+      "exports": [
+        "RadioGroup",
+        "RadioGroupItem"
+      ],
+      "exportPaths": {
+        "RadioGroup": "ui/radio-group",
+        "RadioGroupItem": "ui/radio-group"
+      }
+    },
+    {
+      "id": "item:native-select",
+      "slug": "native-select",
+      "label": "Select",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "forms",
+      "community": "primitive/forms",
+      "communityName": "Forms primitives",
+      "tags": [
+        "choose",
+        "dropdown",
+        "field",
+        "form",
+        "native",
+        "options",
+        "react-native",
+        "select"
+      ],
+      "compositionTags": [
+        "field",
+        "form",
+        "state"
+      ],
+      "tokenBudget": 1088,
+      "degree": 3,
+      "exports": [
+        "Select",
+        "SelectContent",
+        "SelectItem",
+        "SelectSeparator",
+        "SelectTrigger",
+        "SelectValue"
+      ],
+      "exportPaths": {
+        "Select": "ui/select",
+        "SelectContent": "ui/select",
+        "SelectItem": "ui/select",
+        "SelectSeparator": "ui/select",
+        "SelectTrigger": "ui/select",
+        "SelectValue": "ui/select"
+      }
+    },
+    {
+      "id": "item:native-separator",
+      "slug": "native-separator",
+      "label": "Separator",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "layout",
+      "community": "primitive/layout",
+      "communityName": "Layout primitives",
+      "tags": [
+        "divider",
+        "hr",
+        "layout",
+        "native",
+        "react-native",
+        "separator"
+      ],
+      "compositionTags": [
+        "accessibility",
+        "layout",
+        "metadata-row"
+      ],
+      "tokenBudget": 272,
+      "degree": 5,
+      "exports": [
+        "Separator"
+      ],
+      "exportPaths": {
+        "Separator": "ui/separator"
+      }
+    },
+    {
+      "id": "item:native-skeleton",
+      "slug": "native-skeleton",
+      "label": "Skeleton",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "feedback",
+      "community": "primitive/feedback",
+      "communityName": "Feedback primitives",
+      "tags": [
+        "loading",
+        "native",
+        "placeholder",
+        "react-native",
+        "shimmer",
+        "skeleton"
+      ],
+      "compositionTags": [
+        "accessibility",
+        "list-row",
+        "loading"
+      ],
+      "tokenBudget": 594,
+      "degree": 5,
+      "exports": [
+        "Skeleton"
+      ],
+      "exportPaths": {
+        "Skeleton": "ui/skeleton"
+      }
+    },
+    {
+      "id": "item:native-switch",
+      "slug": "native-switch",
+      "label": "Switch",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "forms",
+      "community": "primitive/forms",
+      "communityName": "Forms primitives",
+      "tags": [
+        "boolean",
+        "form",
+        "native",
+        "react-native",
+        "setting",
+        "switch",
+        "toggle"
+      ],
+      "compositionTags": [
+        "async",
+        "description",
+        "settings-row"
+      ],
+      "tokenBudget": 433,
+      "degree": 8,
+      "exports": [
+        "Switch"
+      ],
+      "exportPaths": {
+        "Switch": "ui/switch"
+      }
+    },
+    {
+      "id": "item:native-tabs",
+      "slug": "native-tabs",
+      "label": "Tabs",
+      "kind": "item",
+      "category": "component",
+      "subcategory": "navigation",
+      "community": "component/navigation",
+      "communityName": "Navigation components",
+      "tags": [
+        "native",
+        "navigation",
+        "panel",
+        "react-native",
+        "sections",
+        "tabbed",
+        "tabs"
+      ],
+      "compositionTags": [
+        "card",
+        "navigation",
+        "panel"
+      ],
+      "tokenBudget": 689,
+      "degree": 3,
+      "exports": [
+        "Tabs",
+        "TabsContent",
+        "TabsList",
+        "TabsTrigger"
+      ],
+      "exportPaths": {
+        "Tabs": "ui/tabs",
+        "TabsContent": "ui/tabs",
+        "TabsList": "ui/tabs",
+        "TabsTrigger": "ui/tabs"
+      }
+    },
+    {
+      "id": "item:native-text",
+      "slug": "native-text",
+      "label": "Text",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "typography",
+      "community": "primitive/typography",
+      "communityName": "Typography primitives",
+      "tags": [
+        "heading",
+        "label",
+        "native",
+        "react-native",
+        "text",
+        "typography"
+      ],
+      "compositionTags": [
+        "button",
+        "code",
+        "copy",
+        "inheritance",
+        "list-row",
+        "screen-header",
+        "truncate"
+      ],
+      "tokenBudget": 654,
+      "degree": 31,
+      "exports": [
+        "Text",
+        "textVariants"
+      ],
+      "exportPaths": {
+        "Text": "ui/text",
+        "textVariants": "ui/text"
+      }
+    },
+    {
+      "id": "item:native-textarea",
+      "slug": "native-textarea",
+      "label": "Textarea",
+      "kind": "item",
+      "category": "primitive",
+      "subcategory": "forms",
+      "community": "primitive/forms",
+      "communityName": "Forms primitives",
+      "tags": [
+        "form",
+        "input",
+        "multiline",
+        "native",
+        "react-native",
+        "text",
+        "textarea"
+      ],
+      "compositionTags": [
+        "disabled",
+        "field",
+        "form",
+        "validation"
+      ],
+      "tokenBudget": 347,
+      "degree": 3,
+      "exports": [
+        "Textarea"
+      ],
+      "exportPaths": {
+        "Textarea": "ui/textarea"
+      }
+    },
+    {
+      "id": "item:native-tool-call",
+      "slug": "native-tool-call",
+      "label": "ToolCall",
+      "kind": "item",
+      "category": "ai",
+      "subcategory": "agent",
+      "community": "ai/agent",
+      "communityName": "Agent AI components",
+      "tags": [
+        "agent",
+        "ai",
+        "collapsible",
+        "function-call",
+        "native",
+        "react-native",
+        "tool-call",
+        "transparency"
+      ],
+      "compositionTags": [
+        "agent",
+        "chat",
+        "error",
+        "streaming"
+      ],
+      "tokenBudget": 1880,
+      "degree": 6,
+      "exports": [
+        "Text",
+        "ToolCall",
+        "textVariants"
+      ],
+      "exportPaths": {
+        "Text": "ui/text",
+        "ToolCall": "ui/tool-call",
+        "textVariants": "ui/text"
+      }
+    },
+    {
+      "id": "item:native-tooltip",
+      "slug": "native-tooltip",
+      "label": "Tooltip",
+      "kind": "item",
+      "category": "component",
+      "subcategory": "overlay",
+      "community": "component/overlay",
+      "communityName": "Overlay components",
+      "tags": [
+        "hint",
+        "label",
+        "native",
+        "overlay",
+        "react-native",
+        "tooltip"
+      ],
+      "compositionTags": [
+        "icon-only",
+        "onboarding",
+        "toolbar"
+      ],
+      "tokenBudget": 571,
+      "degree": 3,
+      "exports": [
+        "Tooltip",
+        "TooltipContent",
+        "TooltipTrigger"
+      ],
+      "exportPaths": {
+        "Tooltip": "ui/tooltip",
+        "TooltipContent": "ui/tooltip",
+        "TooltipTrigger": "ui/tooltip"
+      }
+    },
+    {
       "id": "item:navigation-menu",
       "slug": "navigation-menu",
       "label": "Navigation Menu",
@@ -6364,6 +7319,27 @@
       "compositionTags": [],
       "tokenBudget": 2800,
       "degree": 7
+    },
+    {
+      "id": "recipe:chatbot-native",
+      "slug": "chatbot-native",
+      "label": "Chatbot (React Native)",
+      "kind": "recipe",
+      "recipeKind": "component",
+      "community": "recipe/component",
+      "communityName": "Component recipes",
+      "tags": [
+        "ai",
+        "chat",
+        "chatbot",
+        "expo",
+        "native",
+        "react-native",
+        "streaming"
+      ],
+      "compositionTags": [],
+      "tokenBudget": 2600,
+      "degree": 6
     },
     {
       "id": "recipe:checkout-page",
@@ -10460,6 +11436,640 @@
       "weight": 1
     },
     {
+      "source": "item:native-alert-dialog",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-alert-dialog",
+      "target": "item:native-dialog",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-alert-dialog",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-avatar",
+      "target": "item:native-badge",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-avatar",
+      "target": "item:native-card",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-avatar",
+      "target": "item:native-skeleton",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-avatar",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-badge",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-badge",
+      "target": "item:native-card",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-badge",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-bottom-sheet",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-bottom-sheet",
+      "target": "item:native-dialog",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-bottom-sheet",
+      "target": "item:native-radio-group",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-bottom-sheet",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-button",
+      "target": "item:native-switch",
+      "relation": "instead-use",
+      "confidence": "extracted",
+      "weight": 0.5,
+      "note": "Using <Button> to flip a boolean on/off (notifications, dark mode, airplane mode)"
+    },
+    {
+      "source": "item:native-button",
+      "target": "item:native-badge",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-button",
+      "target": "item:native-switch",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-button",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-card",
+      "target": "item:native-separator",
+      "relation": "instead-use",
+      "confidence": "extracted",
+      "weight": 0.5,
+      "note": "Nesting a Card inside a Card to group sub-sections"
+    },
+    {
+      "source": "item:native-card",
+      "target": "item:native-badge",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-card",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-card",
+      "target": "item:native-separator",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-card",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-card",
+      "target": "item:native-text",
+      "relation": "requires",
+      "confidence": "extracted",
+      "weight": 1
+    },
+    {
+      "source": "item:native-checkbox",
+      "target": "item:native-label",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-checkbox",
+      "target": "item:native-switch",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-checkbox",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-composer",
+      "target": "item:native-input",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-composer",
+      "target": "item:native-message",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-composer",
+      "target": "item:native-message-list",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-dialog",
+      "target": "item:native-bottom-sheet",
+      "relation": "instead-use",
+      "confidence": "extracted",
+      "weight": 0.5,
+      "note": "Using a centred Dialog for a menu or a list of options"
+    },
+    {
+      "source": "item:native-dialog",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-dialog",
+      "target": "item:native-input",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-dialog",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-dialog",
+      "target": "item:native-text",
+      "relation": "requires",
+      "confidence": "extracted",
+      "weight": 1
+    },
+    {
+      "source": "item:native-input",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-input",
+      "target": "item:native-label",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-input",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-label",
+      "target": "item:native-checkbox",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-label",
+      "target": "item:native-input",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-label",
+      "target": "item:native-switch",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-label",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-markdown",
+      "target": "item:native-message",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-markdown",
+      "target": "item:native-message-list",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-markdown",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-markdown",
+      "target": "item:native-text",
+      "relation": "requires",
+      "confidence": "extracted",
+      "weight": 1
+    },
+    {
+      "source": "item:native-message",
+      "target": "item:native-markdown",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-message",
+      "target": "item:native-message-list",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-message",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-message",
+      "target": "item:native-tool-call",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-message-list",
+      "target": "item:native-composer",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-message-list",
+      "target": "item:native-message",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-message-list",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-popover",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-popover",
+      "target": "item:native-dialog",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-popover",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-progress",
+      "target": "item:native-badge",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-progress",
+      "target": "item:native-skeleton",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-progress",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-radio-group",
+      "target": "item:native-checkbox",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-radio-group",
+      "target": "item:native-label",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-radio-group",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-select",
+      "target": "item:native-label",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-select",
+      "target": "item:native-radio-group",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-select",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-separator",
+      "target": "item:native-card",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-separator",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-skeleton",
+      "target": "item:native-avatar",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-skeleton",
+      "target": "item:native-card",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-skeleton",
+      "target": "item:native-progress",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-switch",
+      "target": "item:native-checkbox",
+      "relation": "instead-use",
+      "confidence": "extracted",
+      "weight": 0.5,
+      "note": "Using a Switch for a value the user submits later with the rest of a form"
+    },
+    {
+      "source": "item:native-switch",
+      "target": "item:native-checkbox",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-switch",
+      "target": "item:native-label",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-switch",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tabs",
+      "target": "item:native-card",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tabs",
+      "target": "item:native-separator",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tabs",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-text",
+      "target": "item:native-badge",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-text",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-text",
+      "target": "item:native-card",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-textarea",
+      "target": "item:native-input",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-textarea",
+      "target": "item:native-label",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-textarea",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tool-call",
+      "target": "item:native-message",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tool-call",
+      "target": "item:native-message-list",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tool-call",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tool-call",
+      "target": "item:native-text",
+      "relation": "requires",
+      "confidence": "extracted",
+      "weight": 1
+    },
+    {
+      "source": "item:native-tooltip",
+      "target": "item:native-button",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tooltip",
+      "target": "item:native-popover",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
+      "source": "item:native-tooltip",
+      "target": "item:native-text",
+      "relation": "related",
+      "confidence": "extracted",
+      "weight": 0.6
+    },
+    {
       "source": "item:navigation-menu",
       "target": "item:dropdown-menu",
       "relation": "related",
@@ -12791,6 +14401,60 @@
       "weight": 0.9,
       "order": 1,
       "role": "supporting"
+    },
+    {
+      "source": "recipe:chatbot-native",
+      "target": "item:native-composer",
+      "relation": "composes",
+      "confidence": "extracted",
+      "weight": 0.9,
+      "order": 3,
+      "role": "primary"
+    },
+    {
+      "source": "recipe:chatbot-native",
+      "target": "item:native-markdown",
+      "relation": "composes",
+      "confidence": "extracted",
+      "weight": 0.9,
+      "order": 2,
+      "role": "primary"
+    },
+    {
+      "source": "recipe:chatbot-native",
+      "target": "item:native-message",
+      "relation": "composes",
+      "confidence": "extracted",
+      "weight": 0.9,
+      "order": 1,
+      "role": "primary"
+    },
+    {
+      "source": "recipe:chatbot-native",
+      "target": "item:native-message-list",
+      "relation": "composes",
+      "confidence": "extracted",
+      "weight": 0.9,
+      "order": 0,
+      "role": "primary"
+    },
+    {
+      "source": "recipe:chatbot-native",
+      "target": "item:native-text",
+      "relation": "composes",
+      "confidence": "extracted",
+      "weight": 0.9,
+      "order": 5,
+      "role": "supporting"
+    },
+    {
+      "source": "recipe:chatbot-native",
+      "target": "item:native-tool-call",
+      "relation": "composes",
+      "confidence": "extracted",
+      "weight": 0.9,
+      "order": 4,
+      "role": "optional"
     },
     {
       "source": "recipe:checkout-page",

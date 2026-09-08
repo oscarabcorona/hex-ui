@@ -62,6 +62,12 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build packages
         run: pnpm build
+      # tsup's DTS step typechecks the libraries, but an app with no `build`
+      # task is invisible to it — `apps/native-playground` was in no gate at
+      # all, since eslint also ignores `apps/**`. This runs `typecheck` for
+      # every package that defines one.
+      - name: Typecheck
+        run: pnpm turbo typecheck
       - name: Build registry
         run: pnpm run build:registry
       # The mcp build's prebuild step regenerates packages/mcp-server/README.md

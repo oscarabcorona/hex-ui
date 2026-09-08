@@ -1,0 +1,144 @@
+{
+  "$schema": "https://hex-core.dev/schema/registry-item.json",
+  "name": "native-switch",
+  "displayName": "Switch",
+  "description": "An instant-effect on/off control, the standard idiom for a settings row on a phone. Controlled only — pass checked and onCheckedChange together.",
+  "category": "primitive",
+  "subcategory": "forms",
+  "version": "0.1.0",
+  "framework": "react",
+  "platform": "native",
+  "props": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "required": false,
+      "description": "Controlled checked state"
+    },
+    {
+      "name": "onCheckedChange",
+      "type": "function",
+      "required": false,
+      "description": "Callback: (checked: boolean) => void"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Disable the switch"
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    }
+  ],
+  "variants": [],
+  "slots": [],
+  "files": [
+    {
+      "path": "components/ui/switch.tsx",
+      "content": "import * as SwitchPrimitive from \"@rn-primitives/switch\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Extra touchable area in points beyond the visible track.\n *\n * The track is 44×24, so 10pt vertically brings the target to 44×44 — the\n * platform minimum. Matches the compensation Checkbox and RadioGroupItem\n * already apply.\n */\nconst HIT_SLOP = 10;\n\n/** Props for {@link Switch}. */\nexport type SwitchProps = ComponentProps<typeof SwitchPrimitive.Root>;\n\n/**\n * An instant-effect on/off control.\n *\n * Controlled only: pass `checked` and `onCheckedChange` together. The\n * change applies immediately — there is no submit step — which is what\n * separates this from Checkbox.\n * @param props - {@link SwitchProps}\n * @returns The switch element\n * @example\n * ```tsx\n * <Switch\n *   aria-labelledby=\"notifications\"\n *   checked={enabled}\n *   onCheckedChange={setEnabled}\n * />\n * ```\n */\nexport function Switch({ className, ...props }: SwitchProps) {\n\treturn (\n\t\t<SwitchPrimitive.Root\n\t\t\t// The track is 44pt wide but only 24pt tall, so the vertical\n\t\t\t// target fell well under the 44pt minimum — the same gap Checkbox\n\t\t\t// and RadioGroupItem already close with their own hitSlop.\n\t\t\thitSlop={HIT_SLOP}\n\t\t\tclassName={cn(\n\t\t\t\t\"h-6 w-11 shrink-0 flex-row items-center rounded-full border-2 border-transparent\",\n\t\t\t\tprops.checked ? \"bg-primary\" : \"bg-input\",\n\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<SwitchPrimitive.Thumb\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"size-5 rounded-full bg-background\",\n\t\t\t\t\tprops.checked ? \"translate-x-5\" : \"translate-x-0\",\n\t\t\t\t)}\n\t\t\t/>\n\t\t</SwitchPrimitive.Root>\n\t);\n}\n",
+      "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/text-context.tsx",
+      "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
+      "type": "lib"
+    },
+    {
+      "path": "lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Merge class names with Tailwind-aware conflict resolution.\n *\n * Deliberately a copy of the web helper rather than an import from\n * `@hex-core/components`: that package is React DOM, and `hex add` ships\n * this file into the consumer's project alongside each component anyway.\n * NativeWind's platform prefixes (`ios:`, `android:`, `native:`) are\n * unknown to tailwind-merge and pass through untouched.\n * @param inputs - Class values (strings, arrays, conditionals) to merge\n * @returns The merged class string with later Tailwind utilities winning\n */\nexport function cn(...inputs: ClassValue[]): string {\n\treturn twMerge(clsx(inputs));\n}\n",
+      "type": "lib"
+    }
+  ],
+  "dependencies": {
+    "npm": [
+      "@rn-primitives/switch",
+      "clsx",
+      "tailwind-merge"
+    ],
+    "internal": [
+      "lib/utils"
+    ],
+    "peer": [
+      "react",
+      "react-native",
+      "nativewind"
+    ]
+  },
+  "tokensUsed": [
+    "background",
+    "input",
+    "primary"
+  ],
+  "examples": [
+    {
+      "title": "Settings row",
+      "description": "Label on the left, switch on the right — the platform convention",
+      "code": "<View className=\"flex-row items-center justify-between py-2\">\n  <Label nativeID=\"notifications\">Push notifications</Label>\n  <Switch\n    aria-labelledby=\"notifications\"\n    checked={enabled}\n    onCheckedChange={setEnabled}\n  />\n</View>",
+      "composition": [
+        "settings-row"
+      ]
+    },
+    {
+      "title": "With a description",
+      "description": "Explain the consequence under the label, and announce it with the control",
+      "code": "<View className=\"flex-row items-start justify-between gap-4 py-2\">\n  <View className=\"flex-1 gap-1\">\n    <Label nativeID=\"sync\">Background sync</Label>\n    <Text nativeID=\"sync-hint\" variant=\"muted\">Uses mobile data when Wi-Fi is unavailable.</Text>\n  </View>\n  <Switch\n    aria-labelledby=\"sync\"\n    aria-describedby=\"sync-hint\"\n    checked={sync}\n    onCheckedChange={setSync}\n  />\n</View>",
+      "composition": [
+        "settings-row",
+        "description"
+      ]
+    },
+    {
+      "title": "Persisting immediately",
+      "description": "The change takes effect on toggle; there is no save button",
+      "code": "<Switch\n  aria-labelledby=\"airplane\"\n  checked={airplane}\n  onCheckedChange={(next) => {\n    setAirplane(next);\n    void savePreference(\"airplane\", next);\n  }}\n/>",
+      "composition": [
+        "settings-row",
+        "async"
+      ]
+    }
+  ],
+  "ai": {
+    "whenToUse": "Use for settings that take effect the moment they are flipped: notifications, dark mode, background sync, airplane mode. On a phone this is the expected control for a settings row.",
+    "whenNotToUse": "Don't use for a value submitted later with a form (use Checkbox). Don't use for mutually exclusive options (use RadioGroup). Don't use it to filter a list.",
+    "commonMistakes": [
+      "Rendering it uncontrolled — the native primitive needs both checked and onCheckedChange, so without them the thumb never moves",
+      "Passing defaultChecked as on the web — there is no uncontrolled mode; seed the parent state instead",
+      "Pairing it with a Save button — a switch means the change already happened; if the value needs saving, use a Checkbox",
+      "Leaving the row without a Label and relying on nearby text — the switch then announces only its on/off state with no name",
+      "Reverting the value silently when an async persist fails, with nothing shown to the user"
+    ],
+    "antiPatterns": [
+      {
+        "mistake": "Using a Switch for a value the user submits later with the rest of a form",
+        "insteadUse": "native-checkbox",
+        "why": "A switch promises the change already took effect. A checkbox is the control for a value that is staged until submit."
+      }
+    ],
+    "relatedComponents": [
+      "native-label",
+      "native-checkbox",
+      "native-text"
+    ],
+    "accessibilityNotes": "The primitive sets role=\"switch\" and reports the on/off state, so VoiceOver and TalkBack announce name and state together. Name it by pairing a Label's nativeID with aria-labelledby, and attach any explanatory line with aria-describedby. Pairing those does not forward taps the way a browser's htmlFor does, so give the Label its own onPress calling the same handler — the control is only 44pt wide, and the caption is the easier target. The track colour changes with state, but the announced state is what carries the meaning, never the colour alone.",
+    "tokenBudget": 433
+  },
+  "tags": [
+    "switch",
+    "toggle",
+    "form",
+    "boolean",
+    "setting",
+    "native",
+    "react-native"
+  ]
+}

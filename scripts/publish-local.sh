@@ -150,6 +150,7 @@ PACKAGES=(
 	"packages/themes"
 	"packages/components"
 	"packages/motion"
+	"packages/native"
 	"packages/payload"
 	"packages/cli"
 	"packages/mcp-server"
