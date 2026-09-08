@@ -2,6 +2,15 @@ import * as SwitchPrimitive from "@rn-primitives/switch";
 import type { ComponentProps } from "react";
 import { cn } from "../../lib/utils.js";
 
+/**
+ * Extra touchable area in points beyond the visible track.
+ *
+ * The track is 44×24, so 10pt vertically brings the target to 44×44 — the
+ * platform minimum. Matches the compensation Checkbox and RadioGroupItem
+ * already apply.
+ */
+const HIT_SLOP = 10;
+
 /** Props for {@link Switch}. */
 export type SwitchProps = ComponentProps<typeof SwitchPrimitive.Root>;
 
@@ -25,6 +34,10 @@ export type SwitchProps = ComponentProps<typeof SwitchPrimitive.Root>;
 export function Switch({ className, ...props }: SwitchProps) {
 	return (
 		<SwitchPrimitive.Root
+			// The track is 44pt wide but only 24pt tall, so the vertical
+			// target fell well under the 44pt minimum — the same gap Checkbox
+			// and RadioGroupItem already close with their own hitSlop.
+			hitSlop={HIT_SLOP}
 			className={cn(
 				"h-6 w-11 shrink-0 flex-row items-center rounded-full border-2 border-transparent",
 				props.checked ? "bg-primary" : "bg-input",

@@ -47,6 +47,11 @@
       "type": "component"
     },
     {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
+    },
+    {
       "path": "lib/text-context.tsx",
       "content": "import { createContext, useContext } from \"react\";\n\n/**\n * Class names a parent wants applied to the `<Text>` elements inside it.\n *\n * React Native text does not inherit colour or size from its container the\n * way DOM text does, so a `Button` cannot make its label\n * `text-primary-foreground` by styling itself. Instead it provides that\n * class here and `Text` reads it. Same pattern React Native Reusables\n * uses; kept as a tiny shared module so every component agrees on it.\n */\nexport const TextClassContext = createContext<string | undefined>(undefined);\n\n/**\n * Read the class names the nearest text-styling ancestor provided.\n * @returns The inherited class string, or undefined outside any provider\n */\nexport function useTextClass(): string | undefined {\n\treturn useContext(TextClassContext);\n}\n",
       "type": "lib"
@@ -74,8 +79,7 @@
   },
   "tokensUsed": [
     "input",
-    "primary",
-    "ring"
+    "primary"
   ],
   "examples": [
     {
@@ -121,7 +125,7 @@
       "native-checkbox",
       "native-text"
     ],
-    "accessibilityNotes": "Each item is announced as a radio with its checked state, which is what carries the meaning. The root does set role=\"radiogroup\", but React Native does not expose a plain container to assistive tech the way the DOM does, so do not rely on the group itself being announced: precede it with a Label or heading naming the choice. Every item needs its own Label paired by aria-labelledby, and tapping that label selects the option — the practical way to hit a 20pt dot. Disabling at the root disables and dims every item; mirror it on the labels so the whole row reads as unavailable.",
+    "accessibilityNotes": "Each item is announced as a radio with its checked state, which is what carries the meaning. The root does set role=\"radiogroup\", but React Native does not expose a plain container to assistive tech the way the DOM does, so do not rely on the group itself being announced: precede it with a Label or heading naming the choice. Every item needs its own Label paired by aria-labelledby. The pairing names the item without forwarding taps, so give each Label an onPress selecting that value — the practical way to hit a 20pt dot. Disabling at the root disables and dims every item; mirror it on the labels so the whole row reads as unavailable.",
     "tokenBudget": 505
   },
   "tags": [

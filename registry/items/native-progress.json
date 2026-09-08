@@ -26,7 +26,7 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes"
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
     },
     {
       "name": "indicatorClassName",
@@ -40,8 +40,13 @@
   "files": [
     {
       "path": "components/ui/progress.tsx",
-      "content": "import * as ProgressPrimitive from \"@rn-primitives/progress\";\nimport { type ComponentProps, useEffect, useRef } from \"react\";\nimport { Animated } from \"react-native\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Progress}. */\nexport interface ProgressProps extends ComponentProps<typeof ProgressPrimitive.Root> {\n\t/** Class names for the filled portion, e.g. to recolour it. */\n\tindicatorClassName?: string;\n}\n\n/** How long the bar takes to animate to a new value, in milliseconds. */\nconst FILL_DURATION = 300;\n\n/**\n * A determinate progress bar.\n *\n * Animates the fill with React Native's built-in `Animated` rather than\n * Reanimated, so the package needs no native module. The bar animates its\n * width, which cannot use the native driver, so keep it off long lists.\n * @param props - {@link ProgressProps}\n * @returns The progress element\n * @example\n * ```tsx\n * <Progress value={uploaded} aria-label=\"Upload progress\" />\n * ```\n */\nexport function Progress({\n\tclassName,\n\tindicatorClassName,\n\tvalue,\n\tmax = 100,\n\t...props\n}: ProgressProps) {\n\tconst percent = Math.min(Math.max(((value ?? 0) / max) * 100, 0), 100);\n\tconst width = useRef(new Animated.Value(percent)).current;\n\n\tuseEffect(() => {\n\t\tconst animation = Animated.timing(width, {\n\t\t\ttoValue: percent,\n\t\t\tduration: FILL_DURATION,\n\t\t\t// Width is a layout property, so it cannot run on the native driver.\n\t\t\tuseNativeDriver: false,\n\t\t});\n\t\tanimation.start();\n\t\treturn () => {\n\t\t\tanimation.stop();\n\t\t};\n\t}, [percent, width]);\n\n\treturn (\n\t\t<ProgressPrimitive.Root\n\t\t\tvalue={value}\n\t\t\tmax={max}\n\t\t\tclassName={cn(\"h-2 w-full overflow-hidden rounded-full bg-secondary\", className)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<ProgressPrimitive.Indicator asChild>\n\t\t\t\t<Animated.View\n\t\t\t\t\tclassName={cn(\"h-full bg-primary\", indicatorClassName)}\n\t\t\t\t\tstyle={{\n\t\t\t\t\t\twidth: width.interpolate({\n\t\t\t\t\t\t\tinputRange: [0, 100],\n\t\t\t\t\t\t\toutputRange: [\"0%\", \"100%\"],\n\t\t\t\t\t\t}),\n\t\t\t\t\t}}\n\t\t\t\t/>\n\t\t\t</ProgressPrimitive.Indicator>\n\t\t</ProgressPrimitive.Root>\n\t);\n}\n",
+      "content": "import * as ProgressPrimitive from \"@rn-primitives/progress\";\nimport { type ComponentProps, useEffect, useState } from \"react\";\nimport { Animated } from \"react-native\";\nimport { AnimatedView } from \"../../lib/animated.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Progress}. */\nexport interface ProgressProps extends ComponentProps<typeof ProgressPrimitive.Root> {\n\t/** Class names for the filled portion, e.g. to recolour it. */\n\tindicatorClassName?: string;\n}\n\n/** How long the bar takes to animate to a new value, in milliseconds. */\nconst FILL_DURATION = 300;\n\n/**\n * A determinate progress bar.\n *\n * Animates the fill with React Native's built-in `Animated` rather than\n * Reanimated, so the package needs no native module. The bar animates its\n * width, which cannot use the native driver, so keep it off long lists.\n * @param props - {@link ProgressProps}\n * @returns The progress element\n * @example\n * ```tsx\n * <Progress value={uploaded} aria-label=\"Upload progress\" />\n * ```\n */\nexport function Progress({\n\tclassName,\n\tindicatorClassName,\n\tvalue,\n\tmax = 100,\n\t...props\n}: ProgressProps) {\n\t// Clamp ONCE and pass the clamped pair down. The bar used to clamp its own\n\t// fill while forwarding the raw value to the primitive, whose\n\t// `isValidValueNumber` rejects `value > max` and falls back to 0 — so\n\t// `value={150} max={100}` drew a full bar that VoiceOver announced as\n\t// \"0%\". A non-positive `max` made `percent` NaN, which then poisoned the\n\t// Animated.Value it was constructed with.\n\tconst safeMax = max > 0 ? max : 100;\n\tconst safeValue = Math.min(Math.max(value ?? 0, 0), safeMax);\n\tconst percent = (safeValue / safeMax) * 100;\n\t// `useState` with an initialiser: `useRef(new Animated.Value(…))` builds a\n\t// fresh Value on every render and discards it.\n\tconst [width] = useState(() => new Animated.Value(percent));\n\n\tuseEffect(() => {\n\t\tconst animation = Animated.timing(width, {\n\t\t\ttoValue: percent,\n\t\t\tduration: FILL_DURATION,\n\t\t\t// Width is a layout property, so it cannot run on the native driver.\n\t\t\tuseNativeDriver: false,\n\t\t});\n\t\tanimation.start();\n\t\treturn () => {\n\t\t\tanimation.stop();\n\t\t};\n\t}, [percent, width]);\n\n\treturn (\n\t\t<ProgressPrimitive.Root\n\t\t\tvalue={safeValue}\n\t\t\tmax={safeMax}\n\t\t\tclassName={cn(\"h-2 w-full overflow-hidden rounded-full bg-secondary\", className)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<ProgressPrimitive.Indicator asChild>\n\t\t\t\t<AnimatedView\n\t\t\t\t\tclassName={cn(\"h-full bg-primary\", indicatorClassName)}\n\t\t\t\t\tstyle={{\n\t\t\t\t\t\twidth: width.interpolate({\n\t\t\t\t\t\t\tinputRange: [0, 100],\n\t\t\t\t\t\t\toutputRange: [\"0%\", \"100%\"],\n\t\t\t\t\t\t}),\n\t\t\t\t\t}}\n\t\t\t\t/>\n\t\t\t</ProgressPrimitive.Indicator>\n\t\t</ProgressPrimitive.Root>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -61,7 +66,8 @@
       "tailwind-merge"
     ],
     "internal": [
-      "lib/utils"
+      "lib/utils",
+      "lib/animated"
     ],
     "peer": [
       "react",
@@ -70,8 +76,8 @@
     ]
   },
   "tokensUsed": [
-    "secondary",
-    "primary"
+    "primary",
+    "secondary"
   ],
   "examples": [
     {
@@ -117,7 +123,7 @@
       "native-badge"
     ],
     "accessibilityNotes": "The primitive sets role=\"progressbar\" and reports the current, minimum and maximum values, so VoiceOver and TalkBack announce the position. Always pass aria-label naming the work. Colour never carries the meaning on its own — pair a threshold recolour with visible text. The fill animates over 300ms, which is short enough not to mislead about the real rate.",
-    "tokenBudget": 495
+    "tokenBudget": 677
   },
   "tags": [
     "progress",

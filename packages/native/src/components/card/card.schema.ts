@@ -2,6 +2,11 @@ import { cardSchema } from "@hex-core/components/schemas";
 import { deriveNativeSchema } from "@hex-core/registry";
 
 export const nativeCardSchema = deriveNativeSchema(cardSchema, {
+	// The web description advertises "hover effects", which a touch surface
+	// cannot deliver. Native cards are passive by default and take their
+	// interactivity from a Pressable wrapped around them.
+	description:
+		"A container with header, content and footer sections on a raised surface. Passive by default — wrap it in a Pressable to make the whole card one target.",
 	dependencies: {
 		npm: ["clsx", "tailwind-merge"],
 		internal: ["lib/utils", "lib/text-context", "primitives/text/text"],

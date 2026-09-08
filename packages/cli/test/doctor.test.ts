@@ -265,6 +265,83 @@ describe("doctor --layout", () => {
 	});
 });
 
+describe("doctor — native projects", () => {
+	/**
+	 * A minimally correct Expo + NativeWind project, matching what
+	 * `hex init --platform native` writes.
+	 */
+	function nativeProject() {
+		writePkg({
+			dependencies: {
+				expo: "^57.0.0",
+				"react-native": "0.86.3",
+				nativewind: "^4.2.6",
+				"react-native-safe-area-context": "^5.7.0",
+				clsx: "^2.1.1",
+				"tailwind-merge": "^3.6.0",
+				"class-variance-authority": "^0.7.1",
+			},
+			devDependencies: { tailwindcss: "^3.4.0" },
+		});
+		writeFile("global.css", "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n");
+		writeFile("tailwind.config.js", `module.exports = { presets: [require("nativewind/preset")] };`);
+		writeFile("hex.config.json", JSON.stringify({ platform: "native" }));
+		writeFile("lib/utils.ts", "export function cn(){}");
+	}
+
+	// The whole point of the platform split: these checks are web-shaped, and
+	// running them against a correct Expo app reported it as broken.
+	it("does not run the web-only checks on a native project", async () => {
+		nativeProject();
+		const checks = await runDoctor(tmpDir);
+		expect(findCheck(checks, /tw-animate-css|tailwindcss-animate/)).toBeUndefined();
+		expect(findCheck(checks, /matches Tailwind v4/)).toBeUndefined();
+		expect(checks.filter((c) => c.status === "fail")).toHaveLength(0);
+	});
+
+	it("fails when global.css is missing", async () => {
+		nativeProject();
+		fs.rmSync(path.join(tmpDir, "global.css"));
+		const checks = await runDoctor(tmpDir);
+		expect(findCheck(checks, /global\.css/)?.status).toBe("fail");
+	});
+
+	// React Native resolves no var() chain, so a copied-in web stylesheet
+	// leaves every colour falling back silently.
+	it("fails when global.css carries var() token references", async () => {
+		nativeProject();
+		writeFile("global.css", "@tailwind base;\n:root { --primary: var(--brand); }\n");
+		expect(findCheck(await runDoctor(tmpDir), /literal/)?.status).toBe("fail");
+	});
+
+	it("fails when the NativeWind preset is missing from the Tailwind config", async () => {
+		nativeProject();
+		writeFile("tailwind.config.js", "module.exports = { content: [] };");
+		expect(findCheck(await runDoctor(tmpDir), /NativeWind preset/)?.status).toBe("fail");
+	});
+
+	it("warns when overlays are installed but no PortalHost is mounted", async () => {
+		nativeProject();
+		writeFile("components/ui/dialog.tsx", "export function Dialog(){return null}");
+		expect(findCheck(await runDoctor(tmpDir), /PortalHost/)?.status).toBe("warn");
+	});
+
+	it("passes the PortalHost check once one is mounted", async () => {
+		nativeProject();
+		writeFile("components/ui/dialog.tsx", "export function Dialog(){return null}");
+		writeFile("app/_layout.tsx", `import { PortalHost } from "@rn-primitives/portal";`);
+		expect(findCheck(await runDoctor(tmpDir), /PortalHost/)?.status).toBe("pass");
+	});
+
+	it("checks @rn-primitives deps instead of @radix-ui ones", async () => {
+		nativeProject();
+		writeFile("components/ui/dialog.tsx", `import * as D from "@rn-primitives/dialog";`);
+		const checks = await runDoctor(tmpDir);
+		expect(findCheck(checks, /@rn-primitives\/dialog/)?.status).toBe("fail");
+		expect(findCheck(checks, /@radix-ui/)).toBeUndefined();
+	});
+});
+
 describe("doctor — catalog graph", () => {
 	it("passes when the bundled registry ships a parseable graph.json", async () => {
 		writePkg({ name: "scratch" });

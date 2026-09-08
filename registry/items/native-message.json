@@ -10,18 +10,6 @@
   "platform": "native",
   "props": [
     {
-      "name": "role",
-      "type": "enum",
-      "required": true,
-      "description": "Speaker. Drives variant styling and the data-role attribute.",
-      "enumValues": [
-        "user",
-        "assistant",
-        "system",
-        "tool"
-      ]
-    },
-    {
       "name": "children",
       "type": "ReactNode",
       "required": true,
@@ -31,7 +19,19 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes merged onto the row."
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
+    },
+    {
+      "name": "role",
+      "type": "enum",
+      "required": true,
+      "description": "Speaker. Drives the bubble's alignment, its background colour, and the body text colour it publishes.",
+      "enumValues": [
+        "user",
+        "assistant",
+        "system",
+        "tool"
+      ]
     }
   ],
   "variants": [
@@ -76,8 +76,13 @@
   "files": [
     {
       "path": "components/ui/message.tsx",
-      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { View } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Bubble styles per role. */\nexport const messageVariants = cva(\"max-w-[85%] rounded-2xl px-4 py-2.5\", {\n\tvariants: {\n\t\trole: {\n\t\t\tuser: \"self-end bg-primary rounded-br-md\",\n\t\t\tassistant: \"self-start bg-muted rounded-bl-md\",\n\t\t\tsystem: \"self-center bg-transparent px-0 py-1\",\n\t\t\ttool: \"self-start border border-border bg-card\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\trole: \"assistant\",\n\t},\n});\n\n/** Body-text styles per role, published through `TextClassContext`. */\nexport const messageTextVariants = cva(\"text-base\", {\n\tvariants: {\n\t\trole: {\n\t\t\tuser: \"text-primary-foreground\",\n\t\t\tassistant: \"text-foreground\",\n\t\t\tsystem: \"text-center text-sm text-muted-foreground\",\n\t\t\ttool: \"text-sm text-card-foreground\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\trole: \"assistant\",\n\t},\n});\n\n/**\n * Props for {@link Message}.\n *\n * React Native's `ViewProps` already has a `role` (the accessibility role),\n * which collides with the speaker variant. The variant keeps the name — it\n * matches the web component and the message objects every SDK produces — and\n * the accessibility grouping is owned internally instead.\n */\nexport type MessageProps = Omit<ComponentProps<typeof View>, \"role\"> & VariantProps<typeof messageVariants>;\n\n/**\n * One turn in a conversation.\n *\n * The role decides both the alignment and the colour, and publishes the body\n * text colour to any `Text` inside — so a message body needs no styling of\n * its own.\n * @param props - {@link MessageProps}\n * @returns The message bubble\n * @example\n * ```tsx\n * <Message role=\"user\"><Text>What is the weather?</Text></Message>\n * <Message role=\"assistant\"><Text>Sunny, 21 degrees.</Text></Message>\n * ```\n */\nexport function Message({ className, role, ...props }: MessageProps) {\n\treturn (\n\t\t<TextClassContext.Provider value={messageTextVariants({ role })}>\n\t\t\t{/* `accessible` groups the bubble so VoiceOver reads a turn as one\n\t\t\t    unit rather than announcing each fragment separately. */}\n\t\t\t<View accessible className={cn(messageVariants({ role }), className)} {...props} />\n\t\t</TextClassContext.Provider>\n\t);\n}\n",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { View } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Bubble styles per role. */\nexport const messageVariants = cva(\"max-w-[85%] rounded-2xl px-4 py-2.5\", {\n\tvariants: {\n\t\trole: {\n\t\t\tuser: \"self-end bg-primary rounded-br-md\",\n\t\t\tassistant: \"self-start bg-muted rounded-bl-md\",\n\t\t\tsystem: \"self-center bg-transparent px-0 py-1\",\n\t\t\ttool: \"self-start border border-border bg-card\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\trole: \"assistant\",\n\t},\n});\n\n/** Body-text styles per role, published through `TextClassContext`. */\nexport const messageTextVariants = cva(\"text-base\", {\n\tvariants: {\n\t\trole: {\n\t\t\tuser: \"text-primary-foreground\",\n\t\t\tassistant: \"text-foreground\",\n\t\t\tsystem: \"text-center text-sm text-muted-foreground\",\n\t\t\ttool: \"text-sm text-card-foreground\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\trole: \"assistant\",\n\t},\n});\n\n/**\n * Props for {@link Message}.\n *\n * React Native's `ViewProps` already has a `role` (the accessibility role),\n * which collides with the speaker variant. The variant keeps the name — it\n * matches the web component and the message objects every SDK produces — and\n * the accessibility grouping is owned internally instead.\n */\nexport type MessageProps = Omit<ComponentProps<typeof View>, \"role\"> &\n\tVariantProps<typeof messageVariants> & {\n\t\t/**\n\t\t * Group the bubble as a single accessibility element. Defaults to\n\t\t * `true`, which is right for a plain text turn.\n\t\t *\n\t\t * Set it to `false` whenever the bubble contains something the user\n\t\t * must reach on its own — a Markdown link, a ToolCall row, any\n\t\t * Pressable. Grouping collapses the subtree, so a screen-reader user\n\t\t * hears the sentence and can never activate the link inside it.\n\t\t */\n\t\taccessible?: boolean;\n\t};\n\n/**\n * One turn in a conversation.\n *\n * The role decides both the alignment and the colour, and publishes the body\n * text colour to any `Text` inside — so a message body needs no styling of\n * its own.\n * @param props - {@link MessageProps}\n * @returns The message bubble\n * @example\n * ```tsx\n * <Message role=\"user\"><Text>What is the weather?</Text></Message>\n * <Message role=\"assistant\"><Text>Sunny, 21 degrees.</Text></Message>\n * ```\n * @example\n * A turn holding anything interactive must opt out of the grouping, or the\n * link inside it cannot be reached:\n * ```tsx\n * <Message role=\"assistant\" accessible={false}>\n *   <Markdown>{\"See [the docs](https://hex-core.dev)\"}</Markdown>\n * </Message>\n * ```\n */\nexport function Message({ className, role, accessible = true, ...props }: MessageProps) {\n\treturn (\n\t\t<TextClassContext.Provider value={messageTextVariants({ role })}>\n\t\t\t{/* `accessible` groups the bubble so VoiceOver reads a turn as one\n\t\t\t    unit rather than announcing each fragment separately. It is a\n\t\t\t    prop because that grouping hides any nested link or button. */}\n\t\t\t<View\n\t\t\t\taccessible={accessible}\n\t\t\t\tclassName={cn(messageVariants({ role }), className)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t</TextClassContext.Provider>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -107,14 +112,14 @@
     ]
   },
   "tokensUsed": [
-    "secondary",
-    "foreground",
+    "border",
     "card",
     "card-foreground",
+    "foreground",
     "muted",
     "muted-foreground",
-    "accent",
-    "accent-foreground"
+    "primary",
+    "primary-foreground"
   ],
   "examples": [
     {
@@ -160,7 +165,7 @@
       "native-markdown"
     ],
     "accessibilityNotes": "Each bubble is grouped as one accessibility element so VoiceOver reads a turn as a unit rather than word by word. Alignment and colour both encode the speaker, but neither is available to a screen-reader user, so include the speaker in the surrounding structure — a preceding label, or the accessible name of the list row. The role colour pairings are contrast-audited in light and dark.",
-    "tokenBudget": 575
+    "tokenBudget": 787
   },
   "tags": [
     "ai",

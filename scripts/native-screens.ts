@@ -52,7 +52,7 @@ function run(command: string, args: string[]): string {
 /**
  * Fail with a message the reader can act on.
  * @param message - What went wrong and what to do about it
- * @returns Never — exits the process
+ * @throws {never} Exits the process rather than returning
  */
 function fail(message: string): never {
 	console.error(`native-screens: ${message}`);
@@ -100,8 +100,21 @@ if (!booted.includes("(Booted)")) {
 	fail("No booted iOS simulator. Open one (Simulator.app) and run the playground: pnpm --filter native-playground start");
 }
 
+const available = nativeSlugs();
 const requested = process.argv.slice(2).filter((arg) => !arg.startsWith("-"));
-const slugs = requested.length > 0 ? requested : nativeSlugs();
+// Validate before capturing anything. `simctl openurl` exits 0 for a route
+// that does not exist, so a typo (`buton`, or the prefixed `native-button`)
+// used to deep-link nowhere, screenshot whatever was on screen, and write it
+// to `native-buton.light.png` — a committed baseline of the wrong thing.
+const unknown = requested.filter((slug) => !available.includes(slug));
+if (unknown.length > 0) {
+	fail(
+		`Unknown demo slug(s): ${unknown.join(", ")}.\n` +
+			`  Pass the unprefixed slug (\`button\`, not \`native-button\`).\n` +
+			`  Available: ${available.join(", ")}`,
+	);
+}
+const slugs = requested.length > 0 ? requested : available;
 if (slugs.length === 0) fail("No native demos found under packages/native/src.");
 
 mkdirSync(OUT_DIR, { recursive: true });

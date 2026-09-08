@@ -1,7 +1,7 @@
 {
 	"name": "@hex-core/native",
 	"version": "0.0.0",
-	"description": "React Native components for Hex Core — the web catalog's schemas, tokens and AI hints rendered with NativeWind and @rn-primitives.",
+	"description": "React Native components for Hex Core \u2014 the web catalog's schemas, tokens and AI hints rendered with NativeWind and @rn-primitives.",
 	"keywords": [
 		"hex-core",
 		"react-native",
@@ -77,7 +77,6 @@
 		"mdast-util-from-markdown": "^2.0.3",
 		"mdast-util-gfm": "^3.1.0",
 		"micromark-extension-gfm": "^3.0.0",
-		"react-native-safe-area-context": "^5.7.0",
 		"tailwind-merge": "^3.6.0"
 	},
 	"devDependencies": {
@@ -92,8 +91,9 @@
 		"fast-glob": "^3.3.3",
 		"jest": "^30.5.1",
 		"nativewind": "^4.2.6",
-		"react": "19.2.3",
+		"react": "19.2.5",
 		"react-native": "^0.86.3",
+		"react-native-safe-area-context": "^5.7.0",
 		"tailwindcss": "^3.4.0",
 		"test-renderer": "^1.2.0",
 		"tsup": "catalog:",
@@ -102,6 +102,7 @@
 	"peerDependencies": {
 		"nativewind": "^4.0.0",
 		"react": "^19.0.0",
-		"react-native": ">=0.78.0"
+		"react-native": ">=0.78.0",
+		"react-native-safe-area-context": ">=4.0.0"
 	}
 }

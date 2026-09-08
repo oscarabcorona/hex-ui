@@ -14,8 +14,10 @@ import {
 	type TemplateWrite,
 } from "../lib/native-template.js";
 import { writeMcpEntry } from "../lib/mcp-config.js";
+import { findConflictingDeps, type DependencyConflict } from "../lib/package-manager.js";
 import { printSkillsHint } from "../lib/post-install.js";
 import { detectSrcLayout } from "../lib/resolve-alias.js";
+import { resolvePlatform } from "../lib/resolve-platform.js";
 import { runInstall } from "../lib/run-install.js";
 import { runDoctor } from "./doctor.js";
 
@@ -120,7 +122,11 @@ export async function initProject(options: InitOptions) {
 	const cwd = process.cwd();
 	const configPath = path.join(cwd, "hex.config.json");
 	const detection = detectFramework(cwd);
-	const platform = options.platform ?? detection.platform;
+	// Same resolution chain as `hex add`: explicit flag, then the platform
+	// recorded in hex.config.json, then detection. Reading detection directly
+	// meant a second `hex init` on a project pinned to native could rewrite it
+	// back to the web scaffold — the exact drift the config field exists to stop.
+	const platform = resolvePlatform(cwd, options.platform).platform;
 	const tailwind = detectTailwind(cwd);
 
 	if (options.check) {
@@ -260,6 +266,7 @@ async function initNativeProject(
 		`${tokens.generateGlobalsCssNative(themeData)}\n`,
 		emitNativeTailwindConfig(tokens.themeToTailwindConfig(themeData)),
 		detection,
+		isEsmProject(cwd),
 	);
 	// Per-file, matching the web path: `--overwrite global.css` must replace
 	// that one file rather than silently doing nothing and then telling the
@@ -278,8 +285,59 @@ async function initNativeProject(
 		wroteConfig,
 		installed,
 		peerDeps,
+		conflicts: findConflictingDeps(cwd, peerDeps),
 		entryHasImport: entryImportsGlobalsCss(cwd, detection.entryHint),
 	});
+
+	// `--mcp` was accepted and then silently ignored on this path, so the flag
+	// did nothing on a native project and said nothing about it.
+	reportMcpWiring(options.mcp === true);
+}
+
+/**
+ * Wire `@hex-core/mcp` into the consumer's AI-tool config and report what
+ * happened. Opt-in: `.mcp.json` is commit-tracked and auto-loaded, so
+ * `hex init` never writes it without `--mcp`.
+ *
+ * Shared by the web and native paths — it was inline in the web summary
+ * only, which is how the native path came to accept the flag and drop it.
+ * @param requested - Whether `--mcp` was passed
+ */
+function reportMcpWiring(requested: boolean): void {
+	if (!requested) {
+		console.log(`\nTip: pass --mcp to wire @hex-core/mcp into your AI tool, or see ${MCP_DOCS_URL}`);
+		return;
+	}
+	const result = writeMcpEntry(process.cwd());
+	if (result.wrote) {
+		console.log(`\nWrote @hex-core/mcp entry to ${result.target}.`);
+		console.log(`  Restart your AI session to pick it up.`);
+	} else if (result.alreadyConfigured) {
+		console.log(`\n@hex-core/mcp already configured in ${result.target} — skipping.`);
+	} else if (result.malformed) {
+		console.log(`\nWarning: ${result.target} isn't valid JSON — skipping MCP wiring.`);
+		console.log(`  Fix the file and re-run \`hex init --mcp\`.`);
+	}
+}
+
+/**
+ * Whether the consumer's `package.json` declares `"type": "module"`.
+ *
+ * Decides the extension for the three CommonJS configs the native scaffold
+ * writes; in an ESM project a `.js` file is an ES module and Metro fails
+ * with "require is not defined in ES module scope".
+ * @param cwd - Project root
+ * @returns True when the project is ESM by default
+ */
+function isEsmProject(cwd: string): boolean {
+	const pkgPath = path.join(cwd, "package.json");
+	if (!fs.existsSync(pkgPath)) return false;
+	try {
+		const raw: unknown = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+		return typeof raw === "object" && raw !== null && "type" in raw && raw.type === "module";
+	} catch {
+		return false;
+	}
 }
 
 interface NativeSummaryParams {
@@ -288,6 +346,8 @@ interface NativeSummaryParams {
 	wroteConfig: ConfigWrite;
 	installed: MaybeInstallResult;
 	peerDeps: string[];
+	/** Deps the project already has at an incompatible major; never silently skipped. */
+	conflicts: DependencyConflict[];
 	entryHasImport: boolean;
 }
 
@@ -308,6 +368,18 @@ function printNativeSummary(p: NativeSummaryParams): void {
 	} else if (p.installed.exitCode !== undefined && p.installed.exitCode !== 0) {
 		console.log(`\nPeer-dep install via ${p.installed.manager} exited with code ${p.installed.exitCode}.`);
 		console.log(`  Prefer \`npx expo install\` on an Expo project — it picks versions your SDK supports.`);
+	}
+
+	// A version conflict is dropped from the install list rather than majoring
+	// the project down, which is right — but silence turns it into an unstyled
+	// app with no explanation. NativeWind 4 cannot load a Tailwind v4 config.
+	if (p.conflicts.length > 0) {
+		console.log("");
+		console.log(pc.bold("Version conflicts — not installed, and they will break the build:"));
+		for (const c of p.conflicts) {
+			console.log(`  ${c.name}: this scaffold needs ${c.required}, your project declares ${c.installed}`);
+		}
+		console.log(pc.dim("  Resolve these before `hex add`, or the components render unstyled."));
 	}
 
 	console.log("");
@@ -501,20 +573,7 @@ function printSummary(p: SummaryParams) {
 	// customize_component are reachable from the agent that just installed
 	// the registry. Opt-in only: `.mcp.json` is commit-tracked and
 	// auto-loaded, so `hex init` doesn't write it without `--mcp`.
-	if (p.mcp === true) {
-		const result = writeMcpEntry(process.cwd());
-		if (result.wrote) {
-			console.log(`\nWrote @hex-core/mcp entry to ${result.target}.`);
-			console.log(`  Restart your AI session to pick it up.`);
-		} else if (result.alreadyConfigured) {
-			console.log(`\n@hex-core/mcp already configured in ${result.target} — skipping.`);
-		} else if (result.malformed) {
-			console.log(`\nWarning: ${result.target} isn't valid JSON — skipping MCP wiring.`);
-			console.log(`  Fix the file and re-run \`hex init --mcp\`.`);
-		}
-	} else {
-		console.log(`\nTip: pass --mcp to wire @hex-core/mcp into your AI tool, or see ${MCP_DOCS_URL}`);
-	}
+	reportMcpWiring(p.mcp === true);
 
 	console.log("\nNext: hex add button input label");
 	console.log(`Theme tweaking: ${STUDIO_URL} — copy the payload back into your AI session.`);

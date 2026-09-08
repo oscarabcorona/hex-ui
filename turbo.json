@@ -131,12 +131,33 @@
 				"test/**",
 				"vitest.config.ts",
 				"vitest.setup.ts",
+				"jest.config.cjs",
+				"babel.config.cjs",
+				"tsconfig.json",
 				"package.json"
 			],
-			"outputs": []
+			"outputs": [],
+			"env": [
+				"CI"
+			],
+			"passThroughEnv": [
+				"PLAYWRIGHT_PORT"
+			]
 		},
 		"clean": {
 			"cache": false
+		},
+		"typecheck": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"src/**",
+				"app/**",
+				"tsconfig.json",
+				"package.json"
+			],
+			"outputs": []
 		},
 		"lint": {}
 	}

@@ -3,8 +3,10 @@ import * as path from "node:path";
 import { parseGraph } from "@hex-core/payload";
 import pc from "picocolors";
 import { detectTailwind } from "../lib/detect-tailwind.js";
+import type { PlatformKind } from "../lib/detect-framework.js";
 import { detectSrcLayout, resolveAlias } from "../lib/resolve-alias.js";
 import { findRegistryDir } from "../lib/registry-dir.js";
+import { resolvePlatform } from "../lib/resolve-platform.js";
 import { type AliasConfig, DEFAULT_ALIASES } from "../lib/rewrite-imports.js";
 import { walkSourceFiles } from "../lib/walk-sources.js";
 
@@ -27,6 +29,13 @@ interface DoctorContext {
 	aliases: AliasConfig;
 	tailwindVersion: "v3" | "v4" | "missing";
 	componentsDir: string;
+	/**
+	 * Which renderer this project targets. Nearly every check below is
+	 * web-shaped — a `globals.css` under `app/`, an animate plugin, Radix
+	 * packages — and running them against an Expo app reported a correct
+	 * NativeWind install as a wall of failures.
+	 */
+	platform: PlatformKind;
 }
 
 /**
@@ -58,16 +67,171 @@ export async function runDoctor(
 	checks.push(checkTailwind(ctx));
 	checks.push(checkAliasConsistency(ctx));
 	checks.push(checkLibUtils(ctx));
-	checks.push(checkGlobalsCss(ctx));
-	checks.push(...checkBaseDeps(ctx));
-	if (ctx.tailwindVersion === "v3") checks.push(checkTailwindConfig(ctx));
-	checks.push(...checkRadixDeps(ctx));
+	if (ctx.platform === "native") {
+		checks.push(checkNativeGlobalCss(ctx));
+		checks.push(...checkNativeDeps(ctx));
+		checks.push(checkNativeTailwindConfig(ctx));
+		checks.push(checkPortalHost(ctx));
+		checks.push(...checkRnPrimitiveDeps(ctx));
+	} else {
+		checks.push(checkGlobalsCss(ctx));
+		checks.push(...checkBaseDeps(ctx));
+		if (ctx.tailwindVersion === "v3") checks.push(checkTailwindConfig(ctx));
+		checks.push(...checkRadixDeps(ctx));
+	}
 	checks.push(checkShadcnArtifacts(ctx));
 	checks.push(checkCatalogGraph());
-	if (options.layout) {
+	// The layout scans look for `space-y-*` chains, breakpoint grids and
+	// dashed empty-state divs. None of those are React Native idioms, so on
+	// native they would only ever produce noise.
+	if (options.layout && ctx.platform === "web") {
 		checks.push(...checkLayoutPatterns(ctx));
 	}
 	return checks;
+}
+
+/**
+ * The native counterpart of {@link checkGlobalsCss}.
+ *
+ * `hex init --platform native` writes `global.css` at the project root (the
+ * Metro `input` path), not `app/globals.css`, and NativeWind 4 is built on
+ * Tailwind v3, so the v3 directive form is correct rather than stale.
+ * @param ctx - Doctor context
+ * @returns The check result
+ */
+function checkNativeGlobalCss(ctx: DoctorContext): Check {
+	const target = path.join(ctx.cwd, "global.css");
+	if (!fs.existsSync(target)) {
+		return {
+			name: "global.css",
+			status: "fail",
+			hint: "Run `hex init --platform native` to scaffold global.css and the NativeWind config chain.",
+		};
+	}
+	const css = fs.readFileSync(target, "utf-8");
+	if (!css.includes("@tailwind base")) {
+		return {
+			name: "global.css uses Tailwind v3 directives",
+			status: "fail",
+			hint: "NativeWind 4 is built on Tailwind v3. Re-run `hex init --platform native --overwrite`.",
+		};
+	}
+	// React Native resolves no `var()` chain, so the native token block is
+	// emitted as literal HSL triplets. A `var(` here means a web stylesheet
+	// was copied in, and every colour will silently fall back.
+	if (css.includes("var(--")) {
+		return {
+			name: "global.css tokens are literal",
+			status: "fail",
+			hint: "global.css contains var() references, which React Native cannot resolve. Re-run `hex init --platform native --overwrite`.",
+		};
+	}
+	return { name: "global.css", status: "pass" };
+}
+
+/**
+ * Base dependencies for a native project.
+ *
+ * Deliberately not {@link checkBaseDeps}: there is no animate plugin on
+ * native, and NativeWind plus safe-area-context are load-bearing instead.
+ * @param ctx - Doctor context
+ * @returns One check per expected package
+ */
+function checkNativeDeps(ctx: DoctorContext): Check[] {
+	const deps = [
+		"clsx",
+		"tailwind-merge",
+		"class-variance-authority",
+		"nativewind",
+		"react-native-safe-area-context",
+	];
+	return deps.map((dep) => {
+		const present = depPresent(ctx.pkg, dep);
+		return {
+			name: dep,
+			status: present ? "pass" : "fail",
+			hint: present ? undefined : `Install with \`pnpm add ${dep}\` or re-run \`hex init --platform native\`.`,
+		};
+	});
+}
+
+/**
+ * Check the NativeWind preset is wired into the Tailwind config.
+ *
+ * Without the preset the class strings compile to nothing and every
+ * component renders unstyled, which is hard to trace back from the symptom.
+ * @param ctx - Doctor context
+ * @returns The check result
+ */
+function checkNativeTailwindConfig(ctx: DoctorContext): Check {
+	const candidates = ["tailwind.config.js", "tailwind.config.ts"].map((f) => path.join(ctx.cwd, f));
+	const target = candidates.find((p) => fs.existsSync(p));
+	if (!target) {
+		return {
+			name: "tailwind.config.js",
+			status: "fail",
+			hint: "Run `hex init --platform native` to scaffold tailwind.config.js.",
+		};
+	}
+	if (!fs.readFileSync(target, "utf-8").includes("nativewind/preset")) {
+		return {
+			name: "tailwind.config.js has the NativeWind preset",
+			status: "fail",
+			hint: "Add `presets: [require(\"nativewind/preset\")]` — without it the class strings compile to nothing.",
+		};
+	}
+	return { name: "tailwind.config.js", status: "pass" };
+}
+
+/**
+ * Check that a `PortalHost` is mounted somewhere.
+ *
+ * Dialog, AlertDialog, Popover, Tooltip and Select all render through it.
+ * Without one they mount and never appear, with no error — the single most
+ * common native setup failure, and the reason five schemas call it out.
+ * @param ctx - Doctor context
+ * @returns A `warn` when absent, since a project may install none of those
+ */
+function checkPortalHost(ctx: DoctorContext): Check {
+	if (!fs.existsSync(ctx.componentsDir)) return { name: "PortalHost mounted", status: "pass" };
+	const overlays = ["dialog.tsx", "alert-dialog.tsx", "popover.tsx", "tooltip.tsx", "select.tsx"];
+	const installed = overlays.some((f) => fs.existsSync(path.join(ctx.componentsDir, f)));
+	if (!installed) return { name: "PortalHost mounted", status: "pass" };
+
+	for (const file of walkSourceFiles(ctx.cwd, [".ts", ".tsx", ".js", ".jsx"])) {
+		if (fs.readFileSync(file, "utf-8").includes("PortalHost")) {
+			return { name: "PortalHost mounted", status: "pass" };
+		}
+	}
+	return {
+		name: "PortalHost mounted",
+		status: "warn",
+		hint: "Overlay components are installed but no <PortalHost /> was found. Mount one in your root layout or they will never appear.",
+	};
+}
+
+/**
+ * The native counterpart of {@link checkRadixDeps} — same idea, different
+ * primitive family.
+ * @param ctx - Doctor context
+ * @returns One check per `@rn-primitives/*` package the installed files import
+ */
+function checkRnPrimitiveDeps(ctx: DoctorContext): Check[] {
+	if (!fs.existsSync(ctx.componentsDir)) return [];
+	const files = fs.readdirSync(ctx.componentsDir).filter((f) => /\.tsx?$/.test(f));
+	const specs = new Set<string>();
+	for (const f of files) {
+		const content = fs.readFileSync(path.join(ctx.componentsDir, f), "utf-8");
+		for (const m of content.matchAll(/from\s+["'](@rn-primitives\/[^"']+)["']/g)) specs.add(m[1]);
+	}
+	return [...specs].sort().map((spec) => {
+		const present = depPresent(ctx.pkg, spec);
+		return {
+			name: spec,
+			status: present ? "pass" : "fail",
+			hint: present ? undefined : `Install with \`pnpm add ${spec}\`.`,
+		};
+	});
 }
 
 /**
@@ -165,6 +329,7 @@ function buildContext(cwd: string): DoctorContext {
 		aliases,
 		tailwindVersion: tailwind.version,
 		componentsDir: pickComponentsDir(cwd, aliases),
+		platform: resolvePlatform(cwd).platform,
 	};
 }
 
@@ -199,6 +364,18 @@ function checkTailwind(ctx: DoctorContext): Check {
 			name: "tailwindcss installed",
 			status: "fail",
 			hint: "Install tailwindcss before running hex init.",
+		};
+	}
+	// NativeWind 4 is built on Tailwind 3.4.x and cannot load a v4 config.
+	// The scaffolded `tailwind.config.js` uses the v3 shape, so a native
+	// project on v4 renders completely unstyled — and because `hex init`
+	// treats an installed `tailwindcss` of any major as satisfying the
+	// requirement, nothing else in the toolchain says a word.
+	if (ctx.platform === "native" && ctx.tailwindVersion !== "v3") {
+		return {
+			name: `tailwindcss ${ctx.tailwindVersion}`,
+			status: "fail",
+			hint: "NativeWind 4 requires Tailwind 3.4.x; the scaffolded config is the v3 shape and v4 cannot load it. Run `pnpm add -D tailwindcss@^3.4.0`.",
 		};
 	}
 	return {

@@ -1,5 +1,6 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { ActivityIndicator, Pressable, TextInput, View } from "react-native";
+import { Text } from "../../primitives/text/text.js";
 import { cn } from "../../lib/utils.js";
 
 /** Props for {@link Composer}. */
@@ -14,6 +15,13 @@ export interface ComposerProps extends Omit<ComponentProps<typeof TextInput>, "o
 	busy?: boolean;
 	/** Accessible name for the send control. */
 	sendLabel?: string;
+	/**
+	 * Glyph rendered inside the send button. Defaults to an upward arrow.
+	 *
+	 * Pass your own icon here — passing it as a child of `<Composer>` would
+	 * land it on the underlying `TextInput`, which is not where it belongs.
+	 */
+	sendIcon?: ReactNode;
 	/** Additional classes on the surrounding bar. */
 	className?: string;
 }
@@ -42,6 +50,7 @@ export function Composer({
 	onSubmit,
 	busy = false,
 	sendLabel = "Send message",
+	sendIcon,
 	placeholder = "Message…",
 	className,
 	...props
@@ -83,7 +92,17 @@ export function Composer({
 					!canSend && "opacity-50",
 				)}
 			>
-				{busy ? <ActivityIndicator size="small" className="text-primary-foreground" /> : null}
+				{/*
+				 * A glyph whenever the button is not busy. Rendering only the
+				 * spinner left the send control as a blank primary-coloured
+				 * disc in its usable state, and gave it a visible symbol only
+				 * while it was disabled.
+				 */}
+				{busy ? (
+					<ActivityIndicator size="small" className="text-primary-foreground" />
+				) : (
+					(sendIcon ?? <Text className="text-lg leading-none text-primary-foreground">↑</Text>)
+				)}
 			</Pressable>
 		</View>
 	);

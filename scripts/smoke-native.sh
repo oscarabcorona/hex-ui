@@ -18,7 +18,26 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HEX_CLI="$REPO_ROOT/packages/cli/dist/index.js"
-WORKDIR="${1:-$(mktemp -d -t hex-native-smoke)}"
+
+# Only ever delete a directory this script created. The cleanup trap runs
+# `rm -rf "$WORKDIR"`, and WORKDIR used to default to a caller-supplied path —
+# so `./scripts/smoke-native.sh ~/dev/scratch` with the CLI unbuilt would fail
+# on the very next line and take the caller's directory with it.
+if [ -n "${1:-}" ]; then
+	if [ -e "$1" ]; then
+		printf '\033[31mFAIL: %s already exists. Pass a path that does not exist, or omit the argument.\033[0m\n' "$1" >&2
+		exit 1
+	fi
+	mkdir -p "$1"
+	WORKDIR="$(cd "$1" && pwd)"
+	WORKDIR_IS_OURS=1
+else
+	# An explicit template, not `-t hex-native-smoke`: GNU coreutils rejects a
+	# template with no X's ("too few X's"), so the BSD-only form meant this
+	# script could never run on the Linux runner it claims to gate.
+	WORKDIR="$(mktemp -d "${TMPDIR:-/tmp}/hex-native-smoke.XXXXXX")"
+	WORKDIR_IS_OURS=1
+fi
 APP_DIR="$WORKDIR/app"
 
 # Components to install. `card` exercises the transitive path: it pulls in
@@ -29,6 +48,10 @@ step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 fail() { printf '\033[31mFAIL: %s\033[0m\n' "$1" >&2; exit 1; }
 
 cleanup() {
+	# Never delete something we did not create, even if the trap fires early.
+	if [ "${WORKDIR_IS_OURS:-0}" != "1" ]; then
+		return
+	fi
 	if [ "${HEX_SMOKE_KEEP:-0}" = "1" ]; then
 		printf '\nWorkdir kept at %s\n' "$WORKDIR"
 	else
@@ -75,7 +98,12 @@ for slug in "${COMPONENTS[@]}"; do
 done
 # The web catalog must never leak in. Any of these in an installed file means
 # platform resolution handed the project a DOM component.
-if grep -rqE '@radix-ui/|from "react-dom"|<div ' components/ 2>/dev/null; then
+#
+# Scans lib/ as well as components/ — `hex add` writes there too — and matches
+# any DOM tag rather than just `<div ` with a trailing space, which `<div>`
+# slipped straight past.
+if grep -rqE '@radix-ui/|from "react-dom"|</?(div|span|button|p|ul|li|section|a)[ >/]' \
+	components/ lib/ 2>/dev/null; then
 	fail "a DOM-only import or element reached the native project"
 fi
 
@@ -96,7 +124,14 @@ step "Wiring global.css into the entry"
 ENTRY="App.tsx"
 [ -f "$ENTRY" ] || ENTRY="App.js"
 [ -f "$ENTRY" ] || fail "no App entry found to wire global.css into"
-printf 'import "./global.css";\n%s' "$(cat "$ENTRY")" > "$ENTRY.tmp" && mv "$ENTRY.tmp" "$ENTRY"
+# Separate statements, not `printf … && mv`: in an `&&` chain a failed printf
+# is exempt from `set -e`, so `mv` was skipped, the entry never got the import,
+# and `expo export` still succeeded — a green smoke test that had not bundled
+# the stylesheet at all.
+printf 'import "./global.css";\n%s' "$(cat "$ENTRY")" > "$ENTRY.tmp" \
+	|| fail "could not write $ENTRY.tmp"
+mv "$ENTRY.tmp" "$ENTRY" || fail "could not move $ENTRY.tmp into place"
+grep -q 'import "./global.css";' "$ENTRY" || fail "global.css import missing from $ENTRY"
 
 step "Bundling with Metro (expo export)"
 npx --yes expo export --platform ios --output-dir .expo-export >/dev/null 2>&1 \

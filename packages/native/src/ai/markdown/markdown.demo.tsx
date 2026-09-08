@@ -20,6 +20,7 @@ See the [release guide](https://hex-core.dev/docs) for the rest.
 
 /**
  * Markdown inside an assistant bubble, which is where it usually lives.
+ * @returns The rendered demo
  */
 export function MarkdownDemo() {
 	return (

@@ -13,6 +13,9 @@ export const nativeTooltipSchema = deriveNativeSchema(tooltipSchema, {
 			description: "Name of the PortalHost to render into. Only needed when the app mounts more than one.",
 		},
 	],
+	// The web tags carry "hover", the one interaction this component does not
+	// have. Searching the native catalog for it should not land here.
+	tags: ["tooltip", "hint", "label", "overlay", "native", "react-native"],
 	dependencies: {
 		npm: ["@rn-primitives/tooltip", "@rn-primitives/portal", "clsx", "tailwind-merge"],
 		internal: ["lib/utils", "lib/text-context"],
@@ -41,7 +44,7 @@ export const nativeTooltipSchema = deriveNativeSchema(tooltipSchema, {
 		commonMistakes: [
 			"Wrapping a working Button in TooltipTrigger — the tap opens the bubble instead of running the button's onPress, silently breaking the action",
 			"Treating the tooltip as the control's name and omitting aria-label — a screen-reader user then hears an unnamed button, because the bubble is not the accessible name",
-			"Expecting hover behaviour from the web version: on a device the bubble toggles on tap, and there is no open prop to drive it from the parent",
+			"Expecting the web version's pointer-driven reveal: on a device the bubble toggles on tap, and there is no open prop to drive it from the parent",
 			"Putting essential instructions in it — if the user must read it, it belongs on the screen",
 			"Forgetting <PortalHost /> in the root layout, so the bubble never renders",
 		],

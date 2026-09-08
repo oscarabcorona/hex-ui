@@ -25,6 +25,76 @@ export const nativeButtonSchema = deriveNativeSchema(buttonSchema, {
 			description: "Extra touchable area in points beyond the visible bounds — use on small or icon buttons",
 		},
 	],
+	// Three web variants sold themselves on hover — "hover fill", "background
+	// appears on hover", "underline on hover". A phone has no pointer, so those
+	// descriptions describe a state the user can never reach. The sizes carry
+	// over unchanged: they are NativeWind classes, which are real here.
+	variants: [
+		{
+			name: "variant",
+			description: "Visual style variants",
+			values: [
+				{
+					value: "default",
+					description: "Primary filled button for main actions",
+					useWhen: "the single most important action on the screen — exactly one per view (Save, Submit, Continue)",
+				},
+				{
+					value: "destructive",
+					description: "Red filled button for dangerous or irreversible actions",
+					useWhen: "the action cannot be undone without recreating data: Delete, Archive, Deactivate, Leave team",
+				},
+				{
+					value: "outline",
+					description: "Bordered button that fills while held down",
+					useWhen: "tertiary actions on a flat surface; signals 'optional' next to a primary",
+				},
+				{
+					value: "secondary",
+					description: "Muted filled button for less prominent actions",
+					useWhen: "the second-most-important action next to a primary call to action: Cancel, Save Draft, Skip",
+				},
+				{
+					value: "ghost",
+					description: "Transparent button whose background appears while held down",
+					useWhen: "low-emphasis action inside a list, toolbar, or row where chrome should disappear at rest",
+				},
+				{
+					value: "link",
+					description: "Styled as a link with a permanent underline and no padding",
+					useWhen: "an inline action inside flowing text, or a 'Learn more' affordance in an empty state",
+				},
+			],
+			default: "default",
+		},
+		{
+			name: "size",
+			description: "Size variants",
+			values: [
+				{
+					value: "default",
+					description: "Standard size (h-10, px-4)",
+					useWhen: "default everywhere; the only size you need on most surfaces",
+				},
+				{
+					value: "sm",
+					description: "Compact size (h-9, px-3)",
+					useWhen: "buttons living inside a row or toolbar where vertical density matters — pair with hitSlop",
+				},
+				{
+					value: "lg",
+					description: "Large size (h-11, px-8, text-base)",
+					useWhen: "the single hero action on an onboarding or paywall screen",
+				},
+				{
+					value: "icon",
+					description: "Square icon-only size (h-10, w-10)",
+					useWhen: "icon-only actions (close, settings, more). Always pair with aria-label",
+				},
+			],
+			default: "default",
+		},
+	],
 	dependencies: {
 		npm: ["class-variance-authority", "clsx", "tailwind-merge"],
 		internal: ["lib/utils", "lib/text-context"],

@@ -3,6 +3,7 @@ import { Text } from "./text.js";
 
 /**
  * The typographic scale, top to bottom, followed by inline code.
+ * @returns The rendered demo
  */
 export function TextDemo() {
 	return (

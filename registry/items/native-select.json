@@ -10,29 +10,29 @@
   "platform": "native",
   "props": [
     {
-      "name": "value",
-      "type": "string",
-      "required": false,
-      "description": "[Select root prop] Controlled selected value"
-    },
-    {
-      "name": "defaultValue",
-      "type": "string",
-      "required": false,
-      "description": "[Select root prop] Default selected value for uncontrolled usage"
-    },
-    {
-      "name": "onValueChange",
-      "type": "function",
-      "required": false,
-      "description": "[Select root prop] Callback on value change: (value: string) => void"
-    },
-    {
       "name": "disabled",
       "type": "boolean",
       "required": false,
       "default": false,
       "description": "[Select root prop] Disable the entire select"
+    },
+    {
+      "name": "value",
+      "type": "object",
+      "required": false,
+      "description": "Controlled selection as `{ value, label }`, or undefined for none. React Native has no option element for the trigger to read a label back from, so the label travels with the value."
+    },
+    {
+      "name": "defaultValue",
+      "type": "object",
+      "required": false,
+      "description": "Initial selection as `{ value, label }` when the Select manages its own state"
+    },
+    {
+      "name": "onValueChange",
+      "type": "function",
+      "required": false,
+      "description": "Called with the chosen `{ value, label }`, or undefined when the selection is cleared"
     },
     {
       "name": "portalHost",
@@ -55,8 +55,13 @@
   "files": [
     {
       "path": "components/ui/select.tsx",
-      "content": "import * as SelectPrimitive from \"@rn-primitives/select\";\nimport type { ComponentProps } from \"react\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Select}. */\nexport type SelectProps = ComponentProps<typeof SelectPrimitive.Root>;\n\n/**\n * A dropdown for choosing one option from a list.\n *\n * The value is an `{ value, label }` object rather than a bare string —\n * React Native has no native option element to read a label back from, so\n * the trigger needs the label handed to it. Needs a `<PortalHost />`.\n * @param props - {@link SelectProps}\n * @returns The select root\n * @example\n * ```tsx\n * <Select value={plan} onValueChange={setPlan}>\n *   <SelectTrigger><SelectValue placeholder=\"Pick a plan\" /></SelectTrigger>\n *   <SelectContent>\n *     <SelectItem value=\"free\" label=\"Free\" />\n *     <SelectItem value=\"pro\" label=\"Pro\" />\n *   </SelectContent>\n * </Select>\n * ```\n */\nexport function Select(props: SelectProps) {\n\treturn <SelectPrimitive.Root {...props} />;\n}\n\n/** Props for {@link SelectTrigger}. */\nexport type SelectTriggerProps = ComponentProps<typeof SelectPrimitive.Trigger>;\n\n/**\n * The closed control showing the current value.\n * @param props - {@link SelectTriggerProps}\n * @returns The trigger\n */\nexport function SelectTrigger({ className, ...props }: SelectTriggerProps) {\n\treturn (\n\t\t<TextClassContext.Provider value=\"text-base text-foreground\">\n\t\t\t<SelectPrimitive.Trigger\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"h-10 w-full flex-row items-center justify-between rounded-md border border-input bg-background px-3\",\n\t\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\t\tclassName,\n\t\t\t\t)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t</TextClassContext.Provider>\n\t);\n}\n\n/** Props for {@link SelectValue}. */\nexport type SelectValueProps = ComponentProps<typeof SelectPrimitive.Value>;\n\n/**\n * The selected option's label, or the placeholder when nothing is chosen.\n * @param props - {@link SelectValueProps}\n * @returns The value text\n */\nexport function SelectValue({ className, ...props }: SelectValueProps) {\n\treturn <SelectPrimitive.Value className={cn(\"text-base text-foreground\", className)} {...props} />;\n}\n\n/** Props for {@link SelectContent}. */\nexport interface SelectContentProps extends ComponentProps<typeof SelectPrimitive.Content> {\n\t/** Name of the `PortalHost` to render into, when the app mounts more than one. */\n\tportalHost?: string;\n}\n\n/**\n * The option list. Renders through the portal host.\n * @param props - {@link SelectContentProps}\n * @returns The portalled list\n */\nexport function SelectContent({ className, portalHost, children, ...props }: SelectContentProps) {\n\treturn (\n\t\t<SelectPrimitive.Portal hostName={portalHost}>\n\t\t\t<SelectPrimitive.Overlay className=\"absolute inset-0\">\n\t\t\t\t<SelectPrimitive.Content\n\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\"w-full rounded-md border border-border bg-popover p-1 shadow-md shadow-black/10\",\n\t\t\t\t\t\tclassName,\n\t\t\t\t\t)}\n\t\t\t\t\t{...props}\n\t\t\t\t>\n\t\t\t\t\t{children}\n\t\t\t\t</SelectPrimitive.Content>\n\t\t\t</SelectPrimitive.Overlay>\n\t\t</SelectPrimitive.Portal>\n\t);\n}\n\n/** Props for {@link SelectItem}. */\nexport type SelectItemProps = ComponentProps<typeof SelectPrimitive.Item>;\n\n/**\n * One option. `label` is what the trigger shows once it is picked, so it is\n * required alongside `value`.\n * @param props - {@link SelectItemProps}\n * @returns The option row\n */\nexport function SelectItem({ className, label, ...props }: SelectItemProps) {\n\treturn (\n\t\t<SelectPrimitive.Item\n\t\t\tlabel={label}\n\t\t\tclassName={cn(\n\t\t\t\t\"h-10 w-full flex-row items-center justify-between rounded-sm px-2 active:bg-accent\",\n\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<SelectPrimitive.ItemText className=\"text-base text-popover-foreground\" />\n\t\t\t<SelectPrimitive.ItemIndicator>\n\t\t\t\t<SelectPrimitive.Value placeholder=\"\" className=\"text-primary\" />\n\t\t\t</SelectPrimitive.ItemIndicator>\n\t\t</SelectPrimitive.Item>\n\t);\n}\n\n/** Props for {@link SelectSeparator}. */\nexport type SelectSeparatorProps = ComponentProps<typeof SelectPrimitive.Separator>;\n\n/**\n * A rule between option groups.\n * @param props - {@link SelectSeparatorProps}\n * @returns The separator\n */\nexport function SelectSeparator({ className, ...props }: SelectSeparatorProps) {\n\treturn <SelectPrimitive.Separator className={cn(\"my-1 h-px bg-border\", className)} {...props} />;\n}\n",
+      "content": "import * as SelectPrimitive from \"@rn-primitives/select\";\nimport type { ComponentProps } from \"react\";\nimport { View } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Select}. */\nexport type SelectProps = ComponentProps<typeof SelectPrimitive.Root>;\n\n/**\n * A dropdown for choosing one option from a list.\n *\n * The value is an `{ value, label }` object rather than a bare string —\n * React Native has no native option element to read a label back from, so\n * the trigger needs the label handed to it. Needs a `<PortalHost />`.\n * @param props - {@link SelectProps}\n * @returns The select root\n * @example\n * ```tsx\n * <Select value={plan} onValueChange={setPlan}>\n *   <SelectTrigger><SelectValue placeholder=\"Pick a plan\" /></SelectTrigger>\n *   <SelectContent>\n *     <SelectItem value=\"free\" label=\"Free\" />\n *     <SelectItem value=\"pro\" label=\"Pro\" />\n *   </SelectContent>\n * </Select>\n * ```\n */\nexport function Select(props: SelectProps) {\n\treturn <SelectPrimitive.Root {...props} />;\n}\n\n/** Props for {@link SelectTrigger}. */\nexport type SelectTriggerProps = ComponentProps<typeof SelectPrimitive.Trigger>;\n\n/**\n * The closed control showing the current value.\n * @param props - {@link SelectTriggerProps}\n * @returns The trigger\n */\nexport function SelectTrigger({ className, ...props }: SelectTriggerProps) {\n\treturn (\n\t\t<TextClassContext.Provider value=\"text-base text-foreground\">\n\t\t\t<SelectPrimitive.Trigger\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"h-10 w-full flex-row items-center justify-between rounded-md border border-input bg-background px-3\",\n\t\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\t\tclassName,\n\t\t\t\t)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t</TextClassContext.Provider>\n\t);\n}\n\n/** Props for {@link SelectValue}. */\nexport type SelectValueProps = ComponentProps<typeof SelectPrimitive.Value>;\n\n/**\n * The selected option's label, or the placeholder when nothing is chosen.\n * @param props - {@link SelectValueProps}\n * @returns The value text\n */\nexport function SelectValue({ className, ...props }: SelectValueProps) {\n\treturn <SelectPrimitive.Value className={cn(\"text-base text-foreground\", className)} {...props} />;\n}\n\n/** Props for {@link SelectContent}. */\nexport interface SelectContentProps extends ComponentProps<typeof SelectPrimitive.Content> {\n\t/** Name of the `PortalHost` to render into, when the app mounts more than one. */\n\tportalHost?: string;\n}\n\n/**\n * The option list. Renders through the portal host.\n * @param props - {@link SelectContentProps}\n * @returns The portalled list\n */\nexport function SelectContent({ className, portalHost, children, ...props }: SelectContentProps) {\n\treturn (\n\t\t<SelectPrimitive.Portal hostName={portalHost}>\n\t\t\t<SelectPrimitive.Overlay className=\"absolute inset-0\">\n\t\t\t\t<SelectPrimitive.Content\n\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\"w-full rounded-md border border-border bg-popover p-1 shadow-md shadow-black/10\",\n\t\t\t\t\t\tclassName,\n\t\t\t\t\t)}\n\t\t\t\t\t{...props}\n\t\t\t\t>\n\t\t\t\t\t{children}\n\t\t\t\t</SelectPrimitive.Content>\n\t\t\t</SelectPrimitive.Overlay>\n\t\t</SelectPrimitive.Portal>\n\t);\n}\n\n/** Props for {@link SelectItem}. */\nexport type SelectItemProps = ComponentProps<typeof SelectPrimitive.Item>;\n\n/**\n * One option. `label` is what the trigger shows once it is picked, so it is\n * required alongside `value`.\n * @param props - {@link SelectItemProps}\n * @returns The option row\n */\nexport function SelectItem({ className, label, ...props }: SelectItemProps) {\n\treturn (\n\t\t<SelectPrimitive.Item\n\t\t\tlabel={label}\n\t\t\tclassName={cn(\n\t\t\t\t\"h-10 w-full flex-row items-center justify-between rounded-sm px-2 active:bg-accent\",\n\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<SelectPrimitive.ItemText className=\"text-base text-popover-foreground\" />\n\t\t\t{/*\n\t\t\t * A mark, not a Value. `Value` reads the ROOT context and renders\n\t\t\t * the selected option's label, so inside ItemIndicator — which\n\t\t\t * only mounts for the selected row — it repeated that label where\n\t\t\t * the tick belongs, and the chosen row read \"Pro    Pro\".\n\t\t\t */}\n\t\t\t<SelectPrimitive.ItemIndicator>\n\t\t\t\t<View className=\"size-2 rounded-full bg-primary\" />\n\t\t\t</SelectPrimitive.ItemIndicator>\n\t\t</SelectPrimitive.Item>\n\t);\n}\n\n/** Props for {@link SelectSeparator}. */\nexport type SelectSeparatorProps = ComponentProps<typeof SelectPrimitive.Separator>;\n\n/**\n * A rule between option groups.\n * @param props - {@link SelectSeparatorProps}\n * @returns The separator\n */\nexport function SelectSeparator({ className, ...props }: SelectSeparatorProps) {\n\treturn <SelectPrimitive.Separator className={cn(\"my-1 h-px bg-border\", className)} {...props} />;\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -87,16 +92,14 @@
     ]
   },
   "tokensUsed": [
-    "input",
+    "accent",
     "background",
-    "ring",
-    "muted-foreground",
+    "border",
+    "foreground",
+    "input",
     "popover",
     "popover-foreground",
-    "accent",
-    "accent-foreground",
-    "muted",
-    "border"
+    "primary"
   ],
   "examples": [
     {
@@ -143,7 +146,7 @@
       "native-text"
     ],
     "accessibilityNotes": "Name the trigger by pairing a Label's nativeID with aria-labelledby, and give SelectValue a placeholder so the closed control is never empty. The list is portalled and anchored to the measured trigger, so it opens once the trigger has laid out. Each option is a row at least 40pt tall, which keeps it a comfortable target. For long lists prefer a dedicated screen: a floating list on a small display is hard to scroll and hard to escape.",
-    "tokenBudget": 1007
+    "tokenBudget": 1088
   },
   "tags": [
     "select",

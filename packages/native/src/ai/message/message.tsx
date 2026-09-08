@@ -42,7 +42,19 @@ export const messageTextVariants = cva("text-base", {
  * matches the web component and the message objects every SDK produces — and
  * the accessibility grouping is owned internally instead.
  */
-export type MessageProps = Omit<ComponentProps<typeof View>, "role"> & VariantProps<typeof messageVariants>;
+export type MessageProps = Omit<ComponentProps<typeof View>, "role"> &
+	VariantProps<typeof messageVariants> & {
+		/**
+		 * Group the bubble as a single accessibility element. Defaults to
+		 * `true`, which is right for a plain text turn.
+		 *
+		 * Set it to `false` whenever the bubble contains something the user
+		 * must reach on its own — a Markdown link, a ToolCall row, any
+		 * Pressable. Grouping collapses the subtree, so a screen-reader user
+		 * hears the sentence and can never activate the link inside it.
+		 */
+		accessible?: boolean;
+	};
 
 /**
  * One turn in a conversation.
@@ -57,13 +69,26 @@ export type MessageProps = Omit<ComponentProps<typeof View>, "role"> & VariantPr
  * <Message role="user"><Text>What is the weather?</Text></Message>
  * <Message role="assistant"><Text>Sunny, 21 degrees.</Text></Message>
  * ```
+ * @example
+ * A turn holding anything interactive must opt out of the grouping, or the
+ * link inside it cannot be reached:
+ * ```tsx
+ * <Message role="assistant" accessible={false}>
+ *   <Markdown>{"See [the docs](https://hex-core.dev)"}</Markdown>
+ * </Message>
+ * ```
  */
-export function Message({ className, role, ...props }: MessageProps) {
+export function Message({ className, role, accessible = true, ...props }: MessageProps) {
 	return (
 		<TextClassContext.Provider value={messageTextVariants({ role })}>
 			{/* `accessible` groups the bubble so VoiceOver reads a turn as one
-			    unit rather than announcing each fragment separately. */}
-			<View accessible className={cn(messageVariants({ role }), className)} {...props} />
+			    unit rather than announcing each fragment separately. It is a
+			    prop because that grouping hides any nested link or button. */}
+			<View
+				accessible={accessible}
+				className={cn(messageVariants({ role }), className)}
+				{...props}
+			/>
 		</TextClassContext.Provider>
 	);
 }

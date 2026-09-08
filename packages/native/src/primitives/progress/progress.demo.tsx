@@ -4,6 +4,7 @@ import { Progress } from "./progress.js";
 
 /**
  * A labelled upload bar, a step counter, and a threshold colour.
+ * @returns The rendered demo
  */
 export function ProgressDemo() {
 	return (

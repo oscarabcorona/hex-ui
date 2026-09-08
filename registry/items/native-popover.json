@@ -2,7 +2,7 @@
   "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "native-popover",
   "displayName": "Popover",
-  "description": "A small panel anchored to the control that opened it. Renders through a PortalHost, and closes on an outside tap.",
+  "description": "A small panel anchored to the control that opened it. Uncontrolled on native — the trigger owns the open state — and it renders through a PortalHost, closing on an outside tap.",
   "category": "component",
   "subcategory": "overlay",
   "version": "0.1.0",
@@ -10,30 +10,10 @@
   "platform": "native",
   "props": [
     {
-      "name": "open",
-      "type": "boolean",
-      "required": false,
-      "description": "Controlled open state"
-    },
-    {
-      "name": "defaultOpen",
-      "type": "boolean",
-      "required": false,
-      "default": false,
-      "description": "Default open state"
-    },
-    {
       "name": "onOpenChange",
       "type": "function",
       "required": false,
       "description": "Callback on open state change: (open: boolean) => void"
-    },
-    {
-      "name": "modal",
-      "type": "boolean",
-      "required": false,
-      "default": false,
-      "description": "When true, content outside the popover is inert"
     },
     {
       "name": "portalHost",
@@ -58,6 +38,11 @@
       "path": "components/ui/popover.tsx",
       "content": "import * as PopoverPrimitive from \"@rn-primitives/popover\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Popover}. */\nexport type PopoverProps = ComponentProps<typeof PopoverPrimitive.Root>;\n\n/**\n * A small panel anchored to the control that opened it.\n *\n * Needs a `<PortalHost />` in the root layout. On a phone, prefer this only\n * for genuinely small content — anything list-shaped or taller than a few\n * rows belongs in a sheet.\n * @param props - {@link PopoverProps}\n * @returns The popover root\n * @example\n * ```tsx\n * <Popover>\n *   <PopoverTrigger asChild>\n *     <Button variant=\"outline\"><Text>Filters</Text></Button>\n *   </PopoverTrigger>\n *   <PopoverContent>\n *     <Text>Filter options</Text>\n *   </PopoverContent>\n * </Popover>\n * ```\n */\nexport function Popover(props: PopoverProps) {\n\treturn <PopoverPrimitive.Root {...props} />;\n}\n\n/** Props for {@link PopoverTrigger}. */\nexport type PopoverTriggerProps = ComponentProps<typeof PopoverPrimitive.Trigger>;\n\n/**\n * The control the panel is anchored to.\n * @param props - {@link PopoverTriggerProps}\n * @returns The trigger\n */\nexport function PopoverTrigger(props: PopoverTriggerProps) {\n\treturn <PopoverPrimitive.Trigger {...props} />;\n}\n\n/** Props for {@link PopoverContent}. */\nexport interface PopoverContentProps extends ComponentProps<typeof PopoverPrimitive.Content> {\n\t/** Name of the `PortalHost` to render into, when the app mounts more than one. */\n\tportalHost?: string;\n}\n\n/**\n * The panel. Renders through the portal host, over an invisible scrim that\n * closes it on an outside tap.\n * @param props - {@link PopoverContentProps}\n * @returns The portalled panel\n */\nexport function PopoverContent({ className, portalHost, ...props }: PopoverContentProps) {\n\treturn (\n\t\t<PopoverPrimitive.Portal hostName={portalHost}>\n\t\t\t<PopoverPrimitive.Overlay className=\"absolute inset-0\">\n\t\t\t\t<PopoverPrimitive.Content\n\t\t\t\t\tclassName={cn(\n\t\t\t\t\t\t\"w-72 gap-2 rounded-lg border border-border bg-popover p-4 shadow-md shadow-black/10\",\n\t\t\t\t\t\tclassName,\n\t\t\t\t\t)}\n\t\t\t\t\t{...props}\n\t\t\t\t/>\n\t\t\t</PopoverPrimitive.Overlay>\n\t\t</PopoverPrimitive.Portal>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -87,9 +72,8 @@
     ]
   },
   "tokensUsed": [
-    "popover",
-    "popover-foreground",
-    "border"
+    "border",
+    "popover"
   ],
   "examples": [
     {

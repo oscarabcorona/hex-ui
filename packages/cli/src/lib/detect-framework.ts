@@ -98,9 +98,37 @@ export function detectFramework(cwd: string): FrameworkDetection {
 		exists(cwd, "src", "index.tsx") ||
 		exists(cwd, "src", "index.jsx");
 
-	// Native comes first. An Expo app declares both `expo` and `react-native`,
-	// and Expo Router apps have an `app/` directory that the Next.js branch
-	// below would otherwise claim.
+	// A web framework outranks an *ambiguous* React Native signal. `react-native`
+	// appears in plenty of web projects, because `react-native-web` pulls it —
+	// and keying off its presence alone scaffolded Metro and Babel configs into
+	// Next.js apps and pinned them to `platform: "native"`, after which every
+	// `hex add` refused the web components they actually wanted.
+	//
+	// This gate deliberately does not cover `expo` / `expo-router`. Nothing on
+	// the web ships those, so they are unambiguous even alongside a `next`
+	// dependency — an Expo Router app has an `app/` directory and may well
+	// carry Next.js in a shared package.json. Gating them here made
+	// `detectFramework` report `next-app` for a real Expo Router project.
+	const webFramework =
+		pkg !== null &&
+		(hasDep(pkg, "next") ||
+			hasDep(pkg, "vite") ||
+			hasDep(pkg, "react-scripts") ||
+			hasDep(pkg, "@craco/craco") ||
+			hasDep(pkg, "@remix-run/react") ||
+			hasDep(pkg, "astro"));
+	const webConfigOnDisk =
+		exists(cwd, "next.config.ts") ||
+		exists(cwd, "next.config.js") ||
+		exists(cwd, "next.config.mjs") ||
+		exists(cwd, "vite.config.ts") ||
+		exists(cwd, "vite.config.js") ||
+		exists(cwd, "astro.config.mjs");
+	const nativeAllowed = !webFramework && !webConfigOnDisk;
+
+	// Among native shapes, Expo comes first: an Expo app declares both `expo`
+	// and `react-native`, and an Expo Router app has an `app/` directory the
+	// Next.js branch would otherwise claim.
 	if (pkg && hasDep(pkg, "expo")) {
 		const routerAt = exists(cwd, "src", "app") ? "src/app" : exists(cwd, "app") ? "app" : null;
 		if (hasDep(pkg, "expo-router") && routerAt) {
@@ -121,7 +149,7 @@ export function detectFramework(cwd: string): FrameworkDetection {
 		};
 	}
 
-	if (pkg && hasDep(pkg, "react-native")) {
+	if (nativeAllowed && pkg && hasDep(pkg, "react-native")) {
 		return {
 			kind: "react-native",
 			platform: "native",

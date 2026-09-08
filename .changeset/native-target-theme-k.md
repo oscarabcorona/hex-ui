@@ -4,6 +4,7 @@
 "@hex-core/tokens": minor
 "@hex-core/cli": minor
 "@hex-core/mcp": minor
+"@hex-core/payload": minor
 ---
 
 React Native target (Theme K): a new `@hex-core/native` package, plus the substrate that lets one catalog serve two renderers.
@@ -19,3 +20,5 @@ The Markdown component is a real native renderer, not a wrapper: it shares the m
 **`@hex-core/cli`** — `hex init` and `hex add` learn `--platform`, and detect Expo, Expo Router and bare React Native projects on their own. On a native project `hex add button` installs `native-button`, and installing a component built for the other renderer is refused rather than silently copied. `hex init --platform native` writes the NativeWind config chain and the token stylesheet.
 
 **`@hex-core/mcp`** — `search_components` takes an optional `platform` filter and reports each item's platform. The enumeration ceiling rises from 200 to 500, because the catalog passed 200 items and a ceiling below the item count turns full enumeration into a silently partial one.
+
+**`@hex-core/payload`** — re-exports `resolveInternalDepForPlatform`, and `buildAppContext` now uses it. Internal dependencies name a source path (`primitives/text/text`) that is identical in a native item and a web one, so resolving it without the declaring item's platform sent a reader of a native Card to the React DOM `Text`. `AppContextInput` gains an optional `itemExists` predicate for the catalog to resolve against; it defaults to accepting every name, which leaves web payloads byte-identical. `KNOWN_NPM_VERSIONS` also gains pins for the native dependency set so `hex poc` stays off `latest` on that path too.

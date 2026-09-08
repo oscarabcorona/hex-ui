@@ -4,6 +4,19 @@ import { deriveNativeSchema } from "@hex-core/registry";
 export const nativeMessageSchema = deriveNativeSchema(messageSchema, {
 	description:
 		"One turn in a conversation. The role sets the alignment and colour, and publishes the body text colour so the message content needs no styling of its own.",
+	// The web schema documents `role` as driving a `data-role` attribute.
+	// React Native has no DOM attributes, so that half of the sentence points
+	// an agent at something it will never find in the rendered tree.
+	removeProps: ["role"],
+	addProps: [
+		{
+			name: "role",
+			type: "enum",
+			required: true,
+			description: "Speaker. Drives the bubble's alignment, its background colour, and the body text colour it publishes.",
+			enumValues: ["user", "assistant", "system", "tool"],
+		},
+	],
 	dependencies: {
 		npm: ["class-variance-authority", "clsx", "tailwind-merge"],
 		internal: ["lib/utils", "lib/text-context"],

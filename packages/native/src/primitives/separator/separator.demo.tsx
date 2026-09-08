@@ -4,6 +4,7 @@ import { Separator } from "./separator.js";
 
 /**
  * A horizontal rule between sections and a vertical rule in a metadata row.
+ * @returns The rendered demo
  */
 export function SeparatorDemo() {
 	return (

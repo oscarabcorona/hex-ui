@@ -4,6 +4,7 @@ import { Message } from "./message.js";
 
 /**
  * A short exchange showing each role.
+ * @returns The rendered demo
  */
 export function MessageDemo() {
 	return (

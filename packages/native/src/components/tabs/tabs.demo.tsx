@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs.js";
 
 /**
  * Two panels switched by a controlled value.
+ * @returns The rendered demo
  */
 export function TabsDemo() {
 	const [tab, setTab] = useState("account");

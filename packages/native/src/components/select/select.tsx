@@ -1,5 +1,6 @@
 import * as SelectPrimitive from "@rn-primitives/select";
 import type { ComponentProps } from "react";
+import { View } from "react-native";
 import { TextClassContext } from "../../lib/text-context.js";
 import { cn } from "../../lib/utils.js";
 
@@ -114,8 +115,14 @@ export function SelectItem({ className, label, ...props }: SelectItemProps) {
 			{...props}
 		>
 			<SelectPrimitive.ItemText className="text-base text-popover-foreground" />
+			{/*
+			 * A mark, not a Value. `Value` reads the ROOT context and renders
+			 * the selected option's label, so inside ItemIndicator — which
+			 * only mounts for the selected row — it repeated that label where
+			 * the tick belongs, and the chosen row read "Pro    Pro".
+			 */}
 			<SelectPrimitive.ItemIndicator>
-				<SelectPrimitive.Value placeholder="" className="text-primary" />
+				<View className="size-2 rounded-full bg-primary" />
 			</SelectPrimitive.ItemIndicator>
 		</SelectPrimitive.Item>
 	);

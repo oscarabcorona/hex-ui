@@ -55,7 +55,7 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes to merge with the component styles"
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
     },
     {
       "name": "onPress",
@@ -83,32 +83,32 @@
       "values": [
         {
           "value": "default",
-          "description": "Primary filled button with subtle shadow for main actions",
+          "description": "Primary filled button for main actions",
           "useWhen": "the single most important action on the screen — exactly one per view (Save, Submit, Continue)"
         },
         {
           "value": "destructive",
-          "description": "Red button with shadow for dangerous/irreversible actions",
-          "useWhen": "the action cannot be undone without recreating data: Delete, Archive, Deactivate, Leave team, Force-quit"
+          "description": "Red filled button for dangerous or irreversible actions",
+          "useWhen": "the action cannot be undone without recreating data: Delete, Archive, Deactivate, Leave team"
         },
         {
           "value": "outline",
-          "description": "Bordered button with hover fill for secondary actions",
-          "useWhen": "tertiary actions on a flat (non-elevated) surface; signals 'optional' next to a primary"
+          "description": "Bordered button that fills while held down",
+          "useWhen": "tertiary actions on a flat surface; signals 'optional' next to a primary"
         },
         {
           "value": "secondary",
           "description": "Muted filled button for less prominent actions",
-          "useWhen": "the second-most-important action next to a primary CTA: Cancel, Save Draft, Skip"
+          "useWhen": "the second-most-important action next to a primary call to action: Cancel, Save Draft, Skip"
         },
         {
           "value": "ghost",
-          "description": "Transparent button, background appears on hover",
+          "description": "Transparent button whose background appears while held down",
           "useWhen": "low-emphasis action inside a list, toolbar, or row where chrome should disappear at rest"
         },
         {
           "value": "link",
-          "description": "Styled as a hyperlink with underline on hover, no padding",
+          "description": "Styled as a link with a permanent underline and no padding",
           "useWhen": "an inline action inside flowing text, or a 'Learn more' affordance in an empty state"
         }
       ],
@@ -126,12 +126,12 @@
         {
           "value": "sm",
           "description": "Compact size (h-9, px-3)",
-          "useWhen": "buttons living inside a row, toolbar, or table cell where vertical density matters"
+          "useWhen": "buttons living inside a row or toolbar where vertical density matters — pair with hitSlop"
         },
         {
           "value": "lg",
           "description": "Large size (h-11, px-8, text-base)",
-          "useWhen": "the single hero CTA on a marketing page, pricing card, or empty-state action"
+          "useWhen": "the single hero action on an onboarding or paywall screen"
         },
         {
           "value": "icon",
@@ -157,6 +157,11 @@
       "path": "components/ui/button.tsx",
       "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps, ReactNode } from \"react\";\nimport { ActivityIndicator, Pressable } from \"react-native\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Container styles per variant and size.\n *\n * `active:` replaces the web `hover:` — touch has no hover, and NativeWind\n * maps `active:` to the Pressable pressed state. Focus rings are omitted:\n * React Native draws no keyboard focus ring on touch platforms.\n */\nexport const buttonVariants = cva(\n\t\"group shrink-0 flex-row items-center justify-center gap-2 rounded-md\",\n\t{\n\t\tvariants: {\n\t\t\tvariant: {\n\t\t\t\tdefault: \"bg-primary shadow-sm shadow-black/5 active:bg-primary/90\",\n\t\t\t\tdestructive: \"bg-destructive shadow-sm shadow-black/5 active:bg-destructive/90\",\n\t\t\t\toutline: \"border border-input bg-background shadow-sm shadow-black/5 active:bg-accent\",\n\t\t\t\tsecondary: \"bg-secondary shadow-sm shadow-black/5 active:bg-secondary/80\",\n\t\t\t\tghost: \"active:bg-accent\",\n\t\t\t\tlink: \"\",\n\t\t\t},\n\t\t\tsize: {\n\t\t\t\tdefault: \"h-10 px-4 py-2\",\n\t\t\t\tsm: \"h-9 rounded-md px-3\",\n\t\t\t\tlg: \"h-11 rounded-md px-8\",\n\t\t\t\ticon: \"h-10 w-10\",\n\t\t\t},\n\t\t},\n\t\tdefaultVariants: {\n\t\t\tvariant: \"default\",\n\t\t\tsize: \"default\",\n\t\t},\n\t},\n);\n\n/**\n * Label styles per variant, published to descendant `Text` through\n * `TextClassContext`. `group-active:` follows the container's pressed state.\n */\nexport const buttonTextVariants = cva(\"text-sm font-medium text-foreground\", {\n\tvariants: {\n\t\tvariant: {\n\t\t\tdefault: \"text-primary-foreground\",\n\t\t\tdestructive: \"text-destructive-foreground\",\n\t\t\toutline: \"group-active:text-accent-foreground\",\n\t\t\tsecondary: \"text-secondary-foreground\",\n\t\t\tghost: \"group-active:text-accent-foreground\",\n\t\t\tlink: \"text-primary group-active:underline\",\n\t\t},\n\t\tsize: {\n\t\t\tdefault: \"\",\n\t\t\tsm: \"\",\n\t\t\tlg: \"text-base\",\n\t\t\ticon: \"\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\tvariant: \"default\",\n\t\tsize: \"default\",\n\t},\n});\n\n/**\n * Props for {@link Button}. `ref` comes with the `Pressable` props and reaches\n * the host view (React 19 — no forwardRef).\n */\nexport interface ButtonProps\n\textends Omit<ComponentProps<typeof Pressable>, \"children\">,\n\t\tVariantProps<typeof buttonVariants> {\n\t/**\n\t * The label and any icons. Wrap strings in `Text` — React Native cannot\n\t * render a bare string inside a Pressable. Render-prop children are not\n\t * supported because the loading indicator is composed in front of them.\n\t */\n\tchildren?: ReactNode;\n\t/** Show an activity indicator before the label and block interaction. */\n\tloading?: boolean;\n}\n\n/**\n * A pressable action button with the web catalog's variants and sizes.\n *\n * The container is a `Pressable` with `role=\"button\"`; labels pick up their\n * colour through `TextClassContext`, so `<Button><Text>Save</Text></Button>`\n * renders the label in `primary-foreground` without any extra prop.\n * @param props - {@link ButtonProps}\n * @returns A React Native `Pressable`\n * @example\n * ```tsx\n * <Button onPress={save}>\n *   <Text>Save</Text>\n * </Button>\n * <Button variant=\"outline\" size=\"icon\" aria-label=\"Settings\" onPress={openSettings}>\n *   <SettingsIcon />\n * </Button>\n * ```\n */\nexport function Button({\n\tclassName,\n\tvariant,\n\tsize,\n\tloading = false,\n\tdisabled,\n\tchildren,\n\t...props\n}: ButtonProps) {\n\tconst inactive = disabled === true || loading;\n\tconst textClass = buttonTextVariants({ variant, size });\n\treturn (\n\t\t<TextClassContext.Provider value={textClass}>\n\t\t\t<Pressable\n\t\t\t\trole=\"button\"\n\t\t\t\taria-busy={loading || undefined}\n\t\t\t\tdisabled={inactive}\n\t\t\t\tclassName={cn(buttonVariants({ variant, size }), inactive && \"opacity-50\", className)}\n\t\t\t\t{...props}\n\t\t\t>\n\t\t\t\t{loading ? <ActivityIndicator size=\"small\" className={textClass} /> : null}\n\t\t\t\t{children}\n\t\t\t</Pressable>\n\t\t</TextClassContext.Provider>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -186,17 +191,17 @@
     ]
   },
   "tokensUsed": [
-    "primary",
-    "primary-foreground",
-    "destructive",
-    "destructive-foreground",
-    "secondary",
-    "secondary-foreground",
     "accent",
     "accent-foreground",
     "background",
+    "destructive",
+    "destructive-foreground",
+    "foreground",
     "input",
-    "ring"
+    "primary",
+    "primary-foreground",
+    "secondary",
+    "secondary-foreground"
   ],
   "examples": [
     {

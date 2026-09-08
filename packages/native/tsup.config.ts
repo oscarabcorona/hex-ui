@@ -27,9 +27,23 @@ const entryFiles = fg.sync(
 	},
 );
 
-const entry = Object.fromEntries(
-	entryFiles.map((relPath) => [path.basename(relPath, path.extname(relPath)), relPath]),
-);
+// Keyed on the basename so a consumer's deep import is `@hex-core/native/button`
+// rather than the full source path. That makes the key space flat, so two
+// files sharing a basename across `primitives/`, `components/`, `ai/` and
+// `lib/` would silently collide and one would be dropped from `dist` — the
+// kind of thing that surfaces as a missing export long after the fact.
+const entry: Record<string, string> = {};
+for (const relPath of entryFiles) {
+	const key = path.basename(relPath, path.extname(relPath));
+	const existing = entry[key];
+	if (existing !== undefined) {
+		throw new Error(
+			`tsup entry collision on "${key}": ${existing} and ${relPath} share a basename. ` +
+				`Rename one — the entry map is flat, so the second would overwrite the first.`,
+		);
+	}
+	entry[key] = relPath;
+}
 
 export default defineConfig({
 	entry,

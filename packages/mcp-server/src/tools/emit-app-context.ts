@@ -4,6 +4,7 @@ import {
 	buildAppContext,
 	getTheme,
 	loadRecipe,
+	loadRegistry,
 	loadRegistryItem,
 	SLUG_REGEX,
 } from "@hex-core/payload";
@@ -65,12 +66,19 @@ export function register(server: McpServer): void {
 				recipe: SLUG_REGEX.test(slug) ? loadRecipe(slug) : null,
 			}));
 
+			// The builder resolves each item's internal deps against the
+			// platform that declared them, which needs the whole catalog: a
+			// native component's dep on `primitives/text/text` is satisfied by
+			// `native-text`, whether or not the caller asked for it.
+			const catalog = new Set(loadRegistry().items.map((i) => i.name));
+
 			const markdown = buildAppContext({
 				theme: { requested: theme, resolved: resolvedTheme },
 				components: componentSlots,
 				recipes: recipeSlots,
 				overrides,
 				density,
+				itemExists: (name) => catalog.has(name),
 			});
 
 			return {

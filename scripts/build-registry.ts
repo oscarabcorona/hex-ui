@@ -9,9 +9,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 // while every comment claimed the three agreed. Naming it is what makes the
 // claim survive the next major.
 import { encode } from "gpt-tokenizer/encoding/cl100k_base";
+import { defaultTheme } from "@hex-core/tokens";
 import {
 	componentSchemaDefinition,
 	recipeSchemaDefinition,
+	isNativeSlug,
 	toNativeSlug,
 	type ComponentSchemaDefinition,
 	type Platform,
@@ -268,6 +270,74 @@ function deriveTokenBudget(
 	const measurable = files.filter((f) => f.type !== "lib");
 	if (measurable.length === 0) return declared;
 	return encode(measurable.map((f) => f.content).join("\n")).length;
+}
+
+/**
+ * Colour-ish token names, longest first so `primary-foreground` is matched
+ * before `primary`. Read from the live theme rather than hardcoded, and
+ * filtered to the tokens that appear as Tailwind colour utilities — spacing,
+ * font and duration scales are consumed as `p-4` / `text-sm`, which say
+ * nothing about which semantic colour a component paints with.
+ */
+const COLOUR_TOKENS: string[] = Object.entries(defaultTheme.tokens.light)
+	.filter(([, token]) => extractTokenType(token) === "color")
+	.map(([key]) => key)
+	.sort((a, b) => b.length - a.length);
+
+/** Utility prefixes that take a colour token in Tailwind. */
+const COLOUR_UTILITIES = ["bg", "text", "border", "from", "via", "to", "fill", "stroke", "ring", "shadow", "decoration", "outline", "accent", "caret", "divide", "placeholder"];
+
+/**
+ * Read the `type` off a theme token without asserting its shape.
+ * @param token - A token value from a theme's token set
+ * @returns The token's declared type, when it has one
+ */
+function extractTokenType(token: unknown): string | undefined {
+	if (typeof token === "object" && token !== null && "type" in token) {
+		const { type } = token;
+		return typeof type === "string" ? type : undefined;
+	}
+	return undefined;
+}
+
+/**
+ * Derive the semantic colour tokens a component actually paints with, by
+ * reading its source.
+ *
+ * Only used for React Native items. `deriveNativeSchema` inherits
+ * `tokensUsed` from the web schema by default, and every derived schema took
+ * it verbatim — so 13 native items advertised the `ring` token that no native
+ * file uses (there is no focus ring on touch), while `native-message`
+ * advertised `accent` and omitted the `primary` its user bubble is painted
+ * with. A themer following that list leaves the real tokens undefined.
+ *
+ * Deliberately NOT applied to web items: their lists are hand-curated, and
+ * re-deriving them would rewrite the committed web catalog.
+ * @param files - The item's emitted files
+ * @returns Sorted token names the source references
+ */
+function deriveTokensUsed(files: readonly RegistryFile[]): string[] {
+	const source = files
+		.filter((f) => f.type !== "lib" && /\.tsx?$/.test(f.path))
+		.map((f) => f.content)
+		.join("\n");
+	const found = new Set<string>();
+	for (const token of COLOUR_TOKENS) {
+		for (const utility of COLOUR_UTILITIES) {
+			// A trailing `\b` is NOT enough: the boundary between `d` and `-`
+			// is a word boundary, so `\btext-muted\b` matches inside
+			// `text-muted-foreground` and five items shipped a `muted` they
+			// never paint with. The negated class is what actually stops the
+			// prefix match, and it also keeps `shadow-black/5` from matching.
+			if (new RegExp(`\\b${utility}-${token}(?![\\w-])`).test(source)) {
+				found.add(token);
+				break;
+			}
+		}
+		// Direct CSS-variable reads, e.g. inside a style object.
+		if (new RegExp(`--${token}(?![\\w-])`).test(source)) found.add(token);
+	}
+	return [...found].sort();
 }
 
 /**
@@ -670,7 +740,8 @@ for (const sf of schemaFiles) {
 		slots: schema.slots,
 		files: itemFiles,
 		dependencies: schema.dependencies,
-		tokensUsed: schema.tokensUsed,
+		// Native items derive this from their own source; see deriveTokensUsed.
+		tokensUsed: declaredPlatform === "native" && itemFiles.length > 0 ? deriveTokensUsed(itemFiles) : schema.tokensUsed,
 		examples: schema.examples,
 		ai,
 		tags: schema.tags,
@@ -827,6 +898,14 @@ if (fs.existsSync(RECIPES_SRC)) {
 			}
 		}
 
+		// Derived, not declared: a recipe's platform is a fact about the items
+		// it installs, and asking an author to keep a second copy of that in
+		// sync is how the two drift. Emitted only when native, so every
+		// existing web recipe file stays byte-identical.
+		const recipePlatform = referencedSlugs.length > 0 && referencedSlugs.every(isNativeSlug)
+			? ("native" as const)
+			: undefined;
+
 		const compiled = {
 			$schema: "https://hex-core.dev/schema/recipe.json",
 			slug: recipe.slug,
@@ -843,6 +922,7 @@ if (fs.existsSync(RECIPES_SRC)) {
 			checklist: [...recipe.checklist, ...derived],
 			example: recipe.example,
 			tokenBudget: recipe.tokenBudget,
+			platform: recipePlatform,
 		};
 
 		const outPath = path.join(RECIPES_OUT, `${recipe.slug}.json`);
@@ -858,6 +938,7 @@ if (fs.existsSync(RECIPES_SRC)) {
 			tags: recipe.tags,
 			components: referencedSlugs,
 			tokenBudget: recipe.tokenBudget,
+			platform: recipePlatform,
 		});
 	}
 }

@@ -1,5 +1,6 @@
-import { type ComponentProps, useEffect, useRef } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
 import { Animated, View } from "react-native";
+import { AnimatedView } from "../../lib/animated.js";
 import { cn } from "../../lib/utils.js";
 
 /** Props for {@link Skeleton}. */
@@ -30,8 +31,10 @@ const PULSE_DURATION = 900;
  * </View>
  * ```
  */
-export function Skeleton({ className, animated = true, ...props }: SkeletonProps) {
-	const opacity = useRef(new Animated.Value(1)).current;
+export function Skeleton({ className, animated = true, style, ...props }: SkeletonProps) {
+	// `useState` with an initialiser, not `useRef(new Animated.Value(…))`:
+	// the latter builds a fresh Value on every render and throws it away.
+	const [opacity] = useState(() => new Animated.Value(1));
 
 	useEffect(() => {
 		if (!animated) {
@@ -59,10 +62,15 @@ export function Skeleton({ className, animated = true, ...props }: SkeletonProps
 	}, [animated, opacity]);
 
 	return (
-		<Animated.View
-			style={{ opacity }}
-			className={cn("rounded-md bg-muted", className)}
+		<AnimatedView
 			{...props}
+			// The spread comes first and `style` is merged rather than
+			// replaced: `SkeletonProps` extends View's props, so a consumer
+			// passing `style={{ marginTop: 8 }}` used to overwrite the
+			// animated opacity outright and silently kill the pulse while the
+			// animation loop kept running against nothing.
+			style={[{ opacity }, style]}
+			className={cn("rounded-md bg-muted", className)}
 		/>
 	);
 }

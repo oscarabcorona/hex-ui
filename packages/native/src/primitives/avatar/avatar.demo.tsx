@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar.js";
 
 /**
  * Sizes and the fallback state, plus a typical list row.
+ * @returns The rendered demo
  */
 export function AvatarDemo() {
 	return (

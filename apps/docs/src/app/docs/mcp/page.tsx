@@ -84,7 +84,9 @@ export default function McpPage() {
 				<ul className="list-disc space-y-2 pl-6 text-sm text-muted-foreground">
 					<li>
 						<strong>search_components</strong> — fuzzy search over name, description,
-						tags, and AI hints
+						tags, and AI hints. Pass <code>platform</code> to search one render target:{" "}
+						<code>native</code> returns the React Native catalog, whose items are named{" "}
+						<code>native-&lt;slug&gt;</code> and will not run in a browser
 					</li>
 					<li>
 						<strong>get_component</strong> — full registry item (props, variants, AI

@@ -203,6 +203,12 @@ export const recipeSchema = z.object({
 	checklist: z.array(recipeChecklistItemSchema),
 	example: z.string().optional(),
 	tokenBudget: z.number().optional(),
+	/**
+	 * Render target, derived from the steps by the registry build. Optional
+	 * and omitted when `"web"`, so the existing recipe files stay
+	 * byte-identical.
+	 */
+	platform: z.enum(["web", "native"]).optional(),
 });
 
 export type Recipe = z.infer<typeof recipeSchema>;
@@ -222,6 +228,8 @@ export const recipeIndexItemSchema = z.object({
 	tags: z.array(z.string()),
 	components: z.array(z.string()),
 	tokenBudget: z.number().optional(),
+	/** Render target; omitted for web recipes. See {@link recipeSchema}. */
+	platform: z.enum(["web", "native"]).optional(),
 });
 
 export type RecipeIndexItem = z.infer<typeof recipeIndexItemSchema>;

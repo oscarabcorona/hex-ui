@@ -44,6 +44,6 @@ export const nativeRadioGroupSchema = deriveNativeSchema(radioGroupSchema, {
 		],
 		relatedComponents: ["native-label", "native-checkbox", "native-text"],
 		accessibilityNotes:
-			"Each item is announced as a radio with its checked state, which is what carries the meaning. The root does set role=\"radiogroup\", but React Native does not expose a plain container to assistive tech the way the DOM does, so do not rely on the group itself being announced: precede it with a Label or heading naming the choice. Every item needs its own Label paired by aria-labelledby, and tapping that label selects the option — the practical way to hit a 20pt dot. Disabling at the root disables and dims every item; mirror it on the labels so the whole row reads as unavailable.",
+			"Each item is announced as a radio with its checked state, which is what carries the meaning. The root does set role=\"radiogroup\", but React Native does not expose a plain container to assistive tech the way the DOM does, so do not rely on the group itself being announced: precede it with a Label or heading naming the choice. Every item needs its own Label paired by aria-labelledby. The pairing names the item without forwarding taps, so give each Label an onPress selecting that value — the practical way to hit a 20pt dot. Disabling at the root disables and dims every item; mirror it on the labels so the whole row reads as unavailable.",
 	},
 });

@@ -15,7 +15,7 @@ export const nativeSkeletonSchema = deriveNativeSchema(skeletonSchema, {
 	],
 	dependencies: {
 		npm: ["clsx", "tailwind-merge"],
-		internal: ["lib/utils"],
+		internal: ["lib/utils", "lib/animated"],
 		peer: ["react", "react-native", "nativewind"],
 	},
 	examples: [

@@ -13,6 +13,7 @@ import {
 
 /**
  * A destructive confirmation with a mandatory Cancel.
+ * @returns The rendered demo
  */
 export function AlertDialogDemo() {
 	const [open, setOpen] = useState(false);

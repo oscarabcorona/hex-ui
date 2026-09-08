@@ -25,6 +25,24 @@ import { withSpinner } from "../lib/spinner.js";
 const LAYOUT_PACK = ["container", "stack", "cluster", "grid", "spacer", "empty"] as const;
 
 /**
+ * The `components/ui/*` path a registry item writes, rooted at the project.
+ *
+ * Read from the item, never composed from its slug: the two diverge on
+ * native, where `native-text` installs `components/ui/text.tsx`.
+ * @param ctx - Shared add context, for the registry dir and alias resolution
+ * @param slug - A registry item name
+ * @returns The cwd-relative path, or null when the item has no component file
+ */
+function mainComponentPathFor(ctx: Context, slug: string): string | null {
+	const item = readItem(path.join(ctx.registryDir, "items"), slug) as
+		| { files?: { path: string }[] }
+		| null;
+	const file = item?.files?.find((f) => f.path.startsWith("components/ui/"));
+	if (!file) return null;
+	return path.relative(ctx.cwd, resolveWritePath(ctx.cwd, ctx.aliases, file.path));
+}
+
+/**
  * Slugs already on disk under the consumer's `components/ui/` alias.
  * Pure read — used by both the related-primitives nudge and the
  * layout-pack nudge to filter out things the user already has.
@@ -112,13 +130,26 @@ function printRelatedPrimitivesHint(ctx: Context, runSlugs: Iterable<string>): v
 			// Validate the candidate is a real registry slug. A schema typo
 			// would otherwise reach the user as `hex add stacks` and error
 			// on the very next command they run.
-			if (!readItem(itemsDir, candidate)) continue;
+			const item = readItem(itemsDir, candidate) as { platform?: string } | null;
+			if (!item) continue;
+			// And a real slug *for this project*. A web item's related list is
+			// full of web slugs, so a refused `hex add data-table` in an Expo
+			// app was following its own error with "try `hex add pagination`",
+			// which is refused for exactly the same reason.
+			if ((item.platform ?? "web") !== ctx.platform) continue;
 			suggestions.add(candidate);
 		}
 	}
 	const onDisk = listInstalledSlugs(ctx);
 	for (const slug of runSet) suggestions.delete(slug);
-	for (const slug of onDisk) suggestions.delete(slug);
+	// Native items ship unprefixed (`text.tsx`), so the on-disk slug is
+	// `text` while the registry name is `native-text`. Deleting only the bare
+	// slug left the component the user had just installed sitting in its own
+	// "you might want next" list.
+	for (const slug of onDisk) {
+		suggestions.delete(slug);
+		if (ctx.platform === "native") suggestions.delete(`native-${slug}`);
+	}
 	if (suggestions.size === 0) return;
 	const ordered = [...suggestions].sort();
 	const capped = ordered.slice(0, 8);
@@ -546,24 +577,29 @@ export async function addComponents(components: string[], options: AddOptions): 
 	};
 
 	const pendingDeps: string[] = [];
+	// Items the user asked for by name that could not be installed — unknown
+	// slug, or built for the other renderer. Printing the reason and then
+	// exiting 0 made `hex add a && hex add b` march straight past a refusal,
+	// and any CI step wrapping the command saw a success.
+	const failedAsks: string[] = [];
 
 	while (queue.length > 0) {
 		const name = queue.shift();
 		if (!name) continue;
 
 		const internalDeps = installOne(name, ctx);
-		if (internalDeps === null) continue;
-
-		// `installOne` already returns slugs mapped for this platform.
-		const resolvedDeps = internalDeps;
+		if (internalDeps === null) {
+			if (directAsks.has(name)) failedAsks.push(name);
+			continue;
+		}
 
 		if (options.deps) {
 			// Transitive install: queue missing internal deps for the same pass.
-			for (const dep of resolvedDeps) {
+			for (const dep of internalDeps) {
 				if (!ctx.visited.has(dep)) queue.push(dep);
 			}
 		} else {
-			pendingDeps.push(...resolvedDeps);
+			pendingDeps.push(...internalDeps);
 		}
 	}
 
@@ -571,10 +607,14 @@ export async function addComponents(components: string[], options: AddOptions): 
 		// Disk-aware filter at warning time: the user only wants to know about
 		// deps that aren't already present in their project. installOne returned
 		// the full registry list; now we narrow to actually-missing slugs.
-		const componentsRoot = resolveAlias(ctx.cwd, ctx.aliases.components);
 		const missingOnDisk = Array.from(new Set(pendingDeps)).filter((slug) => {
-			const p = path.join(componentsRoot, "ui", `${slug}.tsx`);
-			return !fs.existsSync(p);
+			// The registry NAME is `native-text`; the file it writes is
+			// `text.tsx`. Composing the path from the slug meant `hex add card`
+			// warned that `native-text` was "not yet installed" on the very run
+			// that wrote it — and would keep saying so forever.
+			const relative = mainComponentPathFor(ctx, slug);
+			if (!relative) return false;
+			return !fs.existsSync(path.join(ctx.cwd, relative));
 		});
 		if (missingOnDisk.length > 0) {
 			console.log(
@@ -658,6 +698,13 @@ export async function addComponents(components: string[], options: AddOptions): 
 	if (options.dryRun) {
 		console.log(`\n${pc.cyan(`Dry-run summary:`)} ${ctx.plannedWrites.length} file${ctx.plannedWrites.length === 1 ? "" : "s"} would be written, ${ctx.pendingNpmDeps.size} dep${ctx.pendingNpmDeps.size === 1 ? "" : "s"} would be installed.`);
 		console.log(pc.dim(`(Re-run without --dry-run to apply.)`));
+	}
+
+	// Exit non-zero when something the user named could not be installed.
+	// Deliberately last, so the hints above still print and the user sees
+	// what to do next rather than a bare failure.
+	if (failedAsks.length > 0) {
+		process.exit(1);
 	}
 }
 

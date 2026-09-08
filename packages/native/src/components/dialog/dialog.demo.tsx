@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "./dialog.
  * A controlled confirmation dialog.
  *
  * Renders through the playground's `PortalHost`, mounted in the root layout.
+ * @returns The rendered demo
  */
 export function DialogDemo() {
 	const [open, setOpen] = useState(false);

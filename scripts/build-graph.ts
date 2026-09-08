@@ -5,6 +5,7 @@ import {
 	internalDepToSlug,
 	NATIVE_SLUG_PREFIX,
 	resolveInternalDepForPlatform,
+	toNativeSlug,
 } from "@hex-core/registry";
 import { compareStrings } from "../packages/payload/src/lib/compare.js";
 import { titleFromSlug } from "../packages/payload/src/lib/slug.js";
@@ -211,6 +212,7 @@ function scanExports(files: RawItemFile[]): { names: string[]; paths: Record<str
  * copies no files for them.
  * @param dep - Raw internal dependency path from the registry index
  * @param itemNames - Set of every item slug in the registry
+ * @param ownerPlatform - Platform of the item that declared the dep
  * @returns The target item slug, or null when the entry names no item
  */
 function resolveInternalDep(
@@ -224,6 +226,15 @@ function resolveInternalDep(
 	// edge or point it at the React DOM component of the same name.
 	const viaPath = resolveInternalDepForPlatform(dep, ownerPlatform, exists);
 	if (viaPath) return viaPath;
+	// The flat-name fallback covers deps declared as a bare slug ("motion",
+	// "dnd", "presence"), which the path resolver rejects. It has to honour
+	// the platform too, or the first native item to declare one gets a hard
+	// `requires` edge to the WEB component of that name.
+	if (ownerPlatform === "native") {
+		const native = toNativeSlug(dep);
+		if (itemNames.has(native)) return native;
+		return itemNames.has(dep) ? dep : null;
+	}
 	if (itemNames.has(dep)) return dep;
 	return null;
 }

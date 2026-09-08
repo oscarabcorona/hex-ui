@@ -4,6 +4,19 @@ import { deriveNativeSchema } from "@hex-core/registry";
 export const nativeToolCallSchema = deriveNativeSchema(toolCallSchema, {
 	description:
 		"A collapsible record of one tool invocation — name, status, and the arguments and result behind a tap. Collapsed by default so a transcript stays scannable on a phone.",
+	// The web schema's terminal state is `result`; this component's union is
+	// `success`. Inheriting the enum shipped a prop table whose own examples
+	// contradicted it, and `state="result"` renders an empty status cell.
+	removeProps: ["state"],
+	addProps: [
+		{
+			name: "state",
+			type: "enum",
+			required: true,
+			description: "Where the invocation is in its lifecycle. Drives the status label and its colour.",
+			enumValues: ["pending", "running", "success", "error"],
+		},
+	],
 	dependencies: {
 		npm: ["clsx", "tailwind-merge"],
 		internal: ["lib/utils", "primitives/text/text"],

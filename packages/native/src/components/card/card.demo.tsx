@@ -13,6 +13,7 @@ import {
 
 /**
  * A full card with every slot, and a header-only empty state.
+ * @returns The rendered demo
  */
 export function CardDemo() {
 	return (

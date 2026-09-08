@@ -4,6 +4,7 @@ import { Label } from "./label.js";
 
 /**
  * A label above a field caption, and a disabled label.
+ * @returns The rendered demo
  */
 export function LabelDemo() {
 	return (

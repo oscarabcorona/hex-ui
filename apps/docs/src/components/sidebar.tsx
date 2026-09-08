@@ -9,6 +9,8 @@ import {
 	CATEGORY_LABELS,
 	CATEGORY_ORDER,
 	componentsByCategory,
+	listComponents,
+	listNativeComponents,
 	type RegistryIndexItem,
 } from "../lib/registry";
 
@@ -18,13 +20,18 @@ interface SidebarCategory {
 	items: RegistryIndexItem[];
 }
 
-function orderedSidebarCategories(): SidebarCategory[] {
-	const groups = componentsByCategory();
+/**
+ * Group a platform's catalog into ordered sidebar sections.
+ * @param items - The catalog to group, web or native
+ * @returns Categories in display order, empty ones dropped
+ */
+function orderedSidebarCategories(items: readonly RegistryIndexItem[]): SidebarCategory[] {
+	const groups = componentsByCategory(items);
 	const ordered: SidebarCategory[] = [];
 	for (const key of CATEGORY_ORDER) {
-		const items = groups[key];
-		if (!items) continue;
-		ordered.push({ key, title: CATEGORY_LABELS[key] ?? key, items });
+		const inCategory = groups[key];
+		if (!inCategory) continue;
+		ordered.push({ key, title: CATEGORY_LABELS[key] ?? key, items: inCategory });
 	}
 	return ordered;
 }
@@ -36,7 +43,12 @@ function orderedSidebarCategories(): SidebarCategory[] {
  */
 export function Sidebar({ className }: { className?: string }) {
 	const pathname = usePathname();
-	const categories = orderedSidebarCategories();
+	// The two catalogs share category names, so showing both at once would
+	// list "Button" twice under "Primitives" with no way to tell which
+	// renders where. The section you are in picks the catalog instead.
+	const isNative = pathname.startsWith("/native");
+	const categories = orderedSidebarCategories(isNative ? listNativeComponents() : listComponents());
+	const hrefFor = (name: string) => (isNative ? `/native/${name}` : `/docs/components/${name}`);
 
 	return (
 		<LayoutGroup id="sidebar-active">
@@ -45,10 +57,10 @@ export function Sidebar({ className }: { className?: string }) {
 				{categories.map((c) => (
 					<NavGroup
 						key={c.key}
-						title={c.title}
+						title={isNative ? `React Native — ${c.title}` : c.title}
 						items={c.items.map((item) => ({
 							title: item.displayName,
-							href: `/docs/components/${item.name}`,
+							href: hrefFor(item.name),
 						}))}
 						pathname={pathname}
 					/>

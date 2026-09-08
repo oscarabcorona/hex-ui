@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip.js";
 
 /**
  * An icon-only button whose name is revealed on long press.
+ * @returns The rendered demo
  */
 export function TooltipDemo() {
 	return (

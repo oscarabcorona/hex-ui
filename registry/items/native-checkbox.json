@@ -32,7 +32,7 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes"
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
     },
     {
       "name": "hitSlop",
@@ -49,6 +49,11 @@
       "path": "components/ui/checkbox.tsx",
       "content": "import * as CheckboxPrimitive from \"@rn-primitives/checkbox\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Extra touch area around the 16pt box, in points. */\nconst HIT_SLOP = 12;\n\n/** Props for {@link Checkbox}. */\nexport type CheckboxProps = ComponentProps<typeof CheckboxPrimitive.Root>;\n\n/**\n * A square box the user ticks.\n *\n * Controlled only: pass `checked` and `onCheckedChange` together. The\n * visible box is 16pt, well under the 44pt touch-target minimum, so it\n * carries `hitSlop` to extend the tappable area.\n * @param props - {@link CheckboxProps}\n * @returns The checkbox element\n * @example\n * ```tsx\n * <Checkbox\n *   aria-labelledby=\"terms\"\n *   checked={accepted}\n *   onCheckedChange={setAccepted}\n * />\n * ```\n */\nexport function Checkbox({ className, ...props }: CheckboxProps) {\n\treturn (\n\t\t<CheckboxPrimitive.Root\n\t\t\thitSlop={HIT_SLOP}\n\t\t\tclassName={cn(\n\t\t\t\t\"size-4 shrink-0 overflow-hidden rounded-[4px] border border-input\",\n\t\t\t\tprops.checked && \"border-primary\",\n\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<CheckboxPrimitive.Indicator className=\"size-full items-center justify-center bg-primary\" />\n\t\t</CheckboxPrimitive.Root>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -78,9 +83,7 @@
   },
   "tokensUsed": [
     "input",
-    "primary",
-    "primary-foreground",
-    "ring"
+    "primary"
   ],
   "examples": [
     {
@@ -126,7 +129,7 @@
       "native-switch",
       "native-text"
     ],
-    "accessibilityNotes": "The primitive sets role=\"checkbox\" and reports the checked state, so VoiceOver and TalkBack announce both name and state. Name it by pairing a Label's nativeID with aria-labelledby — tapping that label also toggles the box, which is the main way of hitting so small a control. Keep hitSlop so the touch target clears 44pt. The disabled state dims the box and is announced.",
+    "accessibilityNotes": "The primitive sets role=\"checkbox\" and reports the checked state, so VoiceOver and TalkBack announce both name and state. Name it by pairing a Label's nativeID with aria-labelledby. That carries the name only, not the press: give the Label an onPress calling the same handler so the caption becomes a second target for so small a control. Keep hitSlop so the touch target clears 44pt. The disabled state dims the box and is announced.",
     "tokenBudget": 315
   },
   "tags": [

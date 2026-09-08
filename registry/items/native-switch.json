@@ -32,7 +32,7 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes"
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
     }
   ],
   "variants": [],
@@ -40,8 +40,13 @@
   "files": [
     {
       "path": "components/ui/switch.tsx",
-      "content": "import * as SwitchPrimitive from \"@rn-primitives/switch\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Switch}. */\nexport type SwitchProps = ComponentProps<typeof SwitchPrimitive.Root>;\n\n/**\n * An instant-effect on/off control.\n *\n * Controlled only: pass `checked` and `onCheckedChange` together. The\n * change applies immediately — there is no submit step — which is what\n * separates this from Checkbox.\n * @param props - {@link SwitchProps}\n * @returns The switch element\n * @example\n * ```tsx\n * <Switch\n *   aria-labelledby=\"notifications\"\n *   checked={enabled}\n *   onCheckedChange={setEnabled}\n * />\n * ```\n */\nexport function Switch({ className, ...props }: SwitchProps) {\n\treturn (\n\t\t<SwitchPrimitive.Root\n\t\t\tclassName={cn(\n\t\t\t\t\"h-6 w-11 shrink-0 flex-row items-center rounded-full border-2 border-transparent\",\n\t\t\t\tprops.checked ? \"bg-primary\" : \"bg-input\",\n\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<SwitchPrimitive.Thumb\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"size-5 rounded-full bg-background\",\n\t\t\t\t\tprops.checked ? \"translate-x-5\" : \"translate-x-0\",\n\t\t\t\t)}\n\t\t\t/>\n\t\t</SwitchPrimitive.Root>\n\t);\n}\n",
+      "content": "import * as SwitchPrimitive from \"@rn-primitives/switch\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Extra touchable area in points beyond the visible track.\n *\n * The track is 44×24, so 10pt vertically brings the target to 44×44 — the\n * platform minimum. Matches the compensation Checkbox and RadioGroupItem\n * already apply.\n */\nconst HIT_SLOP = 10;\n\n/** Props for {@link Switch}. */\nexport type SwitchProps = ComponentProps<typeof SwitchPrimitive.Root>;\n\n/**\n * An instant-effect on/off control.\n *\n * Controlled only: pass `checked` and `onCheckedChange` together. The\n * change applies immediately — there is no submit step — which is what\n * separates this from Checkbox.\n * @param props - {@link SwitchProps}\n * @returns The switch element\n * @example\n * ```tsx\n * <Switch\n *   aria-labelledby=\"notifications\"\n *   checked={enabled}\n *   onCheckedChange={setEnabled}\n * />\n * ```\n */\nexport function Switch({ className, ...props }: SwitchProps) {\n\treturn (\n\t\t<SwitchPrimitive.Root\n\t\t\t// The track is 44pt wide but only 24pt tall, so the vertical\n\t\t\t// target fell well under the 44pt minimum — the same gap Checkbox\n\t\t\t// and RadioGroupItem already close with their own hitSlop.\n\t\t\thitSlop={HIT_SLOP}\n\t\t\tclassName={cn(\n\t\t\t\t\"h-6 w-11 shrink-0 flex-row items-center rounded-full border-2 border-transparent\",\n\t\t\t\tprops.checked ? \"bg-primary\" : \"bg-input\",\n\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t>\n\t\t\t<SwitchPrimitive.Thumb\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"size-5 rounded-full bg-background\",\n\t\t\t\t\tprops.checked ? \"translate-x-5\" : \"translate-x-0\",\n\t\t\t\t)}\n\t\t\t/>\n\t\t</SwitchPrimitive.Root>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -70,10 +75,9 @@
     ]
   },
   "tokensUsed": [
-    "primary",
-    "input",
     "background",
-    "ring"
+    "input",
+    "primary"
   ],
   "examples": [
     {
@@ -125,8 +129,8 @@
       "native-checkbox",
       "native-text"
     ],
-    "accessibilityNotes": "The primitive sets role=\"switch\" and reports the on/off state, so VoiceOver and TalkBack announce name and state together. Name it by pairing a Label's nativeID with aria-labelledby, and attach any explanatory line with aria-describedby. Tapping the label toggles the switch, which matters because the control is only 44pt wide. The track colour changes with state, but the announced state is what carries the meaning, never the colour alone.",
-    "tokenBudget": 301
+    "accessibilityNotes": "The primitive sets role=\"switch\" and reports the on/off state, so VoiceOver and TalkBack announce name and state together. Name it by pairing a Label's nativeID with aria-labelledby, and attach any explanatory line with aria-describedby. Pairing those does not forward taps the way a browser's htmlFor does, so give the Label its own onPress calling the same handler — the control is only 44pt wide, and the caption is the easier target. The track colour changes with state, but the announced state is what carries the meaning, never the colour alone.",
+    "tokenBudget": 433
   },
   "tags": [
     "switch",

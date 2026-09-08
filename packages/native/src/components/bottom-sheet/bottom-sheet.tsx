@@ -1,6 +1,7 @@
 import * as DialogPrimitive from "@rn-primitives/dialog";
-import { type ComponentProps, useEffect, useRef } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
 import { Animated, useWindowDimensions } from "react-native";
+import { AnimatedView } from "../../lib/animated.js";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { cn } from "../../lib/utils.js";
 
@@ -65,11 +66,14 @@ export function BottomSheetContent({
 	className,
 	portalHost,
 	children,
+	style,
 	...props
 }: BottomSheetContentProps) {
 	const insets = useSafeAreaInsets();
 	const { height } = useWindowDimensions();
-	const translateY = useRef(new Animated.Value(height)).current;
+	// `useState` with an initialiser, not `useRef(new Animated.Value(…))`:
+	// the latter constructs a fresh Value on every render and throws it away.
+	const [translateY] = useState(() => new Animated.Value(height));
 
 	useEffect(() => {
 		const animation = Animated.timing(translateY, {
@@ -86,15 +90,29 @@ export function BottomSheetContent({
 	return (
 		<DialogPrimitive.Portal hostName={portalHost}>
 			<DialogPrimitive.Overlay className="absolute inset-0 justify-end bg-black/50">
-				<DialogPrimitive.Content
-					className={cn(
-						"w-full gap-4 rounded-t-2xl border-t border-border bg-background px-6 pt-6",
-						className,
-					)}
-					style={{ transform: [{ translateY }], paddingBottom: insets.bottom + 24 }}
-					{...props}
-				>
-					{children}
+				{/*
+				 * `asChild` onto an Animated.View is load-bearing, not a style
+				 * choice: the primitive's Content renders a plain View, and
+				 * React Native throws "You passed an Animated.Value to a normal
+				 * component" the moment it processes the transform. Slot
+				 * forwards role, aria-modal and onAccessibilityEscape, so the
+				 * dialog semantics are unchanged.
+				 */}
+				<DialogPrimitive.Content asChild {...props}>
+					<AnimatedView
+						className={cn(
+							"w-full gap-4 rounded-t-2xl border-t border-border bg-background px-6 pt-6",
+							className,
+						)}
+						// The consumer's style goes last so it can override the
+						// padding, while the transform is still applied.
+						style={[
+							{ transform: [{ translateY }], paddingBottom: insets.bottom + 24 },
+							style,
+						]}
+					>
+						{children}
+					</AnimatedView>
 				</DialogPrimitive.Content>
 			</DialogPrimitive.Overlay>
 		</DialogPrimitive.Portal>

@@ -49,8 +49,10 @@ export interface NativeSchemaOverrides {
 	slots?: readonly SlotInput[];
 	/** Always declared: native never shares the web dependency graph. */
 	dependencies: DependencyInput;
-	/** Replaces the web token list; inherits when omitted. */
-	tokensUsed?: readonly string[];
+	// `tokensUsed` is deliberately absent. The registry build measures it from
+	// the native source (`deriveTokensUsed`), exactly as it does `tokenBudget`,
+	// so a declaration here would be silently discarded — two schemas carried
+	// one for a while and nothing consumed it.
 	/** Always declared: web examples carry `asChild`, `href` and DOM elements. */
 	examples: readonly UsageExampleInput[];
 	/** Replaces the derived tags (web tags + `native` + `react-native`). */
@@ -146,7 +148,22 @@ export function deriveNativeSchema(
 			throw new Error(`deriveNativeSchema: "${web.name}" has no prop "${name}" to remove`);
 		}
 	}
-	const keptProps = webProps.filter((p) => !removeProps.includes(p.name));
+	const keptProps = webProps
+		.filter((p) => !removeProps.includes(p.name))
+		// `className` is on almost every component, and every web schema
+		// describes it as "Additional CSS classes …". React Native has no CSS,
+		// and 16 derived items inherited that wording verbatim. It is the one
+		// prop whose description is boilerplate enough to normalise rather
+		// than force every author to override.
+		.map((p) =>
+			p.name === "className"
+				? {
+						...p,
+						description:
+							"Additional NativeWind classes, merged with the component's own so a conflicting utility wins",
+					}
+				: p,
+		);
 	const addProps = overrides.addProps ?? [];
 	for (const added of addProps) {
 		if (keptProps.some((p) => p.name === added.name)) {
@@ -172,7 +189,9 @@ export function deriveNativeSchema(
 		variants: overrides.variants !== undefined ? [...overrides.variants] : web.variants,
 		slots: overrides.slots !== undefined ? [...overrides.slots] : web.slots,
 		dependencies: overrides.dependencies,
-		tokensUsed: overrides.tokensUsed !== undefined ? [...overrides.tokensUsed] : web.tokensUsed,
+		// Carried over only to satisfy the schema; the registry build replaces
+		// it with the tokens actually painted by the native source.
+		tokensUsed: web.tokensUsed,
 		examples: [...overrides.examples],
 		ai: {
 			whenToUse: overrides.ai.whenToUse ?? web.ai.whenToUse,

@@ -18,6 +18,7 @@ const TURNS: Turn[] = [
 
 /**
  * A short conversation in the inverted list.
+ * @returns The rendered demo
  */
 export function MessageListDemo() {
 	return (

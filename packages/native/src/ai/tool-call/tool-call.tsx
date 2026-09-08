@@ -51,6 +51,50 @@ function format(value: unknown): string {
 }
 
 /**
+ * The name-and-status row, pressable only when there is something to reveal.
+ *
+ * A `Pressable` with `disabled` announces itself as a disabled button, which
+ * is wrong for a call that simply took no arguments — nothing is unavailable,
+ * there is just nothing to expand. A plain `View` carries no button semantics
+ * and no `aria-expanded` at all.
+ * @param props - Row configuration
+ * @param props.expandable - Whether there is detail to disclose
+ * @param props.open - Current disclosure state
+ * @param props.label - Accessible name, carrying both tool name and status
+ * @param props.onToggle - Flip the disclosure
+ * @param props.children - The row's visible content
+ * @returns The header row
+ */
+function ToolCallHeader({
+	expandable,
+	open,
+	label,
+	onToggle,
+	children,
+}: {
+	expandable: boolean;
+	open: boolean;
+	label: string;
+	onToggle: () => void;
+	children: React.ReactNode;
+}) {
+	if (!expandable) {
+		return <View className="flex-row items-center justify-between gap-3">{children}</View>;
+	}
+	return (
+		<Pressable
+			role="button"
+			aria-label={label}
+			aria-expanded={open}
+			onPress={onToggle}
+			className="flex-row items-center justify-between gap-3"
+		>
+			{children}
+		</Pressable>
+	);
+}
+
+/**
  * A collapsible record of one tool invocation.
  *
  * Collapsed to a single row by default: a transcript full of expanded JSON
@@ -80,15 +124,20 @@ export function ToolCall({
 			className={cn("gap-2 rounded-xl border border-border bg-card p-3", className)}
 			{...props}
 		>
-			<Pressable
-				role="button"
-				aria-label={`${name}, ${STATE_LABEL[state]}`}
-				aria-expanded={open}
-				disabled={!hasDetail}
-				onPress={() => {
+			{/*
+			 * A call with nothing to expand is a plain row, not a disabled
+			 * button. `disabled` sets accessibilityState.disabled, so a
+			 * perfectly normal argument-free tool call was announced as
+			 * "disabled button", and it carried an aria-expanded for a
+			 * disclosure that does not exist.
+			 */}
+			<ToolCallHeader
+				expandable={hasDetail}
+				open={open}
+				label={`${name}, ${STATE_LABEL[state]}`}
+				onToggle={() => {
 					setOpen((current) => !current);
 				}}
-				className="flex-row items-center justify-between gap-3"
 			>
 				<Text variant="small" className="flex-1 font-mono text-card-foreground" numberOfLines={1}>
 					{name}
@@ -96,7 +145,7 @@ export function ToolCall({
 				<Text variant="small" className={STATE_CLASS[state]}>
 					{STATE_LABEL[state]}
 				</Text>
-			</Pressable>
+			</ToolCallHeader>
 
 			{open && hasDetail ? (
 				<View className="gap-2 border-t border-border pt-2">

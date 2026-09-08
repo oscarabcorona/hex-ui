@@ -148,6 +148,25 @@ describe("detectFramework — React Native", () => {
 		expect(detectFramework(tmpDir).kind).toBe("expo-router");
 	});
 
+	// The other half of that precedence rule. `react-native-web` pulls
+	// `react-native` into ordinary web projects, and treating that as a native
+	// signal scaffolded Metro and Babel configs into Next.js apps, after which
+	// every `hex add` refused the web components the user actually wanted.
+	// Unlike `expo`, the bare dependency is ambiguous, so a web signal wins.
+	it("does not claim a Next.js app that pulls react-native via react-native-web", () => {
+		writePkg({ next: "^16.0.0", "react-native": "0.86.3", "react-native-web": "^0.21.0" });
+		mkdir("app");
+		const result = detectFramework(tmpDir);
+		expect(result.kind).toBe("next-app");
+		expect(result.platform).toBe("web");
+	});
+
+	it("does not claim a Vite app with a vite.config on disk that declares react-native", () => {
+		writePkg({ "react-native": "0.86.3" });
+		fs.writeFileSync(path.join(tmpDir, "vite.config.ts"), "export default {}");
+		expect(detectFramework(tmpDir).platform).toBe("web");
+	});
+
 	it("prefers Expo over bare react-native when both are declared", () => {
 		writePkg({ expo: "^57.0.0", "react-native": "0.86.3" });
 		expect(detectFramework(tmpDir).kind).toBe("expo");

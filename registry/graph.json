@@ -4256,7 +4256,7 @@
         "sizing",
         "user"
       ],
-      "tokenBudget": 496,
+      "tokenBudget": 634,
       "degree": 5,
       "exports": [
         "Avatar",
@@ -4330,7 +4330,7 @@
         "overlay",
         "share"
       ],
-      "tokenBudget": 1047,
+      "tokenBudget": 1237,
       "degree": 5,
       "exports": [
         "BottomSheet",
@@ -4494,13 +4494,17 @@
         "screen",
         "streaming"
       ],
-      "tokenBudget": 641,
+      "tokenBudget": 1464,
       "degree": 5,
       "exports": [
-        "Composer"
+        "Composer",
+        "Text",
+        "textVariants"
       ],
       "exportPaths": {
-        "Composer": "ui/composer"
+        "Composer": "ui/composer",
+        "Text": "ui/text",
+        "textVariants": "ui/text"
       }
     },
     {
@@ -4527,7 +4531,7 @@
         "overlay",
         "setup"
       ],
-      "tokenBudget": 1502,
+      "tokenBudget": 816,
       "degree": 8,
       "exports": [
         "Dialog",
@@ -4535,9 +4539,7 @@
         "DialogContent",
         "DialogDescription",
         "DialogTitle",
-        "DialogTrigger",
-        "Text",
-        "textVariants"
+        "DialogTrigger"
       ],
       "exportPaths": {
         "Dialog": "ui/dialog",
@@ -4545,9 +4547,7 @@
         "DialogContent": "ui/dialog",
         "DialogDescription": "ui/dialog",
         "DialogTitle": "ui/dialog",
-        "DialogTrigger": "ui/dialog",
-        "Text": "ui/text",
-        "textVariants": "ui/text"
+        "DialogTrigger": "ui/dialog"
       }
     },
     {
@@ -4575,7 +4575,7 @@
         "form",
         "validation"
       ],
-      "tokenBudget": 294,
+      "tokenBudget": 370,
       "degree": 7,
       "exports": [
         "Input"
@@ -4607,7 +4607,7 @@
         "form",
         "settings-row"
       ],
-      "tokenBudget": 264,
+      "tokenBudget": 660,
       "degree": 10,
       "exports": [
         "Label"
@@ -4640,7 +4640,7 @@
         "document",
         "streaming"
       ],
-      "tokenBudget": 2457,
+      "tokenBudget": 3255,
       "degree": 6,
       "exports": [
         "Markdown",
@@ -4676,7 +4676,7 @@
         "streaming",
         "system"
       ],
-      "tokenBudget": 575,
+      "tokenBudget": 787,
       "degree": 9,
       "exports": [
         "Message",
@@ -4712,7 +4712,7 @@
         "screen",
         "streaming"
       ],
-      "tokenBudget": 642,
+      "tokenBudget": 974,
       "degree": 8,
       "exports": [
         "MessageList"
@@ -4782,7 +4782,7 @@
         "threshold",
         "wizard"
       ],
-      "tokenBudget": 495,
+      "tokenBudget": 677,
       "degree": 4,
       "exports": [
         "Progress"
@@ -4850,7 +4850,7 @@
         "form",
         "state"
       ],
-      "tokenBudget": 1007,
+      "tokenBudget": 1088,
       "degree": 3,
       "exports": [
         "Select",
@@ -4922,7 +4922,7 @@
         "list-row",
         "loading"
       ],
-      "tokenBudget": 461,
+      "tokenBudget": 594,
       "degree": 5,
       "exports": [
         "Skeleton"
@@ -4954,7 +4954,7 @@
         "description",
         "settings-row"
       ],
-      "tokenBudget": 301,
+      "tokenBudget": 433,
       "degree": 8,
       "exports": [
         "Switch"
@@ -5062,7 +5062,7 @@
         "form",
         "validation"
       ],
-      "tokenBudget": 295,
+      "tokenBudget": 347,
       "degree": 3,
       "exports": [
         "Textarea"
@@ -5096,7 +5096,7 @@
         "error",
         "streaming"
       ],
-      "tokenBudget": 1524,
+      "tokenBudget": 1880,
       "degree": 6,
       "exports": [
         "Text",
@@ -5120,7 +5120,6 @@
       "communityName": "Overlay components",
       "tags": [
         "hint",
-        "hover",
         "label",
         "native",
         "overlay",

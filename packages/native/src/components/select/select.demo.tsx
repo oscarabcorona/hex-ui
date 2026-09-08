@@ -8,6 +8,7 @@ type Option = { value: string; label: string } | undefined;
 
 /**
  * A labelled plan picker.
+ * @returns The rendered demo
  */
 export function SelectDemo() {
 	const [plan, setPlan] = useState<Option>(undefined);

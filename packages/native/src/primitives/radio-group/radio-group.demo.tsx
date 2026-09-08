@@ -12,6 +12,7 @@ const OPTIONS = [
 
 /**
  * A shipping picker with a description under each option.
+ * @returns The rendered demo
  */
 export function RadioGroupDemo() {
 	const [choice, setChoice] = useState("standard");

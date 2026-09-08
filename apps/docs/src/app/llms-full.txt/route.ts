@@ -25,7 +25,13 @@ export const dynamic = "force-static";
  */
 async function loadCatalog(): Promise<LlmsCatalogGroup[]> {
 	const covered = new Set<string>(CATEGORY_ORDER);
-	const missing = listComponents().filter((item) => !covered.has(item.category));
+	// Both catalogs. The guard exists so an item in an uncovered category
+	// fails the build rather than being silently dropped from the agent
+	// index — and checking only the web list reintroduced exactly that hole
+	// for the 26 native items.
+	const missing = [...listComponents(), ...listNativeComponents()].filter(
+		(item) => !covered.has(item.category),
+	);
 	if (missing.length > 0) {
 		throw new Error(
 			`CATEGORY_ORDER does not cover: ${[...new Set(missing.map((m) => m.category))].join(", ")}`,

@@ -687,9 +687,17 @@ export function buildPocFiles(map: ApplicationMap, options: PocBuilderOptions = 
 	// The demo harness is part of every POC, so its components are part of every
 	// install closure — the panel's Select and the frames' Empty resolve even
 	// when the brief mapped neither.
+	//
+	// Native items are dropped here as well as in the export index above.
+	// `hex poc` only ever generates a Next.js app, and a native item ships
+	// UNPREFIXED file paths, so `native-select` would claim
+	// `components/ui/select.tsx` and `next build` would type-check a file
+	// importing `@rn-primitives/select` in a project with no react-native.
+	// The resolver's platform filter is the real fix; this is the backstop
+	// for a hand-written or older map that still names one.
 	const copySlugs = requiresClosure(graph, [
 		...new Set([...map.install.components, ...pageSlugs, ...DEMO_COMPONENT_SLUGS]),
-	]);
+	]).filter((slug) => !slug.startsWith(NATIVE_SLUG_PREFIX));
 
 	// Copy component sources with imports rewritten to the app's aliases.
 	const fileMap = new Map<string, PocFile>();

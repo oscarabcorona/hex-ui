@@ -2,7 +2,6 @@ import * as DialogPrimitive from "@rn-primitives/dialog";
 import type { ComponentProps } from "react";
 import { TextClassContext } from "../../lib/text-context.js";
 import { cn } from "../../lib/utils.js";
-import { Text } from "../../primitives/text/text.js";
 
 /** Props for {@link Dialog}. */
 export type DialogProps = ComponentProps<typeof DialogPrimitive.Root>;
@@ -98,9 +97,6 @@ export function DialogDescription({ className, ...props }: DialogTextProps) {
 		/>
 	);
 }
-
-/** Props for {@link DialogFooter}. */
-export type DialogFooterProps = ComponentProps<typeof Text>;
 
 /** Props for {@link DialogClose}. */
 export type DialogCloseProps = ComponentProps<typeof DialogPrimitive.Close>;

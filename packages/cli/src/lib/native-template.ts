@@ -154,14 +154,21 @@ export function nativeTemplateFiles(
 	globalsCss: string,
 	tailwindConfig: string,
 	detection: FrameworkDetection,
+	isEsmProject = false,
 ): TemplateFile[] {
 	const libDir = detection.srcDir ? "src/lib" : "lib";
 	const bare = detection.kind === "react-native";
+	// All three configs are CommonJS (`require` + `module.exports`). In a
+	// project whose package.json declares `"type": "module"`, a `.js` file is
+	// an ES module and Metro dies with "require is not defined in ES module
+	// scope". The `.cjs` extension opts them back out — which is exactly what
+	// this repo's own playground does.
+	const ext = isEsmProject ? "cjs" : "js";
 	return [
 		{ path: "global.css", contents: globalsCss },
-		{ path: "tailwind.config.js", contents: tailwindConfig },
-		{ path: "metro.config.js", contents: emitMetroConfig(bare) },
-		{ path: "babel.config.js", contents: emitBabelConfig(bare) },
+		{ path: `tailwind.config.${ext}`, contents: tailwindConfig },
+		{ path: `metro.config.${ext}`, contents: emitMetroConfig(bare) },
+		{ path: `babel.config.${ext}`, contents: emitBabelConfig(bare) },
 		{ path: "nativewind-env.d.ts", contents: NATIVEWIND_ENV_DTS },
 		{ path: `${libDir}/utils.ts`, contents: CN_HELPER },
 	];

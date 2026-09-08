@@ -4,6 +4,7 @@ import { Skeleton } from "./skeleton.js";
 
 /**
  * A loading list row and a loading card body.
+ * @returns The rendered demo
  */
 export function SkeletonDemo() {
 	return (

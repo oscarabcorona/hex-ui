@@ -4,6 +4,7 @@ import { Badge } from "./badge.js";
 
 /**
  * Badge variants plus a heading pairing and a count chip.
+ * @returns The rendered demo
  */
 export function BadgeDemo() {
 	return (

@@ -25,7 +25,7 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes"
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
     }
   ],
   "variants": [],
@@ -44,6 +44,11 @@
       "path": "components/ui/tabs.tsx",
       "content": "import * as TabsPrimitive from \"@rn-primitives/tabs\";\nimport type { ComponentProps } from \"react\";\nimport { TextClassContext } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Tabs}. */\nexport type TabsProps = ComponentProps<typeof TabsPrimitive.Root>;\n\n/**\n * A tabbed panel switcher.\n *\n * Controlled only: pass `value` and `onValueChange`. Each `TabsTrigger` and\n * `TabsContent` pair is matched by a shared `value`.\n * @param props - {@link TabsProps}\n * @returns The tabs root\n * @example\n * ```tsx\n * <Tabs value={tab} onValueChange={setTab}>\n *   <TabsList>\n *     <TabsTrigger value=\"account\"><Text>Account</Text></TabsTrigger>\n *     <TabsTrigger value=\"billing\"><Text>Billing</Text></TabsTrigger>\n *   </TabsList>\n *   <TabsContent value=\"account\"><Text>Account settings</Text></TabsContent>\n *   <TabsContent value=\"billing\"><Text>Billing settings</Text></TabsContent>\n * </Tabs>\n * ```\n */\nexport function Tabs({ className, ...props }: TabsProps) {\n\treturn <TabsPrimitive.Root className={cn(\"flex-col gap-2\", className)} {...props} />;\n}\n\n/** Props for {@link TabsList}. */\nexport type TabsListProps = ComponentProps<typeof TabsPrimitive.List>;\n\n/**\n * The row of triggers.\n * @param props - {@link TabsListProps}\n * @returns The tab list\n */\nexport function TabsList({ className, ...props }: TabsListProps) {\n\treturn (\n\t\t<TabsPrimitive.List\n\t\t\tclassName={cn(\"flex-row items-center rounded-lg bg-muted p-1\", className)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n\n/** Props for {@link TabsTrigger}. */\nexport type TabsTriggerProps = ComponentProps<typeof TabsPrimitive.Trigger>;\n\n/**\n * One tab. Selected state is derived from the root's `value`.\n * @param props - {@link TabsTriggerProps}\n * @returns The trigger\n */\nexport function TabsTrigger({ className, value, ...props }: TabsTriggerProps) {\n\tconst { value: selected } = TabsPrimitive.useRootContext();\n\tconst active = selected === value;\n\treturn (\n\t\t<TextClassContext.Provider\n\t\t\tvalue={cn(\"text-sm font-medium\", active ? \"text-foreground\" : \"text-muted-foreground\")}\n\t\t>\n\t\t\t<TabsPrimitive.Trigger\n\t\t\t\tvalue={value}\n\t\t\t\tclassName={cn(\n\t\t\t\t\t\"flex-1 flex-row items-center justify-center rounded-md px-3 py-1.5\",\n\t\t\t\t\tactive && \"bg-background shadow-sm shadow-black/5\",\n\t\t\t\t\tprops.disabled && \"opacity-50\",\n\t\t\t\t\tclassName,\n\t\t\t\t)}\n\t\t\t\t{...props}\n\t\t\t/>\n\t\t</TextClassContext.Provider>\n\t);\n}\n\n/** Props for {@link TabsContent}. */\nexport type TabsContentProps = ComponentProps<typeof TabsPrimitive.Content>;\n\n/**\n * The panel for one tab. Only the panel matching the root's `value` renders.\n * @param props - {@link TabsContentProps}\n * @returns The panel\n */\nexport function TabsContent({ className, ...props }: TabsContentProps) {\n\treturn <TabsPrimitive.Content className={className} {...props} />;\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -73,11 +78,10 @@
     ]
   },
   "tokensUsed": [
-    "muted",
-    "muted-foreground",
     "background",
     "foreground",
-    "ring"
+    "muted",
+    "muted-foreground"
   ],
   "examples": [
     {

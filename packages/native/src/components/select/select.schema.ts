@@ -4,8 +4,31 @@ import { deriveNativeSchema } from "@hex-core/registry";
 export const nativeSelectSchema = deriveNativeSchema(selectSchema, {
 	description:
 		"A dropdown for choosing one option. The value is an { value, label } object rather than a bare string, because React Native has no option element for the trigger to read a label back from.",
-	removeProps: ["name", "required"],
+	// The web props type value/defaultValue/onValueChange as plain strings. On
+	// native they are `{ value, label }` objects, so the inherited prop table
+	// contradicted this schema's own prose and would have an agent pass a
+	// string that leaves the trigger blank.
+	removeProps: ["name", "required", "value", "defaultValue", "onValueChange"],
 	addProps: [
+		{
+			name: "value",
+			type: "object",
+			required: false,
+			description:
+				"Controlled selection as `{ value, label }`, or undefined for none. React Native has no option element for the trigger to read a label back from, so the label travels with the value.",
+		},
+		{
+			name: "defaultValue",
+			type: "object",
+			required: false,
+			description: "Initial selection as `{ value, label }` when the Select manages its own state",
+		},
+		{
+			name: "onValueChange",
+			type: "function",
+			required: false,
+			description: "Called with the chosen `{ value, label }`, or undefined when the selection is cleared",
+		},
 		{
 			name: "portalHost",
 			type: "string",

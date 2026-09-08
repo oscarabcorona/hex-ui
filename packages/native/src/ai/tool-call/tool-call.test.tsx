@@ -30,9 +30,21 @@ describe("ToolCall", () => {
 		expect(screen.getByText("Arguments")).toBeTruthy();
 	});
 
-	it("is not pressable when there is nothing to expand", async () => {
+	// A call with no arguments and no result is not a *disabled* button — it
+	// is not a button at all. Rendering a disabled Pressable set
+	// accessibilityState.disabled, so an ordinary argument-free tool call was
+	// announced as "disabled button" and carried an aria-expanded for a
+	// disclosure that does not exist.
+	it("exposes no button role when there is nothing to expand", async () => {
 		await render(<ToolCall name="search_flights" state="pending" />);
-		expect(screen.getByRole("button")).toBeDisabled();
+		expect(screen.queryByRole("button")).toBeNull();
+		expect(screen.getByText("search_flights")).toBeTruthy();
+		expect(screen.getByText("Queued")).toBeTruthy();
+	});
+
+	it("is a button once there is detail to disclose", async () => {
+		await render(<ToolCall name="search_flights" state="success" args={{ from: "LHR" }} />);
+		expect(screen.getByRole("button")).toBeTruthy();
 	});
 
 	it("renders a result that is a plain string", async () => {

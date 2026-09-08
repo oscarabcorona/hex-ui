@@ -6,6 +6,8 @@ interface RecipeSummary {
 	slug: string;
 	title: string;
 	summary: string;
+	/** Render target; absent for web recipes. Derived by the registry build. */
+	platform?: "web" | "native";
 }
 
 /** One row of the registry index, as far as this command reads it. */
@@ -66,7 +68,13 @@ export async function listComponents(options: ListOptions = {}) {
 
 	console.log(`Total: ${items.length} components`);
 
-	const recipes = loadRecipes();
+	// The recipes were printed unfiltered under a heading that already said
+	// "(React Native)", so `hex list --platform native` offered 26 web
+	// blueprints of which exactly one applies.
+	const allRecipes = loadRecipes();
+	const recipes = options.platform
+		? allRecipes.filter((r) => (r.platform ?? "web") === options.platform)
+		: allRecipes;
 	if (recipes.length > 0) {
 		console.log("\nRecipes (spec-driven blueprints)\n");
 		for (const r of recipes) {
@@ -90,6 +98,7 @@ function loadRecipes(): RecipeSummary[] {
 				slug: String(raw.slug ?? f.replace(/\.json$/, "")),
 				title: String(raw.title ?? raw.slug ?? ""),
 				summary: String(raw.summary ?? ""),
+				platform: raw.platform === "native" ? "native" : "web",
 			});
 		} catch {
 			// Skip malformed recipe files rather than failing the whole list.

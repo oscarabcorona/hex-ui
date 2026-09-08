@@ -5,6 +5,7 @@ import { Composer } from "./composer.js";
 
 /**
  * The composer in its idle and busy states.
+ * @returns The rendered demo
  */
 export function ComposerDemo() {
 	const [draft, setDraft] = useState("");

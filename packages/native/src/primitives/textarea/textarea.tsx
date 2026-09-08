@@ -29,6 +29,10 @@ export function Textarea({ className, editable = true, ...props }: TextareaProps
 		<TextInput
 			multiline
 			editable={editable}
+			// See Input: `editable` alone is not announced, so a read-only
+			// field reads as an ordinary one that mysteriously ignores taps.
+			aria-disabled={!editable}
+			accessibilityState={{ disabled: !editable }}
 			textAlignVertical="top"
 			className={cn(
 				"min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base leading-5 text-foreground",

@@ -27,9 +27,42 @@ interface MdastNode {
 	ordered?: boolean;
 	lang?: string | null;
 	url?: string;
+	/** An image's alt text. Images carry their text here, not in `children`. */
+	alt?: string;
+	/** An ordered list's first number; `1.` unless the source says otherwise. */
+	start?: number | null;
 	checked?: boolean | null;
 	children?: MdastNode[];
 }
+
+/**
+ * Narrow a parsed markdown tree to the subset of mdast this renderer walks.
+ *
+ * `fromMarkdown` is typed against the full mdast union, which carries far
+ * more than the eight fields below. Asserting across that gap would make a
+ * parser change a runtime crash inside `renderBlock`; checking the one field
+ * every node is keyed on turns it into an empty render instead.
+ * @param value - The value returned by the parser
+ * @returns Whether it is a node this renderer can walk
+ */
+function isMdastNode(value: unknown): value is MdastNode {
+	// `in` narrows without a cast under `strict`, so the guard needs none.
+	return (
+		typeof value === "object" && value !== null && "type" in value && typeof value.type === "string"
+	);
+}
+
+/** mdast node types that {@link renderInline} handles rather than renderBlock. */
+const INLINE_TYPES = new Set([
+	"text",
+	"strong",
+	"emphasis",
+	"delete",
+	"inlineCode",
+	"break",
+	"link",
+	"image",
+]);
 
 /** Heading depth to the Text variant that renders it. */
 const HEADING_VARIANT = ["h1", "h2", "h3", "h4", "h4", "h4"] as const;
@@ -88,6 +121,16 @@ function renderInline(nodes: readonly MdastNode[] | undefined, keyPrefix: string
 				);
 			case "break":
 				return <Fragment key={key}>{"\n"}</Fragment>;
+			case "image":
+				// An image node carries its text in `alt`, not in children, so
+				// the default branch below rendered nothing at all for one.
+				// There is no remote-image loader here by design; the alt text
+				// is the honest fallback.
+				return node.alt ? (
+					<Text key={key} variant="muted">
+						{node.alt}
+					</Text>
+				) : null;
 			case "link": {
 				const url = node.url ?? "";
 				return (
@@ -118,11 +161,15 @@ function renderInline(nodes: readonly MdastNode[] | undefined, keyPrefix: string
  */
 function renderList(node: MdastNode, keyPrefix: string): ReactNode {
 	const ordered = node.ordered === true;
+	// mdast records the list's first number in `start`. Numbering from
+	// `index + 1` regardless meant a reply beginning "5." was renumbered to
+	// "1." — quietly changing what the model wrote.
+	const first = typeof node.start === "number" ? node.start : 1;
 	return (
 		<View key={keyPrefix} className="gap-1 pl-1">
 			{(node.children ?? []).map((item, index) => {
 				const key = `${keyPrefix}-${String(index)}`;
-				const marker = item.checked === true ? "☑" : item.checked === false ? "☐" : ordered ? `${String(index + 1)}.` : "•";
+				const marker = item.checked === true ? "☑" : item.checked === false ? "☐" : ordered ? `${String(first + index)}.` : "•";
 				return (
 					<View key={key} className="flex-row gap-2">
 						<Text className="text-muted-foreground">{marker}</Text>
@@ -184,8 +231,34 @@ function renderBlock(node: MdastNode, key: string): ReactNode {
 					{node.value ?? ""}
 				</Text>
 			);
+		case "table":
+			// A GFM table's leaves are inline `text` nodes, which the default
+			// branch below cannot render — it recurses with renderBlock, and
+			// a `text` node has no children, so the whole table came out
+			// empty. Rows are flattened to pipe-separated lines: readable on
+			// a phone, and honest about not being a real table.
+			return (
+				<View key={key} className="gap-1">
+					{(node.children ?? []).map((row, rowIndex) => (
+						<Text key={`${key}-${String(rowIndex)}`} variant="muted">
+							{(row.children ?? []).map((cell, cellIndex) => (
+								<Fragment key={`${key}-${String(rowIndex)}-${String(cellIndex)}`}>
+									{cellIndex > 0 ? " | " : null}
+									{renderInline(cell.children, `${key}-${String(rowIndex)}-${String(cellIndex)}`)}
+								</Fragment>
+							))}
+						</Text>
+					))}
+				</View>
+			);
 		default:
 			if (!node.children) return null;
+			// Inline children inside an unhandled block would render as
+			// nothing through renderBlock, so route them through renderInline
+			// inside a Text instead of dropping the content.
+			if (node.children.every((child) => INLINE_TYPES.has(child.type))) {
+				return <Text key={key}>{renderInline(node.children, key)}</Text>;
+			}
 			return (
 				<Fragment key={key}>
 					{node.children.map((child, index) => renderBlock(child, `${key}-${String(index)}`))}
@@ -207,7 +280,9 @@ export interface MarkdownProps {
  *
  * Handles paragraphs, headings, ordered and bulleted lists, task lists,
  * fenced and inline code, links, blockquotes, rules, bold, italic and
- * strikethrough. Tables and images fall back to their text content.
+ * strikethrough. A GFM table is flattened to pipe-separated lines and an
+ * image renders its alt text — neither is a real table or a real image, but
+ * both keep the content the model produced on screen.
  * @param props - {@link MarkdownProps}
  * @returns The rendered document
  * @example
@@ -218,17 +293,17 @@ export interface MarkdownProps {
  * ```
  */
 export function Markdown({ children, className }: MarkdownProps) {
-	const tree = useMemo(() => {
+	const blocks = useMemo(() => {
 		const parsed: unknown = fromMarkdown(children, {
 			extensions: [gfm()],
 			mdastExtensions: [gfmFromMarkdown()],
 		});
-		return parsed as MdastNode;
+		return isMdastNode(parsed) ? (parsed.children ?? []) : [];
 	}, [children]);
 
 	return (
 		<View className={cn("gap-2", className)}>
-			{(tree.children ?? []).map((node, index) => renderBlock(node, `md-${String(index)}`))}
+			{blocks.map((node, index) => renderBlock(node, `md-${String(index)}`))}
 		</View>
 	);
 }

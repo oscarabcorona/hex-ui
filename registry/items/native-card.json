@@ -2,7 +2,7 @@
   "$schema": "https://hex-core.dev/schema/registry-item.json",
   "name": "native-card",
   "displayName": "Card",
-  "description": "A container component with header, content, and footer sections. Includes subtle shadow and hover effects.",
+  "description": "A container with header, content and footer sections on a raised surface. Passive by default — wrap it in a Pressable to make the whole card one target.",
   "category": "component",
   "subcategory": "layout",
   "version": "0.1.0",
@@ -13,7 +13,7 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes on the root card"
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
     }
   ],
   "variants": [],
@@ -37,6 +37,11 @@
       "path": "components/ui/text.tsx",
       "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport type { ComponentProps } from \"react\";\nimport { Text as RNText } from \"react-native\";\nimport { useTextClass } from \"../../lib/text-context.js\";\nimport { cn } from \"../../lib/utils.js\";\n\n/**\n * Typographic scale for native text.\n *\n * Mirrors the web docs' heading and body styles, minus anything that needs a\n * DOM: no `scroll-m-*`, no `text-balance`, no `select-text`.\n */\nexport const textVariants = cva(\"text-base text-foreground\", {\n\tvariants: {\n\t\tvariant: {\n\t\t\tdefault: \"\",\n\t\t\th1: \"text-4xl font-extrabold tracking-tight\",\n\t\t\th2: \"text-3xl font-semibold tracking-tight\",\n\t\t\th3: \"text-2xl font-semibold tracking-tight\",\n\t\t\th4: \"text-xl font-semibold tracking-tight\",\n\t\t\tp: \"leading-7\",\n\t\t\tlead: \"text-xl text-muted-foreground\",\n\t\t\tlarge: \"text-lg font-semibold\",\n\t\t\tsmall: \"text-sm font-medium leading-none\",\n\t\t\tmuted: \"text-sm text-muted-foreground\",\n\t\t\tcode: \"rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold\",\n\t\t},\n\t},\n\tdefaultVariants: {\n\t\tvariant: \"default\",\n\t},\n});\n\ntype TextVariant = NonNullable<VariantProps<typeof textVariants>[\"variant\"]>;\n\n/** Variants that read as headings to VoiceOver and TalkBack. */\nconst HEADING_VARIANTS: ReadonlySet<TextVariant> = new Set<TextVariant>([\"h1\", \"h2\", \"h3\", \"h4\"]);\n\n/**\n * Props for {@link Text}. `ref` comes with the React Native `Text` props and\n * reaches the host element (React 19 — no forwardRef).\n */\nexport type TextProps = ComponentProps<typeof RNText> & VariantProps<typeof textVariants>;\n\n/**\n * Themed text with a typographic scale and parent-driven class inheritance.\n *\n * React Native text does not inherit colour or size from a `View`, so\n * containers like `Button`, `Card` and `Badge` publish the classes they want\n * their labels to carry through `TextClassContext`; this component reads\n * them and lets an explicit `className` win.\n * @param props - {@link TextProps}\n * @returns A React Native `Text` element\n * @example\n * ```tsx\n * <Text variant=\"h2\">Settings</Text>\n * <Text variant=\"muted\">Manage your account preferences.</Text>\n * ```\n */\nexport function Text({ className, variant = \"default\", ...props }: TextProps) {\n\tconst inherited = useTextClass();\n\tconst isHeading = variant !== null && HEADING_VARIANTS.has(variant);\n\treturn (\n\t\t<RNText\n\t\t\tclassName={cn(textVariants({ variant }), inherited, className)}\n\t\t\trole={isHeading ? \"heading\" : undefined}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",
@@ -66,9 +71,11 @@
     ]
   },
   "tokensUsed": [
+    "border",
     "card",
     "card-foreground",
-    "border",
+    "foreground",
+    "muted",
     "muted-foreground"
   ],
   "examples": [

@@ -119,7 +119,6 @@ export const nativeTextSchema: ComponentSchemaInput = {
 		internal: ["lib/utils", "lib/text-context"],
 		peer: ["react", "react-native", "nativewind"],
 	},
-	tokensUsed: ["foreground", "muted-foreground", "muted"],
 	examples: [
 		{
 			title: "Heading and body",

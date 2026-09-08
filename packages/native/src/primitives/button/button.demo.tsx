@@ -4,6 +4,7 @@ import { Button } from "./button.js";
 
 /**
  * Every variant and size, plus the loading and disabled states.
+ * @returns The rendered demo
  */
 export function ButtonDemo() {
 	return (

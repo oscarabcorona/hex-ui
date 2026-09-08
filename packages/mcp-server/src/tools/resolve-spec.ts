@@ -29,11 +29,17 @@ export function register(server: McpServer): void {
 						.max(20)
 						.optional()
 						.describe("Max number of component matches to return (default 8)"),
+					platform: z
+						.enum(["web", "native"])
+						.optional()
+						.describe(
+							"Which render target to resolve for. Defaults to 'web'. Pass 'native' when the user is building an Expo or React Native app — the two catalogs share vocabulary, so a web brief would otherwise be offered React Native components that cannot run in a browser, and vice versa.",
+						),
 				})
 				.strict(),
 		},
-		async ({ brief, limit }) => {
-			const result = resolveSpec(brief, { limit });
+		async ({ brief, limit, platform }) => {
+			const result = resolveSpec(brief, { limit, platform });
 			return {
 				content: [
 					{

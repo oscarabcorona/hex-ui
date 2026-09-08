@@ -29,6 +29,12 @@ export function Input({ className, editable = true, ...props }: InputProps) {
 	return (
 		<TextInput
 			editable={editable}
+			// React Native maps `editable` to native editability only, so a
+			// read-only field dimmed visually but still announced as an
+			// ordinary text field: the user double-taps, no keyboard appears,
+			// and nothing explains why.
+			aria-disabled={!editable}
+			accessibilityState={{ disabled: !editable }}
 			className={cn(
 				"h-10 w-full flex-row items-center rounded-md border border-input bg-background px-3 py-1 text-base leading-5 text-foreground",
 				"placeholder:text-muted-foreground",

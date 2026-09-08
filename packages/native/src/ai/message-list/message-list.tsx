@@ -1,9 +1,33 @@
-import { type ReactElement, useCallback } from "react";
+import { type ReactElement, useCallback, useMemo } from "react";
 import { FlatList, type FlatListProps, View } from "react-native";
 import { cn } from "../../lib/utils.js";
 
+/**
+ * The FlatList props this component owns.
+ *
+ * They encode the inversion contract — the list is drawn bottom-up over a
+ * reversed copy of `messages`, and the two index maps undo that for the
+ * caller. Letting a consumer pass `data` or drop `inverted` would leave the
+ * list rendering upside down or against the wrong array, so they are removed
+ * from the public surface rather than merely overridden at runtime.
+ */
+type OwnedListProps = "data" | "inverted" | "renderItem" | "keyExtractor" | "ListHeaderComponent";
+
+/**
+ * The gap between turns.
+ *
+ * Hoisted to module scope rather than written inline: an arrow passed as
+ * `ItemSeparatorComponent` is a new component type on every render, which
+ * remounts every separator in the list.
+ * @returns The spacer
+ */
+function MessageSeparator() {
+	return <View className="h-2" />;
+}
+
 /** Props for {@link MessageList}. */
-export interface MessageListProps<TMessage> extends Partial<FlatListProps<TMessage>> {
+export interface MessageListProps<TMessage>
+	extends Omit<Partial<FlatListProps<TMessage>>, OwnedListProps> {
 	/** Turns, oldest first — the same order you store them in. */
 	messages: readonly TMessage[];
 	/** Render one turn. */
@@ -48,7 +72,11 @@ export function MessageList<TMessage>({
 	// Inverted lists render index 0 at the bottom, so the newest turn has to
 	// come first in the data. Reversing here keeps the caller's array in the
 	// natural oldest-first order.
-	const inverted = [...messages].reverse();
+	//
+	// Memoised because `data` identity drives VirtualizedList's diffing: an
+	// unmemoised copy is a new array on every render, so a streaming reply
+	// re-diffed the entire window on every token.
+	const inverted = useMemo(() => [...messages].reverse(), [messages]);
 
 	const renderItem = useCallback(
 		({ item, index }: { item: TMessage; index: number }) =>
@@ -58,6 +86,16 @@ export function MessageList<TMessage>({
 
 	return (
 		<FlatList
+			// Cosmetic defaults first, so a consumer can still replace the
+			// separator, the padding, or the keyboard behaviour.
+			ItemSeparatorComponent={MessageSeparator}
+			contentContainerClassName="px-4 py-3"
+			keyboardShouldPersistTaps="handled"
+			testID="message-list"
+			{...props}
+			// The inversion contract comes last: these are not overridable,
+			// and the prop type removes them so passing one is a compile
+			// error rather than a list that renders upside down.
 			inverted
 			data={inverted}
 			renderItem={renderItem}
@@ -65,12 +103,7 @@ export function MessageList<TMessage>({
 			// In an inverted list the header renders at the bottom, which is
 			// where a typing indicator belongs.
 			ListHeaderComponent={footer ? <View className="pb-2">{footer}</View> : null}
-			ItemSeparatorComponent={() => <View className="h-2" />}
-			contentContainerClassName="px-4 py-3"
-			testID="message-list"
 			className={cn("flex-1", className)}
-			keyboardShouldPersistTaps="handled"
-			{...props}
 		/>
 	);
 }

@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { SLUG_REGEX } from "@hex-core/registry";
 import { printSkillsHint } from "../lib/post-install.js";
 import { findRegistryDir } from "../lib/registry-dir.js";
+import { resolvePlatform } from "../lib/resolve-platform.js";
 import { addComponents } from "./add.js";
 
 type RecipeKind = "component" | "page";
@@ -55,6 +56,8 @@ interface Recipe {
 	layout?: string;
 	checklist: RecipeChecklistItem[];
 	tokenBudget?: number;
+	/** Render target; absent for web recipes. Derived by the registry build. */
+	platform?: "web" | "native";
 }
 
 /**
@@ -122,6 +125,26 @@ export async function addRecipe(
 
 	const recipe: Recipe = JSON.parse(fs.readFileSync(recipePath, "utf-8"));
 	const isPage = recipe.kind === "page";
+
+	// A recipe is a blueprint for one renderer. `addComponents` resolves the
+	// platform from the project, so installing a web recipe into an Expo app
+	// used to rewrite the components that HAVE native ports, refuse the ones
+	// that do not, and then print a checklist written for the DOM — a
+	// half-installed recipe with instructions for the wrong platform.
+	const projectPlatform = resolvePlatform(process.cwd()).platform;
+	const recipePlatform = recipe.platform ?? "web";
+	if (recipePlatform !== projectPlatform) {
+		console.error(
+			`Recipe "${slug}" targets ${recipePlatform === "native" ? "React Native" : "the web"}; this project is ${projectPlatform === "native" ? "React Native" : "web"}.`,
+		);
+		const sibling = recipePlatform === "web" ? `${slug}-native` : slug.replace(/-native$/, "");
+		if (fs.existsSync(path.join(registryDir, "recipes", `${sibling}.json`))) {
+			console.error(`  Use \`hex recipe add ${sibling}\` instead.`);
+		} else {
+			console.error(`  Run \`hex list --platform ${projectPlatform}\` to see the recipes that apply.`);
+		}
+		process.exit(1);
+	}
 
 	console.log(`\nAdding recipe: ${recipe.title}`);
 	console.log(`  ${recipe.summary}\n`);

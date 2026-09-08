@@ -131,7 +131,6 @@ describe("deriveNativeSchema", () => {
 			description: "A pressable action for touch surfaces.",
 			variants: [],
 			slots: [],
-			tokensUsed: ["primary"],
 			tags: ["press"],
 			ai: {
 				...overrides.ai,
@@ -143,10 +142,20 @@ describe("deriveNativeSchema", () => {
 		expect(custom.description).toBe("A pressable action for touch surfaces.");
 		expect(custom.variants).toEqual([]);
 		expect(custom.slots).toEqual([]);
-		expect(custom.tokensUsed).toEqual(["primary"]);
 		expect(custom.tags).toEqual(["press"]);
 		expect(custom.ai.whenToUse).toContain("onPress");
 		expect(custom.ai.antiPatterns).toEqual([]);
+	});
+
+	// `tokensUsed` is measured from the native source by the registry build,
+	// exactly like `tokenBudget`. It is deliberately absent from the override
+	// type: two schemas once declared one and the build discarded it silently.
+	it("does not accept a tokensUsed override", () => {
+		// @ts-expect-error tokensUsed is derived by the build, never declared here.
+		const withDeclared = deriveNativeSchema(webButton, { ...overrides, tokensUsed: ["primary"] });
+		// The web list is carried through only to satisfy the schema; the
+		// registry build replaces it with what the native source actually paints.
+		expect(withDeclared.tokensUsed).toEqual(webButton.tokensUsed);
 	});
 
 	it("rejects removing a prop the web schema does not have", () => {

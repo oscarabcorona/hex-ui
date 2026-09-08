@@ -59,4 +59,26 @@ describe("Markdown", () => {
 		await render(<Markdown>{"<script>alert(1)</script>"}</Markdown>);
 		expect(screen.getByText("<script>alert(1)</script>")).toBeTruthy();
 	});
+	// A GFM table's leaves are inline `text` nodes. The block renderer used to
+	// recurse into them with renderBlock, which returns null for a childless
+	// node, so a table in a streamed reply rendered as an empty gap.
+	it("renders a GFM table's cell content", async () => {
+		await render(<Markdown>{"| City | Temp |\n| --- | --- |\n| Oslo | 4 |"}</Markdown>);
+		expect(screen.getByText(/Oslo/)).toBeTruthy();
+		expect(screen.getByText(/City/)).toBeTruthy();
+	});
+
+	// An image carries its text in `alt`, not in children.
+	it("renders an image's alt text", async () => {
+		await render(<Markdown>{"![A bar chart of sales](https://example.com/c.png)"}</Markdown>);
+		expect(screen.getByText("A bar chart of sales")).toBeTruthy();
+	});
+
+	// mdast records the first number in `start`; numbering from the index
+	// silently renumbered a list the model deliberately began at 5.
+	it("honours an ordered list's starting number", async () => {
+		await render(<Markdown>{"5. five\n6. six"}</Markdown>);
+		expect(screen.getByText("5.")).toBeTruthy();
+		expect(screen.getByText("6.")).toBeTruthy();
+	});
 });

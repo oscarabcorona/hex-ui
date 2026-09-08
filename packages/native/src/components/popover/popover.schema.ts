@@ -3,7 +3,11 @@ import { deriveNativeSchema } from "@hex-core/registry";
 
 export const nativePopoverSchema = deriveNativeSchema(popoverSchema, {
 	description:
-		"A small panel anchored to the control that opened it. Renders through a PortalHost, and closes on an outside tap.",
+		"A small panel anchored to the control that opened it. Uncontrolled on native — the trigger owns the open state — and it renders through a PortalHost, closing on an outside tap.",
+	// The native primitive's Root takes only `onOpenChange`. Leaving the web
+	// props in the table told an agent to write `<Popover open={x}>`, which
+	// does not typecheck and cannot control the panel.
+	removeProps: ["open", "defaultOpen", "modal"],
 	addProps: [
 		{
 			name: "portalHost",

@@ -53,6 +53,6 @@ export const nativeCheckboxSchema = deriveNativeSchema(checkboxSchema, {
 		],
 		relatedComponents: ["native-label", "native-switch", "native-text"],
 		accessibilityNotes:
-			"The primitive sets role=\"checkbox\" and reports the checked state, so VoiceOver and TalkBack announce both name and state. Name it by pairing a Label's nativeID with aria-labelledby — tapping that label also toggles the box, which is the main way of hitting so small a control. Keep hitSlop so the touch target clears 44pt. The disabled state dims the box and is announced.",
+			"The primitive sets role=\"checkbox\" and reports the checked state, so VoiceOver and TalkBack announce both name and state. Name it by pairing a Label's nativeID with aria-labelledby. That carries the name only, not the press: give the Label an onPress calling the same handler so the caption becomes a second target for so small a control. Keep hitSlop so the touch target clears 44pt. The disabled state dims the box and is announced.",
 	},
 });

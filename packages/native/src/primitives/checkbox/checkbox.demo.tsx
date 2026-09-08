@@ -6,6 +6,7 @@ import { Checkbox } from "./checkbox.js";
 
 /**
  * A labelled checkbox and a disabled one.
+ * @returns The rendered demo
  */
 export function CheckboxDemo() {
 	const [accepted, setAccepted] = useState(false);

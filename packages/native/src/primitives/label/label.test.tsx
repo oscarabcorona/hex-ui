@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
-import { render, screen } from "@testing-library/react-native";
+import { describe, expect, it, jest } from "@jest/globals";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import { Label } from "./label.js";
 
 describe("Label", () => {
@@ -36,5 +36,30 @@ describe("Label", () => {
 			</Label>,
 		);
 		expect(screen.getByText("Plan")).toBeTruthy();
+	});
+
+	// aria-labelledby carries the accessible name and nothing else, so three
+	// schemas used to promise a label tap that no code delivered. The press is
+	// now explicit, and these two lock it.
+	it("calls onPress when the caption is tapped", async () => {
+		const onPress = jest.fn();
+		await render(
+			<Label nativeID="terms" onPress={onPress}>
+				I agree
+			</Label>,
+		);
+		await fireEvent.press(screen.getByText("I agree"));
+		expect(onPress).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not call onPress while disabled", async () => {
+		const onPress = jest.fn();
+		await render(
+			<Label nativeID="terms" onPress={onPress} disabled>
+				I agree
+			</Label>,
+		);
+		await fireEvent.press(screen.getByText("I agree"));
+		expect(onPress).not.toHaveBeenCalled();
 	});
 });

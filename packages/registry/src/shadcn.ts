@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { internalDepToSlug } from "./recipe-schema.js";
+import { resolveInternalDepForPlatform } from "./recipe-schema.js";
+import { toNativeSlug } from "./derive-native.js";
 import { aiHintSchema, type RegistryItem } from "./schema.js";
 
 /**
@@ -185,6 +186,30 @@ export interface ShadcnProjectionOptions {
 }
 
 /**
+ * Resolve a bare (single-segment) internal dep against a platform.
+ *
+ * A handful of items declare `internal: ["motion"]` rather than the
+ * three-segment source path, which {@link resolveInternalDepForPlatform}
+ * rejects. Those need the same native-first lookup.
+ * @param dep - The bare slug as declared
+ * @param ownerPlatform - Platform of the item that declared it
+ * @param exists - Whether a given item name is in the catalog
+ * @returns The item name to walk, or null when it names nothing
+ */
+function bareSlugForPlatform(
+	dep: string,
+	ownerPlatform: "web" | "native",
+	exists: (name: string) => boolean,
+): string | null {
+	if (ownerPlatform === "native") {
+		const native = toNativeSlug(dep);
+		if (exists(native)) return native;
+		return exists(dep) ? dep : null;
+	}
+	return exists(dep) ? dep : null;
+}
+
+/**
  * Union the item's npm dependencies with those of its internal-dependency
  * closure (breadth-first, cycle-safe). heavyPeer entries are pinned as
  * `name@version` since the shadcn CLI has no opt-in prompt to defer them to.
@@ -202,6 +227,15 @@ function collectNpmDependencies(
 	for (const peer of item.dependencies.heavyPeer ?? []) heavy.set(peer.name, peer.version);
 
 	if (resolve) {
+		// The closure must be walked in the declaring item's namespace. An
+		// internal dep names a SOURCE path, which is identical in a native
+		// item and a web one, so `primitives/text/text` resolved to the bare
+		// `text` — an item that does not exist — and every native item
+		// silently shipped without its transitive npm deps. `native-card`
+		// bundles `text.tsx`, whose first line imports
+		// class-variance-authority, and declared only clsx + tailwind-merge.
+		const ownerPlatform = item.platform === "native" ? "native" : "web";
+		const exists = (name: string): boolean => resolve(name) !== null;
 		const queue = [...item.dependencies.internal];
 		const visited = new Set<string>();
 		while (queue.length > 0) {
@@ -210,7 +244,9 @@ function collectNpmDependencies(
 			// Internal deps come as source paths ("components/command/command")
 			// or bare slugs; "lib/*" entries resolve to null and carry no npm
 			// deps of their own beyond what items already list.
-			const slug = dep.includes("/") ? internalDepToSlug(dep) : dep;
+			const slug = dep.includes("/")
+				? resolveInternalDepForPlatform(dep, ownerPlatform, exists)
+				: bareSlugForPlatform(dep, ownerPlatform, exists);
 			if (!slug || visited.has(slug)) continue;
 			visited.add(slug);
 			const resolved = resolve(slug);

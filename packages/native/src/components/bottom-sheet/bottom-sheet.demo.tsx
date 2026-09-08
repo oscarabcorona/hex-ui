@@ -13,6 +13,7 @@ import {
 
 /**
  * A sort menu in the shape a phone expects.
+ * @returns The rendered demo
  */
 export function BottomSheetDemo() {
 	const [open, setOpen] = useState(false);

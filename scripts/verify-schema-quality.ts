@@ -32,6 +32,7 @@ import {
 	internalDepToSlug,
 	resolveInternalDepForPlatform,
 } from "../packages/registry/src/recipe-schema.js";
+import { NATIVE_SLUG_PREFIX } from "../packages/registry/src/derive-native.js";
 import { schemaWireShape } from "../packages/mcp-server/src/tools/get-component-schema.js";
 
 const REPO_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -58,9 +59,6 @@ const BUDGET_RATIO_MAX = 1.5;
 
 const tok = (s: string): number => encode(s).length;
 
-/** Every native item's `name` starts with this; no web item's may. */
-const NATIVE_PREFIX = "native-";
-
 /**
  * DOM idioms that cannot appear in a React Native item's `ai` prose or
  * example code. Each is a thing an agent would copy verbatim into an Expo
@@ -77,12 +75,59 @@ const NATIVE_PREFIX = "native-";
  * implements the same Slot composition Radix does, and every overlay
  * primitive accepts it.
  */
-const NATIVE_DOM_LEAKS: Array<{ re: RegExp; label: string }> = [
+interface LeakRule {
+	re: RegExp;
+	label: string;
+	/**
+	 * When set, a mention that is explicitly negated is allowed. Saying
+	 * "touch has no hover" is exactly the guidance a native schema should
+	 * carry; promising "hover fill" is the defect.
+	 */
+	allowNegated?: true;
+}
+
+/** Negation words that make a mention a warning rather than a promise. */
+const NEGATION = /\b(?:no|not|never|without|cannot|can't|unlike|rather than|instead of)\b/i;
+
+/**
+ * Whether every occurrence of `re` in `text` sits in a clause that negates it.
+ *
+ * "Touch has no hover" is the guidance a native schema should carry; "hover
+ * fill" is the defect. Both contain the word, so the rule looks at the clause
+ * the match sits in — bounded by sentence punctuation — for a negation ahead
+ * of it.
+ * @param text - The prose being checked
+ * @param re - The leak pattern
+ * @returns True when at least one occurrence is stated positively
+ */
+function hasUnnegatedMatch(text: string, re: RegExp): boolean {
+	const scan = new RegExp(re.source, re.flags.includes("g") ? re.flags : `${re.flags}g`);
+	for (const match of text.matchAll(scan)) {
+		const clauseStart = Math.max(
+			text.lastIndexOf(".", match.index),
+			text.lastIndexOf(";", match.index),
+			text.lastIndexOf(":", match.index),
+			-1,
+		);
+		if (!NEGATION.test(text.slice(clauseStart + 1, match.index))) return true;
+	}
+	return false;
+}
+
+const NATIVE_DOM_LEAKS: LeakRule[] = [
 	{ re: /\bonClick\b/, label: "onClick" },
 	{ re: /\bhover:/, label: "hover: variant" },
 	{ re: /\bfocus-visible:/, label: "focus-visible: variant" },
 	{ re: /\bhref=/, label: "href attribute" },
 	{ re: /<(?:div|span|button|input|textarea|select|a|p|ul|ol|li|form|label|img|h[1-6])\b/, label: "DOM element" },
+	// The checks above only caught class names and code. Derived schemas
+	// inherit web prose verbatim, and it was the ENGLISH that leaked: three
+	// native-button variants described "hover fill", native-card promised
+	// "hover effects", and native-message documented a `data-role` attribute.
+	{ re: /\bhover\b/i, label: "the word 'hover' (touch has none)", allowNegated: true },
+	{ re: /\bfocus ring\b/i, label: "'focus ring' (React Native draws none)", allowNegated: true },
+	{ re: /\bdata-[a-z]/i, label: "a data-* attribute (React Native has no DOM attributes)" },
+	{ re: /\bCSS classes?\b/i, label: "'CSS classes' (say NativeWind classes)" },
 ];
 
 /**
@@ -95,15 +140,15 @@ const NATIVE_DOM_LEAKS: Array<{ re: RegExp; label: string }> = [
  */
 function checkPlatform(item: RegistryItem): string[] {
 	const errors: string[] = [];
-	const prefixed = item.name.startsWith(NATIVE_PREFIX);
+	const prefixed = item.name.startsWith(NATIVE_SLUG_PREFIX);
 
 	if (item.platform === "web" && prefixed) {
-		errors.push(`name carries the "${NATIVE_PREFIX}" prefix but platform is "web"`);
+		errors.push(`name carries the "${NATIVE_SLUG_PREFIX}" prefix but platform is "web"`);
 		return errors;
 	}
 	if (item.platform !== "native") return errors;
 	if (!prefixed) {
-		errors.push(`platform is "native" but name does not start with "${NATIVE_PREFIX}"`);
+		errors.push(`platform is "native" but name does not start with "${NATIVE_SLUG_PREFIX}"`);
 	}
 
 	const { ai } = item;
@@ -119,11 +164,16 @@ function checkPlatform(item: RegistryItem): string[] {
 		...ai.commonMistakes.map((m, i): [string, string] => [`ai.commonMistakes[${i}]`, m]),
 		...(ai.antiPatterns ?? []).map((a, i): [string, string] => [`ai.antiPatterns[${i}].mistake`, a.mistake]),
 		...item.props.map((p, i): [string, string] => [`props[${i}].description`, p.description]),
+		...item.tags.map((t, i): [string, string] => [`tags[${i}]`, t]),
 		...item.variants.flatMap((v, i): Array<[string, string]> => [
 			[`variants[${i}].description`, v.description],
-			...v.values.map((value, j): [string, string] => [
-				`variants[${i}].values[${j}].description`,
-				value.description,
+			...v.values.flatMap((value, j): Array<[string, string]> => [
+				[`variants[${i}].values[${j}].description`, value.description],
+				// `useWhen` is the field agents read to pick a variant, and it
+				// inherits from the web schema like everything else.
+				...(value.useWhen === undefined
+					? []
+					: [[`variants[${i}].values[${j}].useWhen`, value.useWhen] satisfies [string, string]]),
 			]),
 		]),
 		...item.slots.map((s, i): [string, string] => [`slots[${i}].description`, s.description]),
@@ -133,8 +183,9 @@ function checkPlatform(item: RegistryItem): string[] {
 		]),
 	];
 	for (const [field, text] of surfaces) {
-		for (const { re, label } of NATIVE_DOM_LEAKS) {
-			if (re.test(text)) errors.push(`${field} leaks a DOM idiom (${label}) into a native item`);
+		for (const { re, label, allowNegated } of NATIVE_DOM_LEAKS) {
+			const leaks = allowNegated ? hasUnnegatedMatch(text, re) : re.test(text);
+			if (leaks) errors.push(`${field} leaks a DOM idiom (${label}) into a native item`);
 		}
 	}
 	return errors;

@@ -1,6 +1,7 @@
 import * as ProgressPrimitive from "@rn-primitives/progress";
-import { type ComponentProps, useEffect, useRef } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
 import { Animated } from "react-native";
+import { AnimatedView } from "../../lib/animated.js";
 import { cn } from "../../lib/utils.js";
 
 /** Props for {@link Progress}. */
@@ -32,8 +33,18 @@ export function Progress({
 	max = 100,
 	...props
 }: ProgressProps) {
-	const percent = Math.min(Math.max(((value ?? 0) / max) * 100, 0), 100);
-	const width = useRef(new Animated.Value(percent)).current;
+	// Clamp ONCE and pass the clamped pair down. The bar used to clamp its own
+	// fill while forwarding the raw value to the primitive, whose
+	// `isValidValueNumber` rejects `value > max` and falls back to 0 — so
+	// `value={150} max={100}` drew a full bar that VoiceOver announced as
+	// "0%". A non-positive `max` made `percent` NaN, which then poisoned the
+	// Animated.Value it was constructed with.
+	const safeMax = max > 0 ? max : 100;
+	const safeValue = Math.min(Math.max(value ?? 0, 0), safeMax);
+	const percent = (safeValue / safeMax) * 100;
+	// `useState` with an initialiser: `useRef(new Animated.Value(…))` builds a
+	// fresh Value on every render and discards it.
+	const [width] = useState(() => new Animated.Value(percent));
 
 	useEffect(() => {
 		const animation = Animated.timing(width, {
@@ -50,13 +61,13 @@ export function Progress({
 
 	return (
 		<ProgressPrimitive.Root
-			value={value}
-			max={max}
+			value={safeValue}
+			max={safeMax}
 			className={cn("h-2 w-full overflow-hidden rounded-full bg-secondary", className)}
 			{...props}
 		>
 			<ProgressPrimitive.Indicator asChild>
-				<Animated.View
+				<AnimatedView
 					className={cn("h-full bg-primary", indicatorClassName)}
 					style={{
 						width: width.interpolate({

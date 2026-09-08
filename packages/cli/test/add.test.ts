@@ -390,3 +390,76 @@ describe("addComponents — --from hex.map.json", () => {
 		}
 	});
 });
+
+describe("addComponents — platform boundary", () => {
+	/** Mark the temp project as React Native so `add` resolves that platform. */
+	function nativeProject() {
+		fs.writeFileSync(
+			path.join(tmpDir, "hex.config.json"),
+			JSON.stringify({ platform: "native", aliases: { components: "@/components", lib: "@/lib" } }),
+		);
+		fs.writeFileSync(
+			path.join(tmpDir, "package.json"),
+			JSON.stringify({ name: "fixture", dependencies: { expo: "^57.0.0", "react-native": "0.86.3" } }),
+		);
+	}
+
+	/**
+	 * Run `add` capturing the exit code instead of killing the test process.
+	 * @param slugs - What to install
+	 * @returns The exit code the command asked for, or 0 when it never exited
+	 */
+	async function addExpectingExit(slugs: string[]): Promise<number> {
+		let code = 0;
+		const exitSpy = vi.spyOn(process, "exit").mockImplementation(((c?: string | number | null) => {
+			code = typeof c === "number" ? c : 0;
+			return undefined as never;
+		}) as never);
+		const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		try {
+			await addComponents(slugs, { yes: false, overwrite: false, deps: false, install: false });
+		} finally {
+			exitSpy.mockRestore();
+			errSpy.mockRestore();
+		}
+		return code;
+	}
+
+	// Printing the reason and exiting 0 let `hex add a && hex add b` march
+	// straight past a refusal, and any CI step wrapping it saw success.
+	it("exits non-zero when a requested item is built for the other renderer", async () => {
+		nativeProject();
+		expect(await addExpectingExit(["data-table"])).toBe(1);
+		expect(fs.existsSync(path.join(tmpDir, "components/ui/data-table.tsx"))).toBe(false);
+	});
+
+	it("exits non-zero for an unknown slug", async () => {
+		nativeProject();
+		expect(await addExpectingExit(["definitely-not-a-component"])).toBe(1);
+	});
+
+	it("exits zero for a slug that resolves on this platform", async () => {
+		nativeProject();
+		expect(await addExpectingExit(["button"])).toBe(0);
+		expect(fs.existsSync(path.join(tmpDir, "components/ui/button.tsx"))).toBe(true);
+	});
+
+	// A web item's relatedComponents are all web slugs, so the refusal used to
+	// be followed by "try `hex add pagination`" — refused for the same reason.
+	it("does not suggest web components inside a native project", async () => {
+		nativeProject();
+		await addExpectingExit(["data-table"]);
+		expect(logSpy.mock.calls.flat().join("\n")).not.toContain("pagination");
+	});
+
+	// Native items ship unprefixed, so the on-disk slug is `text` while the
+	// registry name is `native-text`.
+	it("does not suggest a native component that is already on disk", async () => {
+		nativeProject();
+		await addExpectingExit(["button"]);
+		const printed = logSpy.mock.calls.flat().join("\n");
+		if (fs.existsSync(path.join(tmpDir, "components/ui/text.tsx"))) {
+			expect(printed).not.toContain("native-text");
+		}
+	});
+});

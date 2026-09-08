@@ -12,6 +12,21 @@ import {
 import { TOOL } from "../tool-names.js";
 
 /**
+ * The `components/ui/*` file a registry item installs.
+ *
+ * Read from the item rather than composed from its slug, because the two
+ * differ on native: `native-button` ships `components/ui/button.tsx`.
+ * @param slug - A registry item name
+ * @returns The project-relative path, or null when the item has no component file
+ */
+function mainComponentPath(slug: string): string | null {
+	const item = loadRegistryItem(slug);
+	if (!item) return null;
+	const file = item.files.find((f) => f.path.startsWith("components/ui/"));
+	return file?.path ?? null;
+}
+
+/**
  * Register the `verify-checklist` tool.
  * @param server - The MCP server to register against
  */
@@ -116,7 +131,15 @@ export function register(server: McpServer): void {
 					}
 					if (resolvedRoot) {
 						for (const slug of installed) {
-							const candidate = path.resolve(resolvedRoot, "components", "ui", `${slug}.tsx`);
+							// The registry NAME carries the platform prefix
+							// (`native-button`); the file it installs does not
+							// (`components/ui/button.tsx`). Deriving the path from
+							// the slug reported every correctly-installed native
+							// component as missing, so this tool could never return
+							// a pass on a React Native project.
+							const relative = mainComponentPath(slug);
+							if (!relative) continue;
+							const candidate = path.resolve(resolvedRoot, relative);
 							if (!candidate.startsWith(`${resolvedRoot}${path.sep}`)) continue;
 							if (fs.existsSync(candidate)) {
 								filesPresent.push(path.relative(resolvedRoot, candidate));

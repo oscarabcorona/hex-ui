@@ -4,6 +4,7 @@ import { ToolCall } from "./tool-call.js";
 
 /**
  * A tool call in each state.
+ * @returns The rendered demo
  */
 export function ToolCallDemo() {
 	return (

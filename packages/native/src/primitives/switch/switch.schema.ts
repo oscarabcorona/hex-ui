@@ -54,6 +54,6 @@ export const nativeSwitchSchema = deriveNativeSchema(switchSchema, {
 		],
 		relatedComponents: ["native-label", "native-checkbox", "native-text"],
 		accessibilityNotes:
-			"The primitive sets role=\"switch\" and reports the on/off state, so VoiceOver and TalkBack announce name and state together. Name it by pairing a Label's nativeID with aria-labelledby, and attach any explanatory line with aria-describedby. Tapping the label toggles the switch, which matters because the control is only 44pt wide. The track colour changes with state, but the announced state is what carries the meaning, never the colour alone.",
+			"The primitive sets role=\"switch\" and reports the on/off state, so VoiceOver and TalkBack announce name and state together. Name it by pairing a Label's nativeID with aria-labelledby, and attach any explanatory line with aria-describedby. Pairing those does not forward taps the way a browser's htmlFor does, so give the Label its own onPress calling the same handler — the control is only 44pt wide, and the caption is the easier target. The track colour changes with state, but the announced state is what carries the meaning, never the colour alone.",
 	},
 });

@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./popover.js";
 
 /**
  * A short help panel anchored to a button.
+ * @returns The rendered demo
  */
 export function PopoverDemo() {
 	return (

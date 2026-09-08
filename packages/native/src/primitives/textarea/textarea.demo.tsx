@@ -6,6 +6,7 @@ import { Textarea } from "./textarea.js";
 
 /**
  * A labelled notes field with a character counter.
+ * @returns The rendered demo
  */
 export function TextareaDemo() {
 	const [notes, setNotes] = useState("");

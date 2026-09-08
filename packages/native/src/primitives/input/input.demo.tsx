@@ -6,6 +6,7 @@ import { Input } from "./input.js";
 
 /**
  * A labelled email field, a password field, and a read-only field.
+ * @returns The rendered demo
  */
 export function InputDemo() {
 	const [email, setEmail] = useState("");

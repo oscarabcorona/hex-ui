@@ -31,7 +31,7 @@
       "name": "className",
       "type": "string",
       "required": false,
-      "description": "Additional CSS classes"
+      "description": "Additional NativeWind classes, merged with the component's own so a conflicting utility wins"
     }
   ],
   "variants": [],
@@ -41,6 +41,11 @@
       "path": "components/ui/separator.tsx",
       "content": "import * as SeparatorPrimitive from \"@rn-primitives/separator\";\nimport type { ComponentProps } from \"react\";\nimport { cn } from \"../../lib/utils.js\";\n\n/** Props for {@link Separator}. */\nexport type SeparatorProps = ComponentProps<typeof SeparatorPrimitive.Root>;\n\n/**\n * A one-pixel rule between content groups.\n *\n * Decorative by default, which hides it from assistive tech. Pass\n * `decorative={false}` when the rule is the only thing marking a boundary\n * that matters — a thematic break between two unrelated sections.\n * @param props - {@link SeparatorProps}\n * @returns The separator element\n * @example\n * ```tsx\n * <Separator className=\"my-4\" />\n * <Separator orientation=\"vertical\" className=\"mx-2 h-4\" />\n * ```\n */\nexport function Separator({\n\tclassName,\n\torientation = \"horizontal\",\n\tdecorative = true,\n\t...props\n}: SeparatorProps) {\n\treturn (\n\t\t<SeparatorPrimitive.Root\n\t\t\tdecorative={decorative}\n\t\t\torientation={orientation}\n\t\t\tclassName={cn(\n\t\t\t\t\"shrink-0 bg-border\",\n\t\t\t\torientation === \"horizontal\" ? \"h-px w-full\" : \"h-full w-px\",\n\t\t\t\tclassName,\n\t\t\t)}\n\t\t\t{...props}\n\t\t/>\n\t);\n}\n",
       "type": "component"
+    },
+    {
+      "path": "lib/animated.ts",
+      "content": "import { cssInterop } from \"nativewind\";\nimport { Animated } from \"react-native\";\n\n/**\n * `Animated.View`, registered so `className` actually applies.\n *\n * NativeWind registers a fixed list of React Native components with\n * `cssInterop` — Image, Pressable, Text, View, ScrollView, TextInput and a\n * handful more — and `Animated.View` is not among them. A `className` on the\n * bare `Animated.View` is therefore an inert prop: no error, no style, just a\n * component that renders unstyled unless the consumer's Metro happens to run\n * `nativewind/babel` over `node_modules`, which this package's build\n * deliberately does not assume.\n *\n * Registering once here, in a module every animated component imports, keeps\n * that assumption out of the consumer's build config. Components that animate\n * (Progress, Skeleton, BottomSheet) must use this rather than\n * `Animated.View` directly.\n */\nexport const AnimatedView = Animated.View;\n\ncssInterop(AnimatedView, { className: \"style\" });\n",
+      "type": "lib"
     },
     {
       "path": "lib/text-context.tsx",

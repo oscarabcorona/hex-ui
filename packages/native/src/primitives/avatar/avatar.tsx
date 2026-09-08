@@ -25,7 +25,15 @@ export type AvatarProps = ComponentProps<typeof AvatarPrimitive.Root>;
 export function Avatar({ className, ...props }: AvatarProps) {
 	return (
 		<AvatarPrimitive.Root
-			className={cn("relative size-10 shrink-0 overflow-hidden rounded-full", className)}
+			// `bg-muted` sits on the ROOT, not only on the fallback. The
+			// primitive's Fallback renders nothing until the image errors, so
+			// while a remote image is still loading neither child is on screen
+			// — and with the placeholder colour on the fallback alone that was
+			// a completely blank hole rather than a muted circle.
+			className={cn(
+				"relative size-10 shrink-0 overflow-hidden rounded-full bg-muted",
+				className,
+			)}
 			{...props}
 		/>
 	);
@@ -36,7 +44,7 @@ export type AvatarImageProps = ComponentProps<typeof AvatarPrimitive.Image>;
 
 /**
  * The avatar's image. Renders nothing until the source loads, which is what
- * lets the fallback show through.
+ * lets the root's muted background show through in the meantime.
  * @param props - {@link AvatarImageProps}
  * @returns The avatar image
  */
@@ -48,7 +56,11 @@ export function AvatarImage({ className, ...props }: AvatarImageProps) {
 export type AvatarFallbackProps = ComponentProps<typeof AvatarPrimitive.Fallback>;
 
 /**
- * Shown while the image loads or when it fails. Holds initials or an icon.
+ * Shown when there is no source or the image fails — NOT while it loads.
+ *
+ * The primitive mounts this only in the error state, so it is the
+ * no-picture affordance, not a loading placeholder. The root carries the
+ * muted background that covers the loading window.
  * @param props - {@link AvatarFallbackProps}
  * @returns The avatar fallback
  */

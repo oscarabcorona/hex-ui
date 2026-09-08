@@ -14,7 +14,7 @@ export const nativeProgressSchema = deriveNativeSchema(progressSchema, {
 	],
 	dependencies: {
 		npm: ["@rn-primitives/progress", "clsx", "tailwind-merge"],
-		internal: ["lib/utils"],
+		internal: ["lib/utils", "lib/animated"],
 		peer: ["react", "react-native", "nativewind"],
 	},
 	examples: [

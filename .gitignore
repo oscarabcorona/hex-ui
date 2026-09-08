@@ -29,6 +29,12 @@ apps/**/CLAUDE.md
 # Visual regression baselines must be committed — they ARE the source of
 # truth that CI diffs against. Override the broad *.png rule above.
 !apps/docs/e2e/visual.spec.ts-snapshots/*.png
+# Same reasoning for the React Native screenshots: the docs site cannot render
+# a React Native component, so `/native/<slug>` serves a committed screenshot
+# pair, and those PNGs double as the visual baseline. Without this negation
+# `pnpm run native:screens` reports success and stages nothing, and every
+# native docs page ships two broken images.
+!apps/docs/public/native/*.png
 
 # Local UI reference material — structural inspiration only, not part of the
 # project source. Re-authored blocks live in packages/components; these

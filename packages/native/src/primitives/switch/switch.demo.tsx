@@ -6,6 +6,7 @@ import { Switch } from "./switch.js";
 
 /**
  * Two settings rows, one with a description and one disabled.
+ * @returns The rendered demo
  */
 export function SwitchDemo() {
 	const [notifications, setNotifications] = useState(true);

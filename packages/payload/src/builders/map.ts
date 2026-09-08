@@ -144,6 +144,13 @@ export interface MapBuilderOptions {
 	loadRecipe?: (slug: string) => Recipe | null;
 	/** Per-segment component-match limit passed to `resolveSpec`. */
 	limit?: number;
+	/**
+	 * Render target passed through to `resolveSpec`. Defaults to `"web"`.
+	 * A map is the install manifest `hex poc` scaffolds from, so resolving a
+	 * web brief against the native catalog writes React Native source into a
+	 * Next.js project.
+	 */
+	platform?: "web" | "native";
 }
 
 /**
@@ -265,7 +272,12 @@ export function buildApplicationMap(brief: string, options: MapBuilderOptions = 
 	};
 
 	for (const segment of segmentBrief(brief)) {
-		const result = resolveSpec(segment, { registry, recipes, limit: options.limit ?? 8 });
+		const result = resolveSpec(segment, {
+			registry,
+			recipes,
+			limit: options.limit ?? 8,
+			platform: options.platform,
+		});
 
 		// Prefer page recipes: EVERY page recipe clearing the threshold gets a
 		// screen (a segment like "landing page and pricing page" names two).

@@ -64,10 +64,9 @@ export const nativeBottomSheetSchema: ComponentSchemaInput = {
 			"clsx",
 			"tailwind-merge",
 		],
-		internal: ["lib/utils"],
+		internal: ["lib/utils", "lib/animated"],
 		peer: ["react", "react-native", "nativewind"],
 	},
-	tokensUsed: ["background", "foreground", "muted-foreground", "border"],
 	examples: [
 		{
 			title: "Sort options",
