@@ -44,9 +44,12 @@ hex init --no-install     # print the install line instead of running it
 hex init --overwrite      # replace existing globals.css / tailwind.config.ts
 hex init --theme midnight # alternate preset (default, midnight, ember)
 hex init --mcp            # also wire @hex-core/mcp into your AI tool
+hex init --platform native # scaffold an Expo / React Native project instead
 ```
 
 If `tailwindcss` isn't installed yet the command prints the right install line and exits — install Tailwind first, then re-run.
+
+**`--platform` (web | native):** normally detected. Expo, Expo Router and bare React Native projects are recognised on their own, and the resolved platform is recorded in `hex.config.json` so later commands agree. On native, `init` writes `global.css` (tokens resolved to literal HSL triplets — React Native has no cascade for a `var()` chain), `tailwind.config.js` with the NativeWind preset, plus the Metro and Babel configs. NativeWind 4 needs Tailwind **3.4.x**; if the project already declares v4 the conflict is printed rather than silently majoring you down.
 
 **`--mcp` (opt-in):** wires the `@hex-core/mcp` server into your AI tool so it can call `list_themes` / `get_theme` / `customize_component` directly. Creates `.mcp.json` at the repo root (Claude Code's project-scope convention) or merges into an existing `.cursor/mcp.json` / `.continue/config.json`. Read–merge–write — never clobbers your other MCP servers. Off by default because `.mcp.json` is commit-tracked and auto-loaded.
 
@@ -62,6 +65,8 @@ hex add --pack layout           # install the layout primitives in one shot
 hex add --from hex.map.json     # install everything a `hex map` run planned
 ```
 
+On a React Native project the platform comes from the project rather than the slug: `hex add button` installs `native-button`, writing it to `components/ui/button.tsx` unprefixed. Installing a component built for the other renderer is refused with a non-zero exit rather than silently copied.
+
 `--from` accepts either a `hex.components.json` manifest (`{ "components": ["button", …] }`) or a `hex.map.json` application map written by `hex map --out` — the map's full `requires`-closure install list seeds the queue.
 
 After an install, `hex add` prints a **"Related primitives you might want next"** line (driven by each component's schema metadata) and — if you added several interactive primitives without any layout primitive — nudges you toward `hex add --pack layout` (`container`, `stack`, `cluster`, `grid`, `spacer`, `empty`). It also points you at the bundled `hex-core-*` skills when they're installed.
@@ -69,6 +74,8 @@ After an install, `hex add` prints a **"Related primitives you might want next"*
 ### `hex doctor`
 
 Diagnose your install in one pass. Reports `pass` / `fail` / `warn` for: `hex.config.json`, `tailwindcss` major version, your `lib/utils` location, `globals.css` directive style matches the installed Tailwind major, every base peer dep (`clsx` / `tailwind-merge` / `class-variance-authority` / animate package), Tailwind v3-only `tailwind.config.ts`, and every `@radix-ui/*` import found in `components/ui/*.tsx`. Exits non-zero if anything fails.
+
+The checks follow the project's platform. On React Native it looks for `global.css` with literal (non-`var()`) tokens, the NativeWind preset in the Tailwind config, `nativewind` and `react-native-safe-area-context`, and every `@rn-primitives/*` import — and warns when overlay components are installed but nothing mounts a `<PortalHost />`, which is the failure that makes a Dialog render silently as nothing.
 
 ```bash
 hex doctor
@@ -81,6 +88,11 @@ hex doctor --layout   # also scan source for composition opportunities
 
 Prints every component in the registry grouped by category.
 
+```bash
+hex list                    # the web catalog
+hex list --platform native  # the React Native catalog, and only its recipes
+```
+
 ### `hex recipe list`
 
 Lists every available spec-driven recipe (auth flows, settings page, pricing table, data table view, destructive confirm, command palette, the `layout-starter` primitives bundle, and the eight page recipes: `landing-page`, `app-page`, `storefront-page`, `about-page`, `order-page`, `checkout-page`, `pricing-page`, `product-page`) with summary and component list. `hex recipe add layout-starter` drops in the 12 foundation primitives most apps compose from.
@@ -88,6 +100,8 @@ Lists every available spec-driven recipe (auth flows, settings page, pricing tab
 ### `hex recipe add <slug>`
 
 Runs `hex add` for every component in the recipe in order, then prints the post-install checklist as plain markdown — paste it into a PR body or feed it to an agent.
+
+A recipe targets one renderer. Running a web recipe inside an Expo project is refused, and where a counterpart exists the command names it (`chatbot` → `chatbot-native`) rather than half-installing the components that happen to have native ports.
 
 ```bash
 hex recipe add settings-page
@@ -126,7 +140,7 @@ Both live in cookies, not query params, so a selection survives clicking through
 
 ### `hex graph explain|affected|neighbors|path`
 
-Query the catalog knowledge graph (`registry/graph.json`, generated from the registry at build time: 187 items + 25 recipes + theme presets, with `requires` / `composes` / `themes` / `related` / `instead-use` edges). These four subcommands mirror the four modes of the MCP `query_graph` tool exactly.
+Query the catalog knowledge graph (`registry/graph.json`, generated from the registry at build time: 213 items + 26 recipes + theme presets, with `requires` / `composes` / `themes` / `related` / `instead-use` edges). These four subcommands mirror the four modes of the MCP `query_graph` tool exactly.
 
 ```bash
 hex graph explain marketing-hero            # edges grouped by relation + community peers
@@ -139,6 +153,8 @@ hex graph explain card --json               # machine shape for agents
 ### `hex migrate`
 
 Convert an existing Next.js / Vite / CRA / CRACO + shadcn/ui project to Hex Core in-place: detected shadcn components are replaced with their Hex equivalents (with `.shadcn.bak` backups), renamed slugs are mapped, unsupported ones are skipped with reasons, and peer deps are installed.
+
+React DOM only — shadcn/ui has no React Native build, so there is nothing to convert from. On an Expo project the command exits and points at `hex init --platform native` instead.
 
 ```bash
 hex migrate --dry-run   # full plan, no writes

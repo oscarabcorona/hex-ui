@@ -24,7 +24,7 @@ Pick your client below. Every snippet calls the same `npx -y @hex-core/mcp`; the
 
 Components & themes:
 
-- `search_components(query)` — fuzzy search across name, description, tags, AI hints
+- `search_components(query, platform?)` — fuzzy search across name, description, tags, AI hints. Pass `platform: "native"` for the React Native catalog; items there are named `native-<slug>` and will not run in a browser
 - `get_component(slug)` — full RegistryItem (props, variants, examples, AI metadata)
 - `get_component_schema(slug)` — props, variants, slots, AI hints without source
 - `list_themes()` — available theme presets; in MCP Apps hosts also renders an interactive theme browser (see below)
@@ -36,7 +36,7 @@ Spec-driven build flow:
 
 - `list_recipes()` — catalog of spec-driven blueprints (auth form, settings page, pricing table, …)
 - `get_recipe(slug)` — ordered install steps, union of peer deps, post-install checklist
-- `resolve_spec(brief)` — deterministic brief → ranked component + recipe shortlist (no LLM call server-side)
+- `resolve_spec(brief, platform?)` — deterministic brief → ranked component + recipe shortlist (no LLM call server-side). Resolves against one render target, defaulting to web, so a browser brief is never offered components that only run on a device
 - `verify_checklist(components, recipe?)` — cross-check installed components against the internal-dependency graph and the recipe's checklist
 - `emit_app_context(theme, components, recipes?)` — synthesize a paste-into-LLM markdown payload describing the chosen stack
 - `emit_figma_tokens(theme)` — render a theme as a Figma Variables REST POST payload

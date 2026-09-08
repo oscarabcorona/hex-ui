@@ -51,7 +51,7 @@ const markdown = buildFigmaTokens({
 ## What's in the package
 
 - **Builders** (`buildAppContext`, `buildFigmaTokens`, `buildFigmaPayload`) — pure functions, no I/O, snapshot-testable.
-- **Resolver** (`resolveSpec`) — deterministic; reads the bundled registry on the default path. Pass `options.registry` / `options.recipes` to keep it pure.
+- **Resolver** (`resolveSpec`) — deterministic; reads the bundled registry on the default path. Pass `options.registry` / `options.recipes` to keep it pure, and `options.platform` (`"web"` by default) to resolve against one render target. The two catalogs share vocabulary — a checkbox is a checkbox on both — so without the filter a browser brief ranks React Native components it cannot use, and `hex poc` writes them into a Next.js app.
 - **Loaders** (`loadRegistry`, `loadRegistryItem`, `loadRecipes`, `loadRecipe`) — read from a registry directory bundled in the published tarball.
 - **Theme accessors** (`getTheme`, `listThemes`, `themes`) — re-exports of `@hex-core/tokens`'s canonical `defaultTheme` / `midnightTheme` / `emberTheme`. **No inlining**: theme values track `@hex-core/tokens@^1.2.0` automatically.
 - **Theme transformers** (`themeToCss`, `themeToFlatJson`, `themeToTailwindConfig`, `generateGlobalsCss`) — re-exported from `@hex-core/tokens`.

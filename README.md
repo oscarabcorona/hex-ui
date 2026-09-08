@@ -8,7 +8,7 @@
 
 **The component layer for spec-driven UI development.**
 
-Hex Core turns a brief (or a `spec.md` / `plan.md` section) into a ranked component checklist over MCP. No server, no runtime — just static JSON and 19 MCP tools over a catalog of 187 components, including 43 section blocks and 8 page recipes.
+Hex Core turns a brief (or a `spec.md` / `plan.md` section) into a ranked component checklist over MCP. No server, no runtime — just static JSON and 19 MCP tools over a catalog of 213 components, including 43 section blocks, 8 page recipes, and 26 React Native components for Expo.
 
 ## Why Hex Core?
 
@@ -19,6 +19,7 @@ shadcn/ui is built for humans browsing docs. Hex Core is built for **AI agents**
 - **Recipes** — spec-driven blueprints (auth flows, settings page, pricing table, data table, confirm-destructive, command palette, and the `layout-starter` layout-primitives bundle) with ordered install steps and post-install checklists
 - **MCP server** — 19 tools for component discovery, installation, theming, scaffolding, spec resolution, and emitting paste-into-LLM app context. `list_themes` renders an interactive theme browser in MCP Apps hosts (Claude, ChatGPT, VS Code)
 - **Agent surface over HTTP** — [`llms.txt`](https://hex-core.dev/llms.txt) (+ `llms-full.txt` with per-item `whenToUse`), `/registry.json`, `/recipes.json`, `/graph.json`, and `/r/{name}.json` in shadcn registry-item format, so `npx shadcn@latest add @hex/<slug>` works from the `@hex` namespace
+- **Two render targets, one catalog** — the same schemas, tokens and AI hints serve React DOM and React Native. An agent building an Expo app gets the same guidance it gets on the web, and the CLI installs the right renderer's component without being told
 - **Token budgets** — each component declares its token cost for efficient LLM context usage
 
 > [!WARNING]
@@ -75,6 +76,7 @@ npx @hex-core/cli graph affected button                      # reverse blast rad
 | `@hex-core/registry` | Zod schemas and types for the component registry |
 | `@hex-core/tokens` | Design token engine with 3 themes |
 | `@hex-core/components` | Component source code (React + Tailwind) |
+| `@hex-core/native` | React Native component source (NativeWind + `@rn-primitives`) for Expo |
 | `@hex-core/motion` | UI animation primitives + deterministic timeline composer (zero-dep WAAPI core, optional `motion@^11` adapter) |
 | `@hex-core/themes` | Theme catalog — premium presets and generated design briefs built on `@hex-core/tokens` |
 | `@hex-core/payload` | Pure-function builders for paste-into-LLM payloads (App Context markdown, Figma Variables JSON) shared by the MCP server and CLI |
@@ -137,9 +139,30 @@ This copies the skills into `.claude/skills/` so any agent working in your repo 
 
 ## Components
 
-**187 registry items**: 27 primitives (Button, Input, Checkbox, Switch, Slider, …), 40 compounds (Combobox, DataTable, Command, Calendar, Date Picker, Kanban, DnD primitives, …), 43 section blocks (auth, pricing, settings, dashboard, …), 26 AI-native (Composer, Message, Reasoning, ToolCall, Terminal, Canvas, Diagram, AudioPlayer, AudioWaveform, SpeechRecognition, …), 23 artifact diagrams (sankey, mindmap, gantt, …), 26 motion primitives (Motion factory, Presence, Timeline composer, useAnimate, useScroll, …), and 2 hooks. DataTable rows and Tree top-level nodes also opt into drag-to-reorder via the shared DnD primitive set. Every item ships with a machine-readable `.schema.ts` containing props, variants, AI hints (`whenToUse`, `whenNotToUse`, `commonMistakes`, `accessibilityNotes`), and a token budget. `pnpm verify:schema-quality` gates the `ai` block on every push — placeholder prose, unresolvable slugs, and missing examples fail CI.
+**213 registry items** across two render targets.
+
+**187 for React DOM**: 27 primitives (Button, Input, Checkbox, Switch, Slider, …), 40 compounds (Combobox, DataTable, Command, Calendar, Date Picker, Kanban, DnD primitives, …), 43 section blocks (auth, pricing, settings, dashboard, …), 26 AI-native (Composer, Message, Reasoning, ToolCall, Terminal, Canvas, Diagram, AudioPlayer, AudioWaveform, SpeechRecognition, …), 23 artifact diagrams (sankey, mindmap, gantt, …), 26 motion primitives (Motion factory, Presence, Timeline composer, useAnimate, useScroll, …), and 2 hooks. DataTable rows and Tree top-level nodes also opt into drag-to-reorder via the shared DnD primitive set.
+
+**26 for React Native** (see below).
+
+Every item ships with a machine-readable `.schema.ts` containing props, variants, AI hints (`whenToUse`, `whenNotToUse`, `commonMistakes`, `accessibilityNotes`), and a token budget. `pnpm verify:schema-quality` gates the `ai` block on every push — placeholder prose, unresolvable slugs, and missing examples fail CI, and on a native item it also fails DOM idioms that would not run on a device.
 
 Full catalog + live demos: **[hex-core.dev/docs](https://hex-core.dev/docs)**
+
+## React Native
+
+26 components for Expo, built on [NativeWind](https://www.nativewind.dev) and [`@rn-primitives`](https://rnprimitives.com): 12 primitives (Text, Button, Card, Badge, Avatar, Separator, Label, Input, Checkbox, Switch, Progress, Skeleton), 8 overlays and form controls (Tabs, RadioGroup, Textarea, Dialog, AlertDialog, Popover, Tooltip, Select), a native-only BottomSheet, and 5 AI Kit components (Message, MessageList, Composer, ToolCall, Markdown).
+
+```bash
+npx @hex-core/cli init --platform native   # NativeWind config chain + token stylesheet
+npx @hex-core/cli add button card          # installs the native items automatically
+```
+
+The platform comes from the project, not the slug — on an Expo app `hex add button` installs `native-button`, and installing a component built for the other renderer is refused rather than silently copied. `search_components` takes a `platform` filter, and `resolve_spec` resolves a brief against one target so a web brief never returns components that cannot run in a browser.
+
+Tokens resolve to literal HSL triplets rather than `var()` chains, because React Native has no cascade for one to resolve through. The Markdown component is a real native renderer sharing the web component's micromark parser, so a partially-streamed reply parses as text instead of throwing.
+
+Catalog: **[hex-core.dev/native](https://hex-core.dev/native)**
 
 ## Development
 
