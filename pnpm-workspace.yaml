@@ -23,7 +23,7 @@ catalog:
   # Test environment
   "@testing-library/jest-dom": ^6.9.1
   "@testing-library/react": ^16.3.2
-  jsdom: ^29.1.0
+  jsdom: ^30.0.1
 
   # Types
   "@types/node": ^26.4.0
