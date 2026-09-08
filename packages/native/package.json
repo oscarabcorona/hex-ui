@@ -1,7 +1,7 @@
 {
 	"name": "@hex-core/native",
-	"version": "0.0.0",
-	"description": "React Native components for Hex Core \u2014 the web catalog's schemas, tokens and AI hints rendered with NativeWind and @rn-primitives.",
+	"version": "0.1.0",
+	"description": "React Native components for Hex Core — the web catalog's schemas, tokens and AI hints rendered with NativeWind and @rn-primitives.",
 	"keywords": [
 		"hex-core",
 		"react-native",
