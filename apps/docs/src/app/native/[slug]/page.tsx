@@ -85,12 +85,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 				)}
 			</header>
 
-			<section className="flex flex-col gap-4">
+			<section id="preview" className="flex flex-col gap-4 scroll-mt-16">
 				<h2 className="text-xl font-semibold tracking-tight">Preview</h2>
 				<NativePreview slug={item.name} displayName={item.displayName} />
 			</section>
 
-			<section className="flex flex-col gap-4">
+			<section id="installation" className="flex flex-col gap-4 scroll-mt-16">
 				<h2 className="text-xl font-semibold tracking-tight">Installation</h2>
 				<CodeBlock label={INSTALL_COMMAND_LABEL} code={installCommand(item.name)} />
 				<p className="text-sm text-muted-foreground">
@@ -101,7 +101,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 			</section>
 
 			{item.examples.length > 0 ? (
-				<section className="flex flex-col gap-6">
+				<section id="examples" className="flex flex-col gap-6 scroll-mt-16">
 					<h2 className="text-xl font-semibold tracking-tight">Examples</h2>
 					{item.examples.map((example) => (
 						<div key={example.title} className="flex flex-col gap-2">
@@ -113,12 +113,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 				</section>
 			) : null}
 
-			<section className="flex flex-col gap-4">
+			<section id="api-reference" className="flex flex-col gap-4 scroll-mt-16">
 				<h2 className="text-xl font-semibold tracking-tight">API Reference</h2>
 				<PropsTable props={item.props} />
 			</section>
 
-			<section className="flex flex-col gap-4">
+			<section id="ai-guidance" className="flex flex-col gap-4 scroll-mt-16">
 				<h2 className="text-xl font-semibold tracking-tight">AI Guidance</h2>
 				<div className="flex flex-col gap-4 text-sm">
 					<div>
