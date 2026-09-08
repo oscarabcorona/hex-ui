@@ -1,5 +1,52 @@
 # @hex-core/payload
 
+## 0.7.0
+
+### Minor Changes
+
+- c7d4ffb: React Native target (Theme K): a new `@hex-core/native` package, plus the substrate that lets one catalog serve two renderers.
+
+  **`@hex-core/native`** — 26 components for Expo and React Native, built on NativeWind and `@rn-primitives`. Twelve primitives (Text, Button, Card, Badge, Avatar, Separator, Label, Input, Checkbox, Switch, Progress, Skeleton), eight overlays and form controls (Tabs, RadioGroup, Textarea, Dialog, AlertDialog, Popover, Tooltip, Select), a native-only BottomSheet, and five AI Kit components (Message, MessageList, Composer, ToolCall, Markdown). Every one carries the same machine-readable `ai` block as its web counterpart, so an agent gets the same guidance on either platform.
+
+  The Markdown component is a real native renderer, not a wrapper: it shares the micromark parser the web component uses and replaces only the render step, walking an mdast tree into `Text` and `View`. Partial markup — an unterminated `**`, a half-typed fence, a dangling `[link](` — parses as literal text, so a streaming reply can be re-rendered on every token.
+
+  **`@hex-core/registry`** — new `platform` field (`"web" | "native"`) on the component, item and index schemas, and `deriveNativeSchema()`, which builds a native schema from a web one plus an explicit diff. `accessibilityNotes`, `commonMistakes`, `examples` and `dependencies` are mandatory overrides rather than inherited, because that is where DOM assumptions hide. The field is optional on the authoring type and omitted from emitted JSON when it is `"web"`, so the existing catalog is byte-identical.
+
+  **`@hex-core/tokens`** — `generateGlobalsCssNative()` and `themeToNativeTheme()`. Both resolve palette references to literal HSL triplets: React Native has no cascade for a `var()` chain to resolve through.
+
+  **`@hex-core/cli`** — `hex init` and `hex add` learn `--platform`, and detect Expo, Expo Router and bare React Native projects on their own. On a native project `hex add button` installs `native-button`, and installing a component built for the other renderer is refused rather than silently copied. `hex init --platform native` writes the NativeWind config chain and the token stylesheet.
+
+  **`@hex-core/mcp`** — `search_components` takes an optional `platform` filter and reports each item's platform. The enumeration ceiling rises from 200 to 500, because the catalog passed 200 items and a ceiling below the item count turns full enumeration into a silently partial one.
+
+  **`@hex-core/payload`** — re-exports `resolveInternalDepForPlatform`, and `buildAppContext` now uses it. Internal dependencies name a source path (`primitives/text/text`) that is identical in a native item and a web one, so resolving it without the declaring item's platform sent a reader of a native Card to the React DOM `Text`. `AppContextInput` gains an optional `itemExists` predicate for the catalog to resolve against; it defaults to accepting every name, which leaves web payloads byte-identical. `KNOWN_NPM_VERSIONS` also gains pins for the native dependency set so `hex poc` stays off `latest` on that path too.
+
+### Patch Changes
+
+- b1720f9: DataTable migrates to `@tanstack/react-table` v9; `useAIChat` gains AI SDK v4 support.
+
+  **`@hex-core/components`** — **Breaking for `DataTable` consumers.** TanStack Table v9 is a feature-opt-in rewrite, not a drop-in bump: `useReactTable` is gone from the root export (now `useTable`), and `getCoreRowModel()` survives only on the `./legacy` subpath where it is marked `@deprecated`. Because `data-table.tsx` ships verbatim to consumers through `hex add`, half-migrating onto the legacy shim would push deprecated code out to users — so this goes to the real v9 API.
+
+  Two signature changes follow from v9's generics. `DataTableProps<TData>` now constrains `TData` to TanStack's `RowData` (an object or array shape), and `columns` takes v9's leading features generic:
+
+  ```diff
+  -const columns: ColumnDef<Payment>[] = [ … ]
+  +import type { DataTableFeatures } from "@hex-core/components";
+  +const columns: ColumnDef<DataTableFeatures, Payment>[] = [ … ]
+  ```
+
+  The new `dataTableFeatures` / `DataTableFeatures` exports name the registered feature set. Registration is load-bearing under v9: `rowSelectionFeature` backs `row.getIsSelected()` and `columnVisibilityFeature` backs `row.getVisibleCells()` — dropping either turns its call site into a compile error rather than a silent no-op. Sorting, filtering, and pagination remain opt-in; consumers compose their own feature set with `createSortedRowModel()` et al.
+
+  `@tanstack/table-core` is now a direct (optional) peer, since the component imports the feature modules from it.
+
+  `useAIChat` now accepts `@ai-sdk/react` v4 — the peer widens to `^3.0.0 || ^4.0.0`, so v3 consumers are unaffected. The v4 `useChat` contract was verified by mounting the real hook and asserting each field the adapter consumes (`status`, `messages`, `sendMessage`, `stop`, `regenerate`, `error`); the test suite mocks the SDK entirely and could not have caught a rename. Note v4 itself requires Node >= 22.
+
+  **`@hex-core/payload`** — `KNOWN_NPM_VERSIONS` re-pinned for scaffolded POC projects: `@tanstack/react-table` moves to `^9.2.4`, `@tanstack/table-core` is added, and the radix ranges advance with the monorepo. These pins are what keep `hex poc` off `latest`, which is how a react-table major broke the data-table POC once before.
+
+- Updated dependencies [c7d4ffb]
+  - @hex-core/registry@0.10.0
+  - @hex-core/tokens@1.5.0
+  - @hex-core/themes@0.2.7
+
 ## 0.6.1
 
 ### Patch Changes
