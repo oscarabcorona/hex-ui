@@ -88,6 +88,28 @@ shadcnRegistryItemSchema.parse(wire); // throws if the projection drifted
 
 This is what the docs site serves at `/r/{name}.json`. Declare it once in `components.json` — `{ "registries": { "@hex": "https://hex-core.dev/r/{name}.json" } }` — and `npx shadcn@latest add @hex/button` installs from the `@hex` namespace.
 
+## Render targets (0.10.0+)
+
+Every item carries a `platform` of `"web"` or `"native"`. It is optional on the authoring type and omitted from emitted JSON when it is `"web"`, so the existing catalog stays byte-identical — absence means web.
+
+`deriveNativeSchema(webSchema, overrides)` builds a React Native schema from a web one plus an explicit diff, and is how `@hex-core/native` authors its 26 items:
+
+```ts
+import { deriveNativeSchema } from "@hex-core/registry";
+
+export const nativeButtonSchema = deriveNativeSchema(buttonSchema, {
+  removeProps: ["asChild"],
+  addProps: [{ name: "onPress", type: "function", required: false, description: "…" }],
+  dependencies: { npm: [...], internal: ["lib/utils"], peer: ["react", "react-native", "nativewind"] },
+  examples: [...],
+  ai: { commonMistakes: [...], relatedComponents: [...], accessibilityNotes: "…" },
+});
+```
+
+`accessibilityNotes`, `commonMistakes`, `examples` and `dependencies` are **required** overrides rather than inherited — that is where DOM assumptions hide (`aria-label` on a `<button>`, a `hover:` example, a Radix dependency). `tokensUsed` and `tokenBudget` cannot be declared at all; the registry build measures both from the native source.
+
+`resolveInternalDepForPlatform(dep, ownerPlatform, exists)` resolves a dependency against the platform of the item that declared it. Internal deps name a *source path* (`primitives/text/text`), which is identical in a native item and a web one, so resolving with `internalDepToSlug` alone points every native consumer at the React DOM component of the same name. Every reader of `dependencies.internal` must go through it.
+
 ## Notes
 
 Most users of Hex Core never touch this package directly. If you're building a custom tool that reads the registry JSON (`registry/registry.json` in the repo, or `/registry.json` on the docs site — alongside `/recipes.json`, `/graph.json`, and `llms.txt`), this is your source of truth for the schema.

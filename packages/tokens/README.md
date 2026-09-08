@@ -21,6 +21,15 @@ Or, more commonly, copy the CSS block from the [Theming guide](https://hex-core.
 - Radii (`--radius-sm/md/lg`)
 - Shadows (`--shadow-glow`)
 - Container widths
+- React Native output: `generateGlobalsCssNative(theme)` and `themeToNativeTheme(theme)`
+
+## React Native
+
+`generateGlobalsCssNative(theme)` emits the NativeWind stylesheet (`@tailwind` directives plus a `:root` / `.dark:root` pair), and `themeToNativeTheme(theme)` returns the resolved light and dark palettes.
+
+Both resolve palette references to literal `H S% L%` triplets rather than emitting `var()` chains. React Native has no cascade for a `var()` to resolve through, so a stylesheet carrying them yields no colour at all — silently, which is worse than failing. `hex doctor` fails a native project whose `global.css` contains one.
+
+NativeWind 4 is built on Tailwind **3.4.x**, so the emitted config is the v3 shape.
 
 ## CSS variable namespaces
 
