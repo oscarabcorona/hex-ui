@@ -2,7 +2,7 @@
  * A11y audit — boots the docs site and runs axe-core on every component
  * demo page in light + dark mode. Aggregates violations by id + impact and
  * emits a JSON + markdown report at the repo root. Exits non-zero if any
- * violation has impact "critical" or "serious".
+ * violation has impact "critical" or "serious", or if any page fails to scan.
  *
  * Convention follows scripts/build-registry.ts (ESM, no shebang, run via tsx).
  *
@@ -11,7 +11,7 @@
  *   pnpm run a11y-audit -- --slug button --slug card  # restrict to a few pages
  */
 import { spawn, type ChildProcess } from "node:child_process";
-import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -21,7 +21,7 @@ import { chromium, type Browser, type Page } from "playwright";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(HERE, "..");
-const REGISTRY_ITEMS_DIR = join(REPO_ROOT, "registry", "items");
+const REGISTRY_INDEX = join(REPO_ROOT, "registry", "registry.json");
 const REPORT_JSON = join(REPO_ROOT, "a11y-report.json");
 const REPORT_MD = join(REPO_ROOT, "a11y-report.md");
 const PORT = Number(process.env.A11Y_PORT ?? 3010);
@@ -66,12 +66,25 @@ interface PageScanResult {
 	}>;
 }
 
+/**
+ * A page that could not be scanned. Recorded so that a page which never
+ * loaded cannot be mistaken for one that loaded with zero violations.
+ */
+interface ScanFailure {
+	slug: string;
+	url: string;
+	mode: "light" | "dark";
+	message: string;
+}
+
 interface Report {
 	generatedAt: string;
 	pagesScanned: number;
+	pagesFailed: number;
 	violations: AggregatedViolation[];
 	failingImpact: ("minor" | "moderate" | "serious" | "critical")[];
 	summary: { critical: number; serious: number; moderate: number; minor: number };
+	scanFailures: ScanFailure[];
 }
 
 /**
@@ -96,14 +109,65 @@ function parseFlags(argv: string[]): CliFlags {
 }
 
 /**
- * Read every component slug under `registry/items/`.
- * @returns Sorted slugs (file basenames without `.json`).
+ * Render target of a registry item. The registry omits `platform` for web
+ * items, so absence means web — mirrors `platformOf()` in the docs app.
  */
-function listComponentSlugs(): string[] {
-	return readdirSync(REGISTRY_ITEMS_DIR)
-		.filter((f) => f.endsWith(".json"))
-		.map((f) => f.replace(/\.json$/, ""))
-		.sort();
+type Platform = "web" | "native";
+
+/** A page to scan: the registry slug plus the surface that renders it. */
+interface ScanTarget {
+	slug: string;
+	platform: Platform;
+}
+
+/**
+ * Read every component from the registry index, tagged with its platform.
+ * The index is the same source the docs app builds its routes from, so every
+ * target listed here has a page — unlike a bare directory listing of
+ * `registry/items/`, which also yields the native items that the web
+ * catalogue deliberately excludes from `/docs/components/*`.
+ * @returns Scan targets sorted by slug.
+ */
+function listScanTargets(): ScanTarget[] {
+	const index = JSON.parse(readFileSync(REGISTRY_INDEX, "utf8")) as {
+		items: Array<{ name: string; platform?: Platform }>;
+	};
+	return index.items
+		.map((item) => ({ slug: item.name, platform: item.platform ?? "web" }))
+		.sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/**
+ * Resolve `--slug` arguments against the registry index.
+ * @param slugs - Slugs requested on the command line.
+ * @returns The matching scan targets, in the order requested.
+ * @throws {Error} If a slug names no registry item — a typo would otherwise be
+ * scanned as a 404 page.
+ */
+function resolveTargets(slugs: string[]): ScanTarget[] {
+	const bySlug = new Map(listScanTargets().map((t) => [t.slug, t]));
+	return slugs.map((slug) => {
+		const target = bySlug.get(slug);
+		if (!target) {
+			throw new Error(`Unknown --slug '${slug}': no registry item by that name.`);
+		}
+		return target;
+	});
+}
+
+/**
+ * URL of the docs page that renders a target. Native items render through
+ * `react-native`, so the docs app excludes them from `/docs/components/*`
+ * (see `listComponents()`) and gives them their own `/native/*` surface.
+ * Sending them to the web route yields `NoFallbackError`, because that route
+ * sets `dynamicParams = false`.
+ * @param target - The component to locate.
+ * @returns Absolute URL on the audit server.
+ */
+function pageUrl(target: ScanTarget): string {
+	return target.platform === "native"
+		? `${BASE_URL}/native/${target.slug}`
+		: `${BASE_URL}/docs/components/${target.slug}`;
 }
 
 /**
@@ -139,7 +203,6 @@ async function assertPortAvailable(): Promise<void> {
  * Polls the port via `fetch` rather than scraping stdout banners — banner
  * strings change between Next versions, but a 2xx/3xx response is a stable
  * readiness signal.
- *
  * @returns The child process and a `ready` promise that settles when the
  *   server answers HTTP (or rejects on early exit / timeout).
  */
@@ -201,19 +264,19 @@ async function startDocsServer(): Promise<{ proc: ChildProcess; ready: Promise<v
 }
 
 /**
- * Navigate to `/docs/components/<slug>`, force the requested theme by toggling
+ * Navigate to the target's docs page, force the requested theme by toggling
  * the `dark` class on `<html>`, and run axe-core against the page.
  * @param page - Playwright page reused across slugs.
- * @param slug - Component slug (e.g. `combobox`).
+ * @param target - Component to scan, with the surface that renders it.
  * @param mode - Which colour scheme to force before scanning.
  * @returns The page's axe results normalized into `PageScanResult`.
  */
 async function scanPage(
 	page: Page,
-	slug: string,
+	target: ScanTarget,
 	mode: "light" | "dark",
 ): Promise<PageScanResult> {
-	const url = `${BASE_URL}/docs/components/${slug}`;
+	const url = pageUrl(target);
 	// next-themes is configured with defaultTheme="system" + enableSystem, so
 	// emulating prefers-color-scheme is the canonical way to flip the docs
 	// site into the requested palette. Setting <html class="dark"> directly
@@ -237,8 +300,7 @@ async function scanPage(
 		installHeading.waitFor({ state: "visible", timeout: PAGE_TIMEOUT_MS }),
 	]);
 	await page.waitForFunction(
-		(m) =>
-			document.documentElement.classList.contains("dark") === (m === "dark"),
+		(m) => document.documentElement.classList.contains("dark") === (m === "dark"),
 		mode,
 		{ timeout: PAGE_TIMEOUT_MS },
 	);
@@ -253,7 +315,7 @@ async function scanPage(
 		.exclude(".xterm-char-measure-element")
 		.analyze();
 	return {
-		slug,
+		slug: target.slug,
 		url,
 		mode,
 		violations: results.violations.map((v) => ({
@@ -318,13 +380,26 @@ function writeMarkdown(report: Report): void {
 	const lines: string[] = [];
 	lines.push(`# A11y audit — ${report.generatedAt}`);
 	lines.push("");
-	lines.push(`Pages scanned: **${report.pagesScanned}** (light + dark modes each)`);
+	lines.push(
+		`Page scans: **${report.pagesScanned}** completed, **${report.pagesFailed}** failed ` +
+			"(light + dark modes each)",
+	);
 	lines.push(
 		`Violations: **${report.summary.critical} critical · ${report.summary.serious} serious · ${report.summary.moderate} moderate · ${report.summary.minor} minor**`,
 	);
 	lines.push("");
 	lines.push(`Gate fails on: ${report.failingImpact.join(", ")}.`);
 	lines.push("");
+	if (report.scanFailures.length > 0) {
+		lines.push(`## ⚠️ ${report.scanFailures.length} page scan(s) failed`);
+		lines.push("");
+		lines.push("These pages were **not** audited — the totals above are incomplete.");
+		lines.push("");
+		for (const f of report.scanFailures) {
+			lines.push(`- \`${f.slug}\` (${f.mode}) — ${f.url} — ${f.message}`);
+		}
+		lines.push("");
+	}
 	if (report.violations.length === 0) {
 		lines.push("✅ Zero violations across the scanned pages.");
 	} else {
@@ -356,13 +431,18 @@ function writeMarkdown(report: Report): void {
 /** Entry point. Boots the docs server, scans every slug, writes reports, exits. */
 async function main(): Promise<void> {
 	const flags = parseFlags(process.argv.slice(2));
-	const slugs = flags.slugs ?? listComponentSlugs();
-	console.log(`a11y-audit: scanning ${slugs.length} pages in light + dark`);
+	const targets = flags.slugs ? resolveTargets(flags.slugs) : listScanTargets();
+	const nativeCount = targets.filter((t) => t.platform === "native").length;
+	console.log(
+		`a11y-audit: scanning ${targets.length} pages in light + dark ` +
+			`(${targets.length - nativeCount} web, ${nativeCount} native)`,
+	);
 
 	const { proc, ready } = await startDocsServer();
 	let browser: Browser | null = null;
 	let cleanedUp = false;
 
+	/** Close the browser and stop the docs server. Safe to call more than once. */
 	async function cleanup(): Promise<void> {
 		if (cleanedUp) return;
 		cleanedUp = true;
@@ -396,40 +476,47 @@ async function main(): Promise<void> {
 
 	try {
 		await ready;
-		browser = await chromium.launch();
+		// Kept in a non-null local: `browser` is declared nullable for `cleanup()`,
+		// and TypeScript cannot narrow a mutable outer binding inside the worker
+		// closures below.
+		const launchedBrowser = await chromium.launch();
+		browser = launchedBrowser;
 
 		// Worker pool: one persistent context per worker (each enforces its
 		// own colorScheme via emulateMedia in scanPage), pulling jobs off a
 		// shared queue. Concurrency tuned for CI runners (2 vCPU) — going
 		// above ~4 thrashes the Next prod server.
-		const jobs: Array<{ slug: string; mode: "light" | "dark" }> = [];
-		for (const slug of slugs) {
+		const jobs: Array<{ target: ScanTarget; mode: "light" | "dark" }> = [];
+		for (const target of targets) {
 			for (const mode of ["light", "dark"] as const) {
-				jobs.push({ slug, mode });
+				jobs.push({ target, mode });
 			}
 		}
 		const concurrency = Number(process.env.A11Y_CONCURRENCY ?? 4);
 		const results: PageScanResult[] = [];
+		const failures: ScanFailure[] = [];
 		let cursor = 0;
 		await Promise.all(
 			Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
-				const context = await browser.newContext();
+				const context = await launchedBrowser.newContext();
 				const page = await context.newPage();
 				try {
 					while (cursor < jobs.length) {
 						const job = jobs[cursor++];
 						if (!job) break;
-						const { slug, mode } = job;
+						const { target, mode } = job;
 						try {
-							const result = await scanPage(page, slug, mode);
+							const result = await scanPage(page, target, mode);
 							results.push(result);
 							if (result.violations.length > 0) {
-								console.log(`  ✗ ${slug} (${mode}): ${result.violations.length} rule(s)`);
+								console.log(`  ✗ ${target.slug} (${mode}): ${result.violations.length} rule(s)`);
 							} else {
-								console.log(`  ✓ ${slug} (${mode})`);
+								console.log(`  ✓ ${target.slug} (${mode})`);
 							}
 						} catch (err) {
-							console.error(`  ! ${slug} (${mode}): scan failed — ${(err as Error).message}`);
+							const message = (err as Error).message;
+							console.error(`  ! ${target.slug} (${mode}): scan failed — ${message}`);
+							failures.push({ slug: target.slug, url: pageUrl(target), mode, message });
 						}
 					}
 				} finally {
@@ -443,9 +530,11 @@ async function main(): Promise<void> {
 		const report: Report = {
 			generatedAt: new Date().toISOString(),
 			pagesScanned: results.length,
+			pagesFailed: failures.length,
 			violations,
 			failingImpact: flags.failOn,
 			summary,
+			scanFailures: failures,
 		};
 
 		if (!flags.dryRun) {
@@ -463,7 +552,18 @@ async function main(): Promise<void> {
 		if (failingCount > 0) {
 			console.error(`\nFailing on ${flags.failOn.join("/")}: ${failingCount} violation(s).`);
 			process.exitCode = 1;
-		} else {
+		}
+		// A page that never loaded reports no violations, so without this gate a
+		// broken route is indistinguishable from a clean one and the audit passes
+		// green while leaving that page unaudited.
+		if (failures.length > 0) {
+			console.error(`\n${failures.length} scan(s) failed — those pages were NOT audited:`);
+			for (const f of failures) {
+				console.error(`  ! ${f.slug} (${f.mode}) ${f.url} — ${f.message}`);
+			}
+			process.exitCode = 1;
+		}
+		if (failingCount === 0 && failures.length === 0) {
 			console.log("\n✅ No critical/serious violations.");
 		}
 	} finally {
