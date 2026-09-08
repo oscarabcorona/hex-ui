@@ -25,6 +25,12 @@ module.exports = {
 		// natively; Jest has to be told to transform it.
 		"node_modules/(?!(\\.pnpm/)?((jest-)?react-native|@react-native(-community)?|@rn-primitives|nativewind|react-native-css-interop|mdast-util-.*|micromark.*|unist-util-.*|decode-named-character-reference|character-entities.*|devlop|ccount|escape-string-regexp|longest-streak|markdown-table|zwitch|stringify-entities|character-reference-invalid|is-.*-character|parse-entities))",
 	],
+	// React Native's module graph is large and Babel-transformed on first
+	// touch, so the first test in a file routinely takes tens of seconds on a
+	// cold CI runner — one took 22s where the whole suite runs in 2s locally.
+	// Jest's 5s default is a budget for that startup cost, not for the test,
+	// and blowing it reads as a hang rather than a slow import.
+	testTimeout: 30_000,
 	moduleNameMapper: {
 		// Sources import siblings with the ESM `.js` suffix; the files on
 		// disk are `.ts(x)`. Same bridge `vitest.base.ts` provides for the

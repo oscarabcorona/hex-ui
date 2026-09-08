@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type { FrameworkDetection } from "./detect-framework.js";
+import { isErrnoException } from "./fs-errors.js";
 
 /**
  * The files a React Native project needs before a `native-*` component will
@@ -181,11 +182,30 @@ export function writeNativeTemplate(
 ): TemplateWrite[] {
 	return files.map((file) => {
 		const target = path.join(cwd, file.path);
-		if (fs.existsSync(target) && !overwrite(file.path)) {
-			return { path: file.path, wrote: false, skipped: true };
-		}
 		fs.mkdirSync(path.dirname(target), { recursive: true });
-		fs.writeFileSync(target, file.contents, "utf8");
+
+		if (overwrite(file.path)) {
+			fs.writeFileSync(target, file.contents, "utf8");
+			return { path: file.path, wrote: true, skipped: false };
+		}
+
+		// Exclusive create rather than "check, then write": `wx` fails with
+		// EEXIST if the file appears between the two, so a scaffolder can
+		// never clobber a file it was told to leave alone.
+		let handle: number;
+		try {
+			handle = fs.openSync(target, "wx");
+		} catch (error) {
+			if (isErrnoException(error) && error.code === "EEXIST") {
+				return { path: file.path, wrote: false, skipped: true };
+			}
+			throw error;
+		}
+		try {
+			fs.writeFileSync(handle, file.contents, "utf8");
+		} finally {
+			fs.closeSync(handle);
+		}
 		return { path: file.path, wrote: true, skipped: false };
 	});
 }

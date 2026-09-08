@@ -3,6 +3,7 @@ import * as path from "node:path";
 import pc from "picocolors";
 import { detectFramework, type PlatformKind } from "../lib/detect-framework.js";
 import { detectTailwind, type TailwindVersion } from "../lib/detect-tailwind.js";
+import { isErrnoException } from "../lib/fs-errors.js";
 import { emitTailwindV3Config } from "../lib/emit-tailwind-config.js";
 import {
 	emitNativeTailwindConfig,
@@ -55,6 +56,13 @@ export interface InitOptions {
 	 */
 	platform?: PlatformKind;
 }
+
+/** What the summary prints for each {@link ConfigWrite} outcome. */
+const CONFIG_WRITE_MESSAGE: Record<ConfigWrite, string> = {
+	created: "Created hex.config.json",
+	updated: "Updated hex.config.json (recorded platform)",
+	unchanged: "hex.config.json already existed — left in place.",
+};
 
 /** URL of the @hex-core/mcp manual-install docs. Surfaced when --mcp is off. */
 const MCP_DOCS_URL = "https://hex-core.dev/mcp";
@@ -168,27 +176,36 @@ export async function initProject(options: InitOptions) {
 }
 
 /**
+ * What `writeHexConfig` did, so the summary can say it accurately.
+ *
+ * A boolean could not: merging `platform` into an existing config rewrote
+ * the file and reported `true`, which printed "Created hex.config.json" over
+ * a file that already existed.
+ */
+type ConfigWrite = "created" | "updated" | "unchanged";
+
+/**
  * Add `platform` to an existing `hex.config.json` when it is missing or wrong.
  *
  * Deliberately narrow: it touches that one field and leaves every other
  * setting the user has (aliases, theme) exactly as it was.
  * @param configPath - Absolute path to `hex.config.json`
  * @param platform - The platform this init resolved to
- * @returns True when the file was rewritten
+ * @returns Whether the file was rewritten
  */
-function mergePlatformIntoConfig(configPath: string, platform: PlatformKind): boolean {
+function mergePlatformIntoConfig(configPath: string, platform: PlatformKind): ConfigWrite {
 	try {
 		const raw: unknown = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-		if (typeof raw !== "object" || raw === null) return false;
+		if (typeof raw !== "object" || raw === null) return "unchanged";
 		const config: Record<string, unknown> = { ...raw };
-		if (config.platform === platform) return false;
+		if (config.platform === platform) return "unchanged";
 		config.platform = platform;
 		if (platform === "native") config.styling = "nativewind";
 		fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
-		return true;
+		return "updated";
 	} catch {
 		// A malformed config is the user's to fix; never overwrite it.
-		return false;
+		return "unchanged";
 	}
 }
 
@@ -268,7 +285,7 @@ async function initNativeProject(
 interface NativeSummaryParams {
 	detection: ReturnType<typeof detectFramework>;
 	writes: TemplateWrite[];
-	wroteConfig: boolean;
+	wroteConfig: ConfigWrite;
 	installed: MaybeInstallResult;
 	peerDeps: string[];
 	entryHasImport: boolean;
@@ -280,7 +297,7 @@ interface NativeSummaryParams {
  */
 function printNativeSummary(p: NativeSummaryParams): void {
 	console.log(`Detected ${p.detection.label}.`);
-	console.log(p.wroteConfig ? "Created hex.config.json" : "hex.config.json already existed — left in place.");
+	console.log(CONFIG_WRITE_MESSAGE[p.wroteConfig]);
 	for (const write of p.writes) {
 		console.log(write.skipped ? `Skipped ${write.path} (already exists; pass --overwrite to replace).` : `Wrote ${write.path}`);
 	}
@@ -329,15 +346,7 @@ async function maybeInstall(cwd: string, peerDeps: string[], install: boolean): 
 	};
 }
 
-function writeHexConfig(configPath: string, theme: string, platform: PlatformKind = "web"): boolean {
-	if (fs.existsSync(configPath)) {
-		// An existing config used to mean "leave it alone entirely", which
-		// silently dropped `platform` on a re-run. Every later `hex add` then
-		// fell back to detection — fine for Expo, wrong for a bare React
-		// Native app in a monorepo where `react-native` is hoisted rather
-		// than declared. Merge the field in rather than skipping the write.
-		return mergePlatformIntoConfig(configPath, platform);
-	}
+function writeHexConfig(configPath: string, theme: string, platform: PlatformKind = "web"): ConfigWrite {
 	const config = {
 		$schema: "https://hex-core.dev/schema/config.json",
 		// React Native is still React — `platform` is the axis that changes.
@@ -354,8 +363,30 @@ function writeHexConfig(configPath: string, theme: string, platform: PlatformKin
 		// reads first. Pairs with the post-init `Theme tweaking:` line.
 		studio: STUDIO_URL,
 	};
-	fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-	return true;
+
+	// Exclusive create rather than "check, then write": `wx` fails with
+	// EEXIST if the file appears between the two, so a config written by a
+	// concurrent run is never silently overwritten.
+	let handle: number;
+	try {
+		handle = fs.openSync(configPath, "wx");
+	} catch (error) {
+		if (isErrnoException(error) && error.code === "EEXIST") {
+			// An existing config used to mean "leave it alone entirely", which
+			// silently dropped `platform` on a re-run. Every later `hex add`
+			// then fell back to detection — fine for Expo, wrong for a bare
+			// React Native app in a monorepo where `react-native` is hoisted
+			// rather than declared. Merge the field in instead.
+			return mergePlatformIntoConfig(configPath, platform);
+		}
+		throw error;
+	}
+	try {
+		fs.writeFileSync(handle, JSON.stringify(config, null, 2));
+	} finally {
+		fs.closeSync(handle);
+	}
+	return "created";
 }
 
 /**
@@ -418,7 +449,7 @@ async function writeTailwindConfig(target: string, theme: string, overwrite: boo
 }
 
 interface SummaryParams {
-	wroteConfig: boolean;
+	wroteConfig: ConfigWrite;
 	wroteCss: WriteResult;
 	wroteTwConfig: WriteResult;
 	tailwindVersion: TailwindVersion;
@@ -441,7 +472,7 @@ function printSummary(p: SummaryParams) {
 	if (p.srcLayout) {
 		console.log(pc.dim(`Detected src/ layout — components will be written under src/components/.`));
 	}
-	console.log(p.wroteConfig ? "Created hex.config.json" : "hex.config.json already existed — left in place.");
+	console.log(CONFIG_WRITE_MESSAGE[p.wroteConfig]);
 	console.log(
 		p.wroteCss.skipped
 			? `Skipped ${p.cssTarget} (already exists; pass --overwrite=globals.css to replace).`

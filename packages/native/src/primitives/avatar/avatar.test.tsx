@@ -7,6 +7,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar.js";
 // AvatarImage is given a valid source. So the fallback is the no-image state,
 // and the image replaces it once a source is present.
 
+// A data URI rather than an http one. The primitive only checks that
+// `source.uri` is truthy and the jest preset mocks `Image`, so nothing here
+// fetches either way — this just keeps a network address out of a test that
+// has no business naming one.
+const DATA_URI =
+	"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
 describe("Avatar", () => {
 	it("shows the fallback when there is no image", async () => {
 		await render(
@@ -35,7 +42,7 @@ describe("Avatar", () => {
 	it("renders the image instead of the fallback once a source is given", async () => {
 		await render(
 			<Avatar alt="Ada Lovelace's profile picture">
-				<AvatarImage testID="image" source={{ uri: "https://example.test/a.png" }} />
+				<AvatarImage testID="image" source={{ uri: DATA_URI }} />
 				<AvatarFallback>
 					<Text>AL</Text>
 				</AvatarFallback>

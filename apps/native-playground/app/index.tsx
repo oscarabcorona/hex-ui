@@ -1,6 +1,6 @@
 import { Text } from "@hex-core/native";
 import { Link, Stack } from "expo-router";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView } from "react-native";
 import { demoSlugs } from "../src/demos";
 
 /**
